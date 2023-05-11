@@ -1,0 +1,7 @@
+on: workflow_call
+
+jobs:
+  Stage-Build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo hello from build stage template
