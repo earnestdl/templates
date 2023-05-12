@@ -1,7 +1,17 @@
 on: workflow_call
+    inputs:
+      appType:
+        required: true
+        type: string
+      appVersion: 
+        required: true
+        type: string
 
 jobs:
   Stage-Build:
     runs-on: ubuntu-latest
     steps:
-      - run: echo hello from build stage template
+      - run: | 
+        echo hello from build stage template
+        echo appType: ${{ inputs.appType }}
+        echo appVersion: ${{ inputs.appVersion }}
