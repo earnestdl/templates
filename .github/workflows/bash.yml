@@ -6,14 +6,14 @@
           type: string
 
 jobs:
-  BASH:
+  Build-BASH:
     runs-on: ubuntu-latest
+    env:
+      APPTYPE: bash
+      APPVERSION: ${{ inputs.appVersion }}
     steps:
       - name: "List Variables"
         run: | 
           echo hello from BASH build template
           echo appType: $APPTYPE
           echo appVersion: $APPVERSION
-        env:
-          APPTYPE: bash
-          APPVERSION: ${{ inputs.appVersion }}
