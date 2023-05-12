@@ -10,7 +10,7 @@ on:
 
 jobs:
   Build:
-    uses: earnestdl/templates/.github/workflows/apps/${{ inputs.appType }}.yml@main
+    uses: earnestdl/templates/.github/workflows/${{ inputs.appType }}.yml@main
     with: 
       appVersion: ${{ inputs.appVersion }}
       
