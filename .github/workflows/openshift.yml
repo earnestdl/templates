@@ -1,0 +1,27 @@
+on: 
+  workflow_call: 
+    inputs:
+      deployEnvironment: 
+        required: true
+        type: string
+      deployRegions: 
+        required: true
+        type: string
+
+jobs:
+  Deploy-OpenShift:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deployRegions: fromJson( ${{ inputs.deployRegions }} )
+    env:
+      TARGET: openshift
+      ENV: bash
+      REGION: fromJson( ${{ inputs.deployRegions }} )
+    steps:
+      - name: "List Variables"
+        run: | 
+          echo hello from OpenShift Deploy template
+          echo deployTarget: openshift
+          echo deployEnvironment: $ENV
+          echo deployRegion: $REGION
