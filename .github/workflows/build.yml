@@ -9,9 +9,10 @@ on:
         type: string
 
 jobs:
-  Build:
-    uses: earnestdl/templates/.github/workflows/$(APPTYPE).yml@main
+  bash:
+    name: Build BASH
+    if: ${{ inputs.appType == 'bash' }} 
+    uses: earnestdl/templates/.github/workflows/bash.yml@main
+    secrets: inherit
     with:
-      APPTYPE: ${{ inputs.appType}} 
       appVersion: ${{ inputs.appVersion }}
-      
