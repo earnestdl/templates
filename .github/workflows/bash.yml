@@ -1,9 +1,9 @@
-  on: 
-    workflow_call: 
-      inputs:
-        appVersion: 
-          required: true
-          type: string
+on: 
+  workflow_call: 
+    inputs:
+      appVersion: 
+        required: true
+        type: string
 
 jobs:
   Build-BASH:
