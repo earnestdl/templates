@@ -16,7 +16,7 @@ jobs:
         deployRegions: ${{ fromJson(inputs.deployRegions) }}
     env:
       TARGET: openshift
-      ENV: bash
+      ENV: ${{ inputs.deployEnvironment }}
     steps:
       - name: "List Variables"
         run: | 
