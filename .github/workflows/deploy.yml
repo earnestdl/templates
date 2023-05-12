@@ -10,7 +10,11 @@ on:
       deployRegions: 
         required: true
         type: string
-    secrets: inherit
+    secrets:
+      TOKEN_E1:
+        required: true
+      TOKEN_E2:
+        required: true
 
 jobs:
   bash:
