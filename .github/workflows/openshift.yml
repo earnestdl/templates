@@ -13,11 +13,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        deployRegions: fromJson( ${{ inputs.deployRegions }} )
+        deployRegions: ${{ fromJson(inputs.deployRegions) }}
     env:
       TARGET: openshift
       ENV: bash
-      REGION: fromJson( ${{ inputs.deployRegions }} )
+      REGION: ${{ fromJson(inputs.deployRegions) }}
     steps:
       - name: "List Variables"
         run: | 
