@@ -24,4 +24,4 @@ jobs:
           echo hello from OpenShift Deploy template
           echo deployTarget: openshift
           echo deployEnvironment: $ENV
-          echo deployRegion: $REGION
+          echo deployRegion: ${REGION}
