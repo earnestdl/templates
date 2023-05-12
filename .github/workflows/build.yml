@@ -12,7 +12,12 @@ jobs:
   Stage-Build:
     runs-on: ubuntu-latest
     steps:
-      - run: | 
-        echo hello from build stage template
-        echo appType: ${{ inputs.appType }}
-        echo appVersion: ${{ inputs.appVersion }}
+      - name: "List Variables"
+        run: | 
+          echo hello from build stage template
+          echo appType: $APPTYPE
+          echo appVersion: $APPVERSION
+        env:
+          APPTYPE: ${{ inputs.appType }}
+          APPVERSION: ${{ inputs.appVersion }}
+      
