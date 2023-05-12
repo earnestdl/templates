@@ -1,0 +1,19 @@
+  on: 
+    workflow_call: 
+      inputs:
+        appVersion: 
+          required: true
+          type: string
+
+jobs:
+  BASH:
+    runs-on: ubuntu-latest
+    steps:
+      - name: "List Variables"
+        run: | 
+          echo hello from BASH build template
+          echo appType: $APPTYPE
+          echo appVersion: $APPVERSION
+        env:
+          APPTYPE: bash
+          APPVERSION: ${{ inputs.appVersion }}
