@@ -17,11 +17,9 @@ jobs:
     env:
       TARGET: openshift
       ENV: bash
-      REGION: ${{ fromJson(inputs.deployRegions) }}
     steps:
       - name: "List Variables"
         run: | 
           echo hello from OpenShift Deploy template
           echo deployTarget: openshift
           echo deployEnvironment: $ENV
-          echo deployRegion: ${REGION}
