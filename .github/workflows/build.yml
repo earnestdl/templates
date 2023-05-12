@@ -1,11 +1,12 @@
-on: workflow_call: 
-      inputs:
-        appType:
-          required: true
-          type: string
-        appVersion: 
-          required: true
-          type: string
+on: 
+  workflow_call: 
+    inputs:
+      appType:
+        required: true
+        type: string
+      appVersion: 
+        required: true
+        type: string
 
 jobs:
   Stage-Build:
