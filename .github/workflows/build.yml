@@ -10,24 +10,10 @@ on:
 
 jobs:
 
-  #validation:
-  #  name: Validation
-  #  uses: earnestdl/templates/.github/workflows/validation.yml@main
-  #  with:
-  #    event: prebuild
-
   build:
-    #needs: validation
     name: Build bash
     if: ${{ inputs.appType == 'bash' }} 
     uses: earnestdl/templates/.github/workflows/bash.yml@main
     secrets: inherit
     with:
       appVersion: ${{ inputs.appVersion }}
-
-  #compliance:
-  #  needs: build
-  #  name: Compliance
-  #  uses: earnestdl/templates/.github/workflows/compliance.yml@main
-  #  with:
-  #    event: postbuild
