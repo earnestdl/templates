@@ -12,7 +12,7 @@ jobs:
 
   validation:
     name: Validation
-    uses: earnestdl/templates/.github/workflows/validate.yml@main
+    uses: earnestdl/templates/.github/workflows/validation.yml@main
     with:
       event: prebuild
 
