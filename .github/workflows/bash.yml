@@ -25,8 +25,8 @@ jobs:
           echo appVersion: $APPVERSION
       - name: Run script file
         run: |
-          chmod +x ./script.sh
-          ./script.sh
+          chmod +x ./src/script.sh
+          ./src/script.sh
         shell: bash      
 
       - name: Compliance
