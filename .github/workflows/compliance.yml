@@ -6,7 +6,7 @@ on:
         type: string
 
 jobs:
-  validation:
+  compliance:
     runs-on: ubuntu-latest
     env:
       APPTYPE: bash
