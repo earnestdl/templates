@@ -17,7 +17,7 @@ on:
         required: true
 
 jobs:
-  bash:
+  deploy:
     name: Deploy OpenShift
     if: ${{ inputs.deployTarget == 'openshift' }} 
     uses: earnestdl/templates/.github/workflows/openshift.yml@main
@@ -27,6 +27,7 @@ jobs:
       deployRegions: ${{ inputs.deployRegions }}
 
   compliance:
+    needs: deploy
     name: Compliance
     uses: earnestdl/templates/.github/workflows/compliance.yml@main
     with:

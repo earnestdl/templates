@@ -16,7 +16,8 @@ jobs:
     with:
       event: prebuild
 
-  bash:
+  build:
+    needs: validation
     name: Build bash
     if: ${{ inputs.appType == 'bash' }} 
     uses: earnestdl/templates/.github/workflows/bash.yml@main
@@ -25,6 +26,7 @@ jobs:
       appVersion: ${{ inputs.appVersion }}
 
   compliance:
+    needs: build
     name: Compliance
     uses: earnestdl/templates/.github/workflows/compliance.yml@main
     with:
