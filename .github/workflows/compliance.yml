@@ -1,0 +1,22 @@
+on: 
+  workflow_call: 
+    inputs:
+      event:
+        required: true
+        type: string
+
+jobs:
+  validation:
+    runs-on: ubuntu-latest
+    env:
+      APPTYPE: bash
+      event: ${{ inputs.event }}
+    steps:
+      - name: "List Variables"
+        run: env | sort
+
+      - name: Comply 
+        run: | 
+          echo hello from Compliance template
+          echo event: $event
+ 

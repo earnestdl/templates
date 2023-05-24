@@ -25,3 +25,9 @@ jobs:
     with:
       deployEnvironment: ${{ inputs.deployEnvironment }}
       deployRegions: ${{ inputs.deployRegions }}
+
+  compliance:
+    name: Compliance
+    uses: earnestdl/templates/.github/workflows/compliance.yml@main
+    with:
+      event: postdeploy
