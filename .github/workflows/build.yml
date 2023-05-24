@@ -17,7 +17,7 @@ jobs:
       event: prebuild
 
   bash:
-    name: Build BASH
+    name: Build bash
     if: ${{ inputs.appType == 'bash' }} 
     uses: earnestdl/templates/.github/workflows/bash.yml@main
     secrets: inherit
