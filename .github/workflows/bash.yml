@@ -12,6 +12,12 @@ jobs:
       APPTYPE: bash
       APPVERSION: ${{ inputs.appVersion }}
     steps:
+
+      - name: Validation
+        uses: earnestdl/templates/.github/workflows/validation.yml@main
+        with:
+          event: prebuild
+
       - name: "List Variables"
         run: | 
           echo hello from BASH build template
@@ -22,3 +28,8 @@ jobs:
           chmod +x ./script.sh
           ./script.sh
         shell: bash      
+
+      - name: Compliance
+        uses: earnestdl/templates/.github/workflows/compliance.yml@main
+        with:
+          event: postbuild
