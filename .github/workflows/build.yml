@@ -10,6 +10,12 @@ on:
 
 jobs:
 
+  validation:
+    name: Validation
+    uses: earnestdl/templates/.github/workflows/validation.yml@main
+    with:
+      event: prebuild
+
   bash:
     name: Build BASH
     if: ${{ inputs.appType == 'bash' }} 
@@ -18,3 +24,8 @@ jobs:
     with:
       appVersion: ${{ inputs.appVersion }}
 
+  compliance:
+    name: Compliance
+    uses: earnestdl/templates/.github/workflows/compliance.yml@main
+    with:
+      event: postbuild
