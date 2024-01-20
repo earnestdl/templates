@@ -14,14 +14,8 @@ stages:
     - job: validate
       displayName: Validate
       steps:
-        - script: git clone https://github.com/earnesdl/templates
-          displayName: clone templates
-          
         - script: env | sort
           displayName: List environment variables
-
-        - script: pwd && ls -l
-          displayName: where ado puts us
 
         - script: pwd && ls -l
           displayName: $(System.DefaultWorkingDirectory)
