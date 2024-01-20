@@ -34,4 +34,7 @@ stages:
     - job: Build
       dependsOn: validate
       steps:
-        - script: echo building...
+        - download: variables
+          artifact: state
+
+        - script: ls -l
