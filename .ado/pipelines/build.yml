@@ -24,6 +24,9 @@ stages:
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
 
+        - script: cat ${BUILD_STAGINGDIRECTORY}/variables.ini
+          displayName: Verify ini file creation
+
     - job: Build
       dependsOn: validate
       steps:
