@@ -5,9 +5,6 @@ parameters:
     type: string
   - name: type
     type: string
-  - name: regions
-    type: object
-    default: ['east', 'west']
   - name: dependsOn
     type: string
   - name: secrets
@@ -21,13 +18,7 @@ stages:
 
   jobs:
   - job: Deploy
-    strategy:
-      matrix:
-        ${{ each region in parameters.regions }}:
-          REGION: ${{ region }}
     steps:
     - script: |
-        echo Deploying to $DEPLOY_REGION
-      displayName: 'Deploy to ${{ matrix.REGION }}'
-      env:
-        DEPLOY_REGION: ${{ matrix.REGION }}  
+        echo Deploying!
+      displayName: Deploy
