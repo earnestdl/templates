@@ -1,0 +1,24 @@
+parameters:
+  - name: id
+    type: string
+  - name: state
+    type: string
+  - name: type
+    type: string
+
+stages:
+- stage: build_${{ parameters.id }}
+  displayName: 'Build ${{ parameters.id }}'
+
+  jobs:
+    - job: validate
+      displayName: Validate
+      steps:
+        - script: echo validating... && ls -l
+          displayName: Validate variables and secrets
+          workingDirectory: $(System.DefaultWorkingDirectory)
+
+    - job: Build
+      dependsOn: validate
+      steps:
+        - script: echo building...

@@ -1,0 +1,84 @@
+{
+    "global": {
+        "APP_NAME": {
+            "required": true,
+            "type": "string"
+        },
+        "APP_PLATFORM":  {
+            "required": true,
+            "type": "string"
+        },
+        "APP_REGISTRY_URL": {
+            "required": true,
+            "type": "string",
+            "default": "myregistry.com"
+        }
+    },
+    "build": {
+        "APP_BUILD_PATH":  {
+            "required": true,
+            "type": "string"
+        },
+        "APP_BUILD_CONTEXT":  {
+            "required": true,
+            "type": "string",
+            "stage_types": ["container"]
+        },
+        "APP_BUILD_TARGET":  {
+            "required": true,
+            "type": "string",
+            "stage_types": ["container"]
+        },
+        "APP_BUILD_ARGS":  {
+            "required": true,
+            "type": "string"
+        }
+    },
+    "deploy": {
+        "APP_DEPLOY_ENV": {
+            "required": true,
+            "type": "string"
+        },
+        "APP_RUNTIME_ARGS": {
+            "required": true,
+            "default": "default_test",
+            "type": "string"
+        },
+        "OPENSHIFT_PREFIX": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"]
+        },
+        "OPENSHIFT_PROJECT": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"]
+        },    
+        "OPENSHIFT_CLUSTER_1": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"],
+            "regions": ["east"],
+            "default": "mycluster1.com"
+        },    
+        "OPENSHIFT_CLUSTER_2": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"],            
+            "regions": ["west"],
+            "default": "mycluster2.com"            
+        },
+        "OPENSHIFT_TOKEN_1": {
+            "required": true,
+            "type": "secret",
+            "stage_types": ["openshift"],
+            "regions": ["east"]
+        },    
+        "OPENSHIFT_TOKEN_2": {
+            "required": true,
+            "type": "secret",
+            "stage_types": ["openshift"],
+            "regions": ["west"]
+        }    
+    }
+}

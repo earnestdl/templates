@@ -1,0 +1,19 @@
+on: 
+  workflow_call: 
+    inputs:
+      appType:
+        required: true
+        type: string
+      appVersion: 
+        required: true
+        type: string
+
+jobs:
+
+  build:
+    name: Build bash
+    if: ${{ inputs.appType == 'bash' }} 
+    uses: earnestdl/templates/.github/workflows/bash.yml@main
+    secrets: inherit
+    with:
+      appVersion: ${{ inputs.appVersion }}

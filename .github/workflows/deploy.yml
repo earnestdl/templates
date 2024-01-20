@@ -1,0 +1,27 @@
+on: 
+  workflow_call: 
+    inputs:
+      deployTarget:
+        required: true
+        type: string
+      deployEnvironment: 
+        required: true
+        type: string
+      deployRegions: 
+        required: true
+        type: string
+    secrets:
+      TOKEN_E1:
+        required: true
+      TOKEN_E2:
+        required: true
+
+jobs:
+  deploy:
+    name: Deploy OpenShift
+    if: ${{ inputs.deployTarget == 'openshift' }} 
+    uses: earnestdl/templates/.github/workflows/openshift.yml@main
+    secrets: inherit
+    with:
+      deployEnvironment: ${{ inputs.deployEnvironment }}
+      deployRegions: ${{ inputs.deployRegions }}
