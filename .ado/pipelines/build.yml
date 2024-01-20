@@ -20,7 +20,7 @@ stages:
         - script: env | sort
           displayName: List environment variables
 
-        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines.${{ parameters.state}} validation.json variables.ini ${BUILD_STAGINGDIRECTORY}/variables.ini
+        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json ${BUILD_STAGINGDIRECTORY}/variables.ini
           displayName: $(System.DefaultWorkingDirectory)
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
 
