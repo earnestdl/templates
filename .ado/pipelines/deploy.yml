@@ -28,7 +28,7 @@ stages:
     - download: variables
       artifact: state
 
-    - script: ./export_state.sh variables/state.ini
+    - script: ./export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
       displayName: Export state variables
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
 
