@@ -65,6 +65,7 @@ def validate_stage_consistency(pipeline_data, variables_data):
 
     return None  # Return None if validation passes
 
+
 def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data):
     # Extract stage_types and default regions for APP_DEPLOY_REGIONS from validation_data
     deploy_region_info = validation_data.get('deploy', {}).get('APP_DEPLOY_REGIONS', {})
@@ -74,7 +75,7 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
     # Loop through stages in pipeline_yaml
     for stage in pipeline_yaml.get('stages', []):
         # Skip commented lines and 'qa-signoff' stages
-        if isinstance(stage, str) and (stage.lstrip().startswith("#") or stage.get('type') == "qa-signoff"):
+        if isinstance(stage, str) and (stage.lstrip().startswith("#")):
             continue
 
         # Get template, id, and type
@@ -86,23 +87,30 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
         if stage_type == "qa-signoff":
             continue
 
-        # Handle build and non-deploy stages
-        if "build.yml" in template or "deploy.yml" not in template:
-            stage_name = f"{stage_type}_{stage_id}"
-            pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
-            continue
-
-        # Handle deploy stages
-        deploy_vars = variables_data.get('deploy', {}).get(stage_id, {})
-        regions = deploy_vars.get('APP_DEPLOY_REGIONS', default_regions if stage_type in allowed_stage_types else [])
-
-        # Check if regions are defined, else create a single deployment stage
-        if regions:
-            for region in regions:
-                region_stage_full_name = f"deploy_{stage_id}_{region}"
-                pipeline_data[region_stage_full_name] = {"type": stage_type, "vars": {}}
+        # Determine the stage prefix
+        if "build.yml" in template:
+            stage_prefix = "build"
+        elif "deploy.yml" in template:
+            stage_prefix = "deploy"
         else:
-            stage_name = f"deploy_{stage_id}"
+            stage_prefix = stage_type
+
+        # Handle build and deploy stages
+        if stage_prefix in ["build", "deploy"]:
+            deploy_vars = variables_data.get('deploy', {}).get(stage_id, {})
+            regions = deploy_vars.get('APP_DEPLOY_REGIONS', default_regions if stage_type in allowed_stage_types else [])
+
+            # Check if regions are defined, else create a single deployment stage
+            if regions:
+                for region in regions:
+                    region_stage_full_name = f"{stage_prefix}_{stage_id}_{region}"
+                    pipeline_data[region_stage_full_name] = {"type": stage_type, "vars": {}}
+            else:
+                stage_name = f"{stage_prefix}_{stage_id}"
+                pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
+        else:
+            # Handle other types of stages
+            stage_name = f"{stage_prefix}_{stage_id}"
             pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
 
     return pipeline_data
