@@ -19,7 +19,7 @@ stages:
   displayName: 'Deploy ${{ parameters.id }}'
   dependsOn: ${{ parameters.dependsOn }}
 
-jobs:
+  jobs:
   - job: Deploy
     strategy:
       matrix:
