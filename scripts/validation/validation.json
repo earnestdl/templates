@@ -41,7 +41,7 @@
         },
         "APP_DEPLOY_REGIONS": {
             "required": true,
-            "type": "string",
+            "type": "array",
             "stage_types": ["openshift"],
             "default": ["east", "west"]
         },

@@ -227,7 +227,6 @@ def add_secrets_to_stage(stage_name, pipeline_data, validation_data, stage_type,
 def validate_pipeline_data(pipeline_data, validation_data):
     errors = []
 
-    # This is needed because everything in json is a string
     def get_variable_type(value):
         if isinstance(value, bool):
             return "bool"
@@ -235,13 +234,29 @@ def validate_pipeline_data(pipeline_data, validation_data):
             return "int"
         elif isinstance(value, str):
             return "string"
+        elif isinstance(value, list):
+            return "array"
+        elif isinstance(value, dict) and value.get('type') == 'secret':
+            return "secret"
+        elif isinstance(value, dict):
+            return "dict"
         else:
             return "unknown"
-
+        
     def check_variables(stage, stage_type, stage_vars, required_vars, stage_name):
+        # Extract the region from the stage name, if any
+        parts = stage_name.split('_')
+        stage_region = parts[-1] if len(parts) > 2 else None
+
         for var_name, var_details in required_vars.items():
-            if var_details.get('stage_type') and var_details['stage_type'] != stage_type:
-                continue  # Skip variables not matching the stage type
+            # Check if the variable is region-specific and if it matches the current stage's region
+            required_regions = var_details.get('regions')
+            if required_regions and stage_region not in required_regions:
+                continue  # Skip variables not relevant for this region
+
+            # Skip variables not matching the stage type
+            if var_details.get('stage_types') and stage_type not in var_details['stage_types']:
+                continue
 
             if var_name not in stage_vars:
                 if var_details.get('required', False):
@@ -323,31 +338,31 @@ def main(variables_file, validation_file, output_file):
     pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
 
     # 9. Populate pipeline data with global vars from repo variables
-    #pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
+    pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
 
     # 10. Populate pipeline data with stage-specific vars from repo variables
-    #pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
+    pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
     # 11. Populate pipeline data with region-specific vars from repo variables
-    #pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
+    pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
 
     #pipeline_data=add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform)
 
     # 11. Validate pipeline data
-    #validation_errors = validate_pipeline_data(pipeline_data, validation_data)
-    #if validation_errors:
-    #    print("Validation failed with the following errors:")
-    #    for error in validation_errors:
-    #        print(error)
-    #else:
-    #    print("Validation passed successfully.")
+    validation_errors = validate_pipeline_data(pipeline_data, validation_data)
+    if validation_errors:
+        print("Validation failed with the following errors:")
+        for error in validation_errors:
+            print(error)
+    else:
+        print("Validation passed successfully.")
 
     # 12. Create ini file
     create_ini_file(pipeline_data, output_file)
 
     # uncomment next 2 lines to print out the output for debugging
-    pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
-    log("INFO",f"pipeline_data={pretty_pipeline_data}")
+    #pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
+    #log("INFO",f"pipeline_data={pretty_pipeline_data}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
