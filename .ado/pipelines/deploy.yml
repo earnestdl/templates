@@ -25,8 +25,8 @@ stages:
     - script: env | sort 
       displayName: List all variables
 
-    - download: variables
-      artifact: state
+    - download: state
+      artifact: variables
 
     - script: ./export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
       displayName: Export state variables
