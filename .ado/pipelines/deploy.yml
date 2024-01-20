@@ -25,12 +25,12 @@ stages:
     - script: env | sort 
       displayName: List all variables
 
-    - download: variables
-      artifact: state
+    #- download: variables
+    #  artifact: state
 
-    - script: ./export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
-      displayName: Export state variables
-      workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+    #- script: ./export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
+    #  displayName: Export state variables
+    #  workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
 
     - script: env | sort 
       displayName: List all variables

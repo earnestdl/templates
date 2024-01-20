@@ -20,17 +20,15 @@ stages:
         - script: env | sort
           displayName: List environment variables
 
-        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json state.ini
+        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json $(System.DefaultWorkingDirectory)/variables.ini
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
 
         - script: | 
-            mkdir -p $(System.DefaultWorkingDirectory)/variables
-            mv $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini $(System.DefaultWorkingDirectory)/variables
-            cat $(System.DefaultWorkingDirectory)/variables/state.ini
-          displayName: Validated state
+            cat $(System.DefaultWorkingDirectory)/variables.ini
+          displayName: Validated variables state
 
-        - publish: $(System.DefaultWorkingDirectory)/variables
+        - publish: $(System.DefaultWorkingDirectory)/variables.ini
           artifact: state        
 
     - job: Build
