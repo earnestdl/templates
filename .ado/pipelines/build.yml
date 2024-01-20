@@ -14,11 +14,15 @@ stages:
     - job: validate
       displayName: Validate
       steps:
-        - checkout: self
-          persistCredentials: true
-          clean: true
-        - script: echo validating... && ls -l
-          displayName: Validate variables and secrets
+
+        - script: env | sort
+          displayName: List environment variables
+
+        - script: pwd && ls -l
+          displayName: where ado puts us
+
+        - script: pwd && ls -l
+          displayName: $(System.DefaultWorkingDirectory)
           workingDirectory: $(System.DefaultWorkingDirectory)
 
     - job: Build
