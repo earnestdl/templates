@@ -8,6 +8,8 @@ parameters:
   - name: regions
     type: object
     default: ['east', 'west']
+  - name: dependsOn
+    type: string
   - name: secrets
     type: object
     default: []
@@ -15,8 +17,9 @@ parameters:
 stages:
 - stage: deploy_${{ parameters.id }}
   displayName: 'Deploy ${{ parameters.id }}'
+  dependsOn: ${{ parameters.dependsOn }}
 
-  jobs:
+jobs:
   - job: Deploy
     strategy:
       matrix:
