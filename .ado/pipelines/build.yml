@@ -22,7 +22,7 @@ stages:
 
         - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines.${{ parameters.state}} validation.json variables.ini ${BUILD_STAGINGDIRECTORY}/variables.ini
           displayName: $(System.DefaultWorkingDirectory)
-          workingDirectory: $(System.DefaultWorkingDirectory)/templates/validation
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
 
     - job: Build
       dependsOn: validate
