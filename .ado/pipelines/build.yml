@@ -16,7 +16,6 @@ stages:
       steps:
         - checkout: git://github.com/earnesdl/templates
           path: templates
-          ref: refs/heads/main
 
         - script: env | sort
           displayName: List environment variables
