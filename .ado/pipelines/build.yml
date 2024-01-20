@@ -21,7 +21,7 @@ stages:
           displayName: List environment variables
 
         - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json ${BUILD_STAGINGDIRECTORY}/variables.ini
-          displayName: $(System.DefaultWorkingDirectory)
+          displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
 
     - job: Build
