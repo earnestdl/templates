@@ -1,6 +1,9 @@
 parameters:
   - name: id
     type: string
+  - name: env
+    type: string
+    default: 'dev'
   - name: type
     type: string
   - name: dependsOn
