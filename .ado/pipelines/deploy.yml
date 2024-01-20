@@ -1,0 +1,30 @@
+parameters:
+  - name: id
+    type: string
+  - name: env
+    type: string
+  - name: type
+    type: string
+  - name: regions
+    type: object
+    default: ['east', 'west']
+  - name: secrets
+    type: object
+    default: []
+
+stages:
+- stage: deploy_${{ parameters.id }}
+  displayName: 'Deploy ${{ parameters.id }}'
+
+  jobs:
+  - job: Deploy
+    strategy:
+      matrix:
+        ${{ each region in parameters.regions }}:
+          REGION: ${{ region }}
+    steps:
+    - script: |
+        echo Deploying to $DEPLOY_REGION
+      displayName: 'Deploy to ${{ matrix.REGION }}'
+      env:
+        DEPLOY_REGION: ${{ matrix.REGION }}  
