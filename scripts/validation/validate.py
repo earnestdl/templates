@@ -123,8 +123,10 @@ def add_global_defaults_from_validation(pipeline_data, validation_data):
 def add_stage_defaults_from_validation(pipeline_data, validation_data):
     # Loop through each stage in pipeline_data
     for stage_name, stage_info in pipeline_data.items():
-        # Extract the main part of the stage name (e.g., "build", "deploy")
-        stage_key = stage_name.split('_')[0]
+        # Extract the main part of the stage name (e.g., "build", "deploy") and the region if any
+        parts = stage_name.split('_')
+        stage_key = parts[0]
+        stage_region = parts[-1] if len(parts) > 2 else None
 
         # Check if this stage key exists in validation_data
         if stage_key in validation_data:
@@ -134,8 +136,11 @@ def add_stage_defaults_from_validation(pipeline_data, validation_data):
                 # or if no specific type is required
                 valid_for_stage = 'stage_types' not in var_details or stage_info['type'] in var_details['stage_types']
 
-                # Check for a default value and whether the type matches
-                if valid_for_stage and 'default' in var_details:
+                # Check for region-specific requirements
+                valid_for_region = 'regions' not in var_details or (stage_region and stage_region in var_details['regions'])
+
+                # Check for a default value and whether the type and region match
+                if valid_for_stage and valid_for_region and 'default' in var_details:
                     # Populate the default value in the stage's vars
                     stage_info['vars'][var_name] = var_details['default']
 
