@@ -1,8 +1,6 @@
 parameters:
   - name: id
     type: string
-  - name: env
-    type: string
   - name: type
     type: string
   - name: dependsOn
