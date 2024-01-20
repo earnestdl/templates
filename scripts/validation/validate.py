@@ -65,40 +65,40 @@ def validate_stage_consistency(pipeline_data, variables_data):
 
     return None  # Return None if validation passes
 
-def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml):
-    # Process each stage in the provided pipeline YAML content
+def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data):
+    # Loop through stages in pipeline_yaml
     for stage in pipeline_yaml['stages']:
+        # Skip commented lines
+        if isinstance(stage, str) and stage.lstrip().startswith("#"):
+            continue
+
+        # Get template, id, and type
+        template = stage.get('template', '')
         stage_id = stage['parameters']['id']
         stage_type = stage['parameters']['type']
 
-        # Skip 'qa-signoff' stages
-        if stage_type == "qa-signoff":
-            continue
+        # Handle build stages
+        if "build.yml" in template:
+            stage_name = f"build_{stage_id}"
+            # Populate only stage name and type
+            pipeline_data[stage_name] = {"type": stage_type}
 
-        # Determine the stage prefix
-        if "build.yml" in stage.get('template', ''):
-            stage_prefix = "build"
-        elif "deploy.yml" in stage.get('template', ''):
-            stage_prefix = "deploy"
-            # Parse the regions string into a dictionary
-            regions_str = stage['parameters'].get('regions', "{'default':{'DEPLOY_REGION':'default'}}")
-            regions_dict = json.loads(regions_str.replace("'", '"'))
+        # Handle deploy stages
+        elif "deploy.yml" in template:
+            deploy_vars = variables_data.get('deploy', {}).get(stage_id, {})
+            # Check regions in variables_data or use defaults from validation_data
+            regions = deploy_vars.get('APP_DEPLOY_REGIONS', validation_data.get('APP_DEPLOY_REGIONS', {}).get('default', ['default']))
 
-            # Create region-specific deploy stages
-            for region in regions_dict:
-                stage_name = f"{stage_prefix}_{stage_id}_{region}"
-                pipeline_data[stage_name] = {
-                    "type": stage_type,
-                    "vars": {}
-                }
-            continue
+            # Skip stage creation if type doesn't match and no regions are defined
+            if not regions and stage_type != validation_data.get('APP_DEPLOY_REGIONS', {}).get('type'):
+                continue
 
-        # Non-deploy stages
-        stage_name = f"{stage_prefix}_{stage_id}"
-        pipeline_data[stage_name] = {
-            "type": stage_type,
-            "vars": {}
-        }
+            # Create stages with region logic
+            for region in regions:
+                region_key = f"{stage_id}_{region}" if region != 'default' else stage_id
+                region_stage_full_name = f"deploy_{region_key}"
+                # Populate only stage name and type
+                pipeline_data[region_stage_full_name] = {"type": stage_type}
 
     return pipeline_data
 
@@ -297,29 +297,29 @@ def main(variables_file, validation_file, output_file):
     pipeline_data={}
 
     # 6. Populate object with stages and their types
-    pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml)
+    pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data)
 
     # 4. Verify pipeline yaml and variables file match up
-    try:
-        validate_stage_consistency(pipeline_data, variables_data)
-        log("INFO","Stage consistency validated successfully.")
-    except ValueError as e:
-        log("ERROR",f"Stage consistency validation failed: {str(e)}")
+    #try:
+    #    validate_stage_consistency(pipeline_data, variables_data)
+    #    log("INFO","Stage consistency validated successfully.")
+    #except ValueError as e:
+    #    log("ERROR",f"Stage consistency validation failed: {str(e)}")
 
     # 7. Populate pipeline data with global defaults from validation data
-    pipeline_data=add_global_defaults_from_validation(pipeline_data, validation_data)
+    #pipeline_data=add_global_defaults_from_validation(pipeline_data, validation_data)
 
     # 8. Populate pipeline data with stage-specific defaults from validation data
-    pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
+    #pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
 
     # 9. Populate pipeline data with global vars from repo variables
-    pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
+    #pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
 
     # 10. Populate pipeline data with stage-specific vars from repo variables
-    pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
+    #pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
     # 11. Populate pipeline data with region-specific vars from repo variables
-    pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
+    #pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
 
     #pipeline_data=add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform)
 

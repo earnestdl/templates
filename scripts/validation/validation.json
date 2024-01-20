@@ -39,6 +39,12 @@
             "required": true,
             "type": "string"
         },
+        "APP_DEPLOY_REGIONS": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"],
+            "default": ["east", "west"]
+        },
         "APP_RUNTIME_ARGS": {
             "required": true,
             "default": "default_test",
