@@ -18,8 +18,19 @@ stages:
   dependsOn: ${{ parameters.dependsOn }}
 
   jobs:
-  - job: Deploy
+  - job: deploy
+    displayName: Deploy
     steps:
-    - script: |
-        echo Deploying!
-      displayName: Deploy
+
+    - script: env | sort 
+      displayName: List all variables
+
+    - download: variables
+      artifact: state
+
+    - script: ./export_state.sh variables/state.ini
+      displayName: Export state variables
+      workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+
+    - script: env | sort 
+      displayName: List all variables
