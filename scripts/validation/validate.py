@@ -89,7 +89,7 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
         # Handle build and non-deploy stages
         if "build.yml" in template or "deploy.yml" not in template:
             stage_name = f"{stage_type}_{stage_id}"
-            pipeline_data[stage_name] = {"type": stage_type}
+            pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
             continue
 
         # Handle deploy stages
@@ -100,10 +100,10 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
         if regions:
             for region in regions:
                 region_stage_full_name = f"deploy_{stage_id}_{region}"
-                pipeline_data[region_stage_full_name] = {"type": stage_type}
+                pipeline_data[region_stage_full_name] = {"type": stage_type, "vars": {}}
         else:
             stage_name = f"deploy_{stage_id}"
-            pipeline_data[stage_name] = {"type": stage_type}
+            pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
 
     return pipeline_data
 
@@ -312,10 +312,10 @@ def main(variables_file, validation_file, output_file):
         log("ERROR",f"Stage consistency validation failed: {str(e)}")
 
     # 7. Populate pipeline data with global defaults from validation data
-    #pipeline_data=add_global_defaults_from_validation(pipeline_data, validation_data)
+    pipeline_data=add_global_defaults_from_validation(pipeline_data, validation_data)
 
     # 8. Populate pipeline data with stage-specific defaults from validation data
-    #pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
+    pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
 
     # 9. Populate pipeline data with global vars from repo variables
     #pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
@@ -338,7 +338,7 @@ def main(variables_file, validation_file, output_file):
     #    print("Validation passed successfully.")
 
     # 12. Create ini file
-    #create_ini_file(pipeline_data, output_file)
+    create_ini_file(pipeline_data, output_file)
 
     # uncomment next 2 lines to print out the output for debugging
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)

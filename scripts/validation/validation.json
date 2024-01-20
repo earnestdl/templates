@@ -73,18 +73,6 @@
             "stage_types": ["openshift"],            
             "regions": ["west"],
             "default": "mycluster2.com"            
-        },
-        "OPENSHIFT_TOKEN_1": {
-            "required": true,
-            "type": "secret",
-            "stage_types": ["openshift"],
-            "regions": ["east"]
-        },    
-        "OPENSHIFT_TOKEN_2": {
-            "required": true,
-            "type": "secret",
-            "stage_types": ["openshift"],
-            "regions": ["west"]
-        }    
+        }
     }
 }
