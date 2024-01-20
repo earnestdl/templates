@@ -321,25 +321,23 @@ def main(variables_file, validation_file, output_file):
     # 11. Populate pipeline data with region-specific vars from repo variables
     pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
 
-    # TODO
-    # 12. Populate pipeline data with secrets from repo
     #pipeline_data=add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform)
 
     # 11. Validate pipeline data
-    validation_errors = validate_pipeline_data(pipeline_data, validation_data)
-    if validation_errors:
-        print("Validation failed with the following errors:")
-        for error in validation_errors:
-            print(error)
-    else:
-        print("Validation passed successfully.")
+    #validation_errors = validate_pipeline_data(pipeline_data, validation_data)
+    #if validation_errors:
+    #    print("Validation failed with the following errors:")
+    #    for error in validation_errors:
+    #        print(error)
+    #else:
+    #    print("Validation passed successfully.")
 
     # 12. Create ini file
-    create_ini_file(pipeline_data, output_file)
+    #create_ini_file(pipeline_data, output_file)
 
     # uncomment next 2 lines to print out the output for debugging
-    #pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
-    #log("INFO",f"pipeline_data={pretty_pipeline_data}")
+    pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
+    log("INFO",f"pipeline_data={pretty_pipeline_data}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
