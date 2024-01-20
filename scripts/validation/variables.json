@@ -17,50 +17,22 @@
         "dev":{
             "ASPNETCORE_ENVIRONMENT": "Development",
             "APP_DEPLOY_ENV": "dev",
-            "APP_DEPLOY_REGIONS": ["east", "west"],
             "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
-        },
-        "dev_east":{
-            "APPDYNAMICS_ENV": "AppDynamics Dev East"
-        },
-        "dev_west":{
-            "APPDYNAMICS_ENV": "AppDynamics Dev West"
         },
         "qa":{
             "ASPNETCORE_ENVIRONMENT": "QA",
             "APP_DEPLOY_ENV": "qa",
-            "APP_DEPLOY_REGIONS": ["east", "west"],
             "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
-        },
-        "qa_east":{
-            "APPDYNAMICS_ENV": "AppDynamics QA East"
-        },
-        "qa_west":{
-            "APPDYNAMICS_ENV": "AppDynamics QA West"
         },
         "stress":{
             "ASPNETCORE_ENVIRONMENT": "Stress",
             "APP_DEPLOY_ENV": "stress",
-            "APP_DEPLOY_REGIONS": ["east", "west"],
             "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
-        },
-        "stress_east":{
-            "APPDYNAMICS_ENV": "AppDynamics Stress East"
-        },
-        "stress_west":{
-            "APPDYNAMICS_ENV": "AppDynamics Stress West"
         },
         "prod":{
             "ASPNETCORE_ENVIRONMENT": "Prod",
             "APP_DEPLOY_ENV": "prod",
-            "APP_DEPLOY_REGIONS": ["east", "west"],
             "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
-        },
-        "prod_east":{
-            "APPDYNAMICS_ENV": "AppDynamics Prod East"
-        },
-        "prod_west":{
-            "APPDYNAMICS_ENV": "AppDynamics Prod West"
         }
     }
 }
