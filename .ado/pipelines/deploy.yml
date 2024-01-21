@@ -43,18 +43,17 @@ stages:
           workingDirectory: $(System.DefaultWorkingDirectory)/scripts
 
     - ${{ if eq(parameters.type, 'openshift') }}:
-      - job: deploy_${{parameters.type}}
-        displayName: Deploy ${{parameters.type}}
-        dependsOn: begin_${{parameters.type}}_deploy
-        strategy: 
-          matrix: $[ dependencies.begin_${{parameters.type}}_deploy.outputs['regions.deploymentRegions'] ]
-        steps:
-        - checkout: templates
-        - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
-          displayName: Export state
-          workingDirectory: $(System.DefaultWorkingDirectory)/scripts
-        - script: env | sort
-          displayName: List all variables
+      - ${{ each region in parameters.regions }}:
+        - job: deploy_${{parameters.type}}_${{region}}
+          displayName: Deploy ${{parameters.type}}
+          dependsOn: begin_${{parameters.type}}_deploy
+          steps:
+          - checkout: templates
+          - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
+            displayName: Export state
+            workingDirectory: $(System.DefaultWorkingDirectory)/scripts
+          - script: env | sort
+            displayName: List all variables
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
