@@ -209,37 +209,37 @@ def override_region_specific_vars(pipeline_data, variables_data):
 
     return pipeline_data
 
-def add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform):
+def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data):
+    for stage in pipeline_yaml.get('stages', []):
+        template = stage.get('template', '')
+        stage_id = stage['parameters'].get('id', '')
+        stage_type = stage['parameters'].get('type', '')
+        secrets = stage['parameters'].get('secrets', {})
 
+        # Determine the stage prefix
+        stage_prefix = 'build_' if "build.yml" in template else 'deploy_'
 
-    # TODO: this no worky :(
+        # Determine regions involved in this stage
+        regions_involved = ['east', 'west'] if any('_EAST' in key or '_WEST' in key for key in secrets.keys()) else ['none']
 
-     # Iterate through the stages in pipeline_yaml
-    for stage in pipeline_yaml['stages']:
-        template_name = stage['template']
-        stage_id = stage.get('id', 'default')  # Default to 'default' if 'id' is not specified
+        for region in regions_involved:
+            # Construct the key for the pipeline_data
+            pipeline_key = f"{stage_prefix}{stage_id}"
+            pipeline_key += f"_{region}" if region != 'none' else ""
 
-        # Construct stage name
-        if template_name == 'deploy' and 'region' in stage:
-            # Handle deploy stage with multiple regions
-            for region in stage['regions']:
+            # Initialize stage data in pipeline_data if not present
+            if pipeline_key not in pipeline_data:
+                pipeline_data[pipeline_key] = {"type": stage_type, "vars": {}}
 
-                stage_name = f'{stage_id}_{template_name}_{region}'
-                add_secrets_to_stage(stage_name, pipeline_data, validation_data, template_name, platform)
-        else:
-            stage_name = f'{stage_id}_{template_name}'
-            add_secrets_to_stage(stage_name, pipeline_data, validation_data, template_name, platform)
+            # Add secrets to the stage
+            for secret_key, secret_value in secrets.items():
+                # Determine if the secret is region-specific or global
+                if region == 'none' or f'_{region.upper()}' in secret_key:
+                    # Extract the actual secret name and add it to pipeline_data
+                    secret_name = secret_key.split('_')[0]
+                    pipeline_data[pipeline_key]['vars'][secret_name] = secret_value
 
     return pipeline_data
-
-def add_secrets_to_stage(stage_name, pipeline_data, validation_data, stage_type, platform):
-    # Check if stage type exists in validation data and has secrets
-    if stage_type in validation_data and 'secrets' in validation_data[stage_type]:
-        for secret_name, secret_details in validation_data[stage_type]['secrets'].items():
-            # Format secret based on platform
-            secret_placeholder = f'$(secrets.{secret_name})' if platform == 'azdo' else f'${{{{{{{secret_name}}}}}}}'
-            # Add secret to pipeline data
-            pipeline_data[stage_name]['vars'][secret_name] = secret_placeholder
 
 def validate_pipeline_data(pipeline_data, validation_data):
     errors = []
@@ -356,7 +356,7 @@ def main(variables_file, deploy_yaml):
     pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
 
     # 12. Populate pipeline data with secrets from repo
-    #pipeline_data=add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform)
+    pipeline_data=(pipeline_yaml, pipeline_data)
 
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
     log("INFO",f"Validated state:\n{pretty_pipeline_data}")
