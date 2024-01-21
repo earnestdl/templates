@@ -47,9 +47,7 @@ stages:
         displayName: Deploy ${{parameters.type}}
         dependsOn: begin_${{parameters.type}}_deploy
         strategy: 
-          matrix:
-            ${{ each region in parameters.regions }}:
-              DEPLOY_REGION: {{ region }}
+          matrix: $[ dependencies.begin_${{parameters.type}}_deploy.outputs['regions.deploymentRegions'] ]
         steps:
         - checkout: templates
         - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
