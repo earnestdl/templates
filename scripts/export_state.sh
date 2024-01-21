@@ -3,7 +3,7 @@
 INI_FILE=$1
 STAGE=$2
 PLATFORM=$3
-OUTPUT_FILE=statevars.sh
+OUTPUT_FILE=$BUILD_SOURCESDIRECTORY/statevars.sh
 
 awk -v stage="[$STAGE]" -v out="$OUTPUT_FILE" '
 BEGIN {flag=0}
