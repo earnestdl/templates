@@ -42,7 +42,7 @@ stages:
     - ${{ if eq(parameters.type, 'openshift') }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
-        dependsOn: begin_deploy_${{parameters.type}}
+        dependsOn: begin_${{parameters.type}}_deploy
         strategy: 
           matrix:
             ${{ each region in variables.deploymentRegions }}:
@@ -58,7 +58,7 @@ stages:
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
-        dependsOn: begin_deploy_${{parameters.type}}
+        dependsOn: begin_${{parameters.type}}_deploy
         steps:
         - checkout: templates
         - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
