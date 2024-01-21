@@ -20,21 +20,33 @@ stages:
         - script: env | sort
           displayName: List environment variables
 
-        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json $(Build.ArtifactStagingDirectory)/variables.ini
+        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json $(Build.ArtifactStagingDirectory)/state.ini
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
 
         - script: | 
-            cat $(Build.ArtifactStagingDirectory)/variables.ini
+            cat $(Build.ArtifactStagingDirectory)/state.ini
           displayName: Validated variables state
 
-        - publish: $(Build.ArtifactStagingDirectory)/variables.ini
-          artifact: state        
+        - task: PublishPipelineArtifact@1
+          inputs:
+            targetPath: $(Build.ArtifactStagingDirectory)/state.ini
+            artifact: state
+            publishLocation: 'variables'
+
+        #- publish: $(Build.ArtifactStagingDirectory)/variables.ini
+        #  artifact: state        
 
     - job: Build
       dependsOn: validate
       steps:
-        - download: variables
-          artifact: state
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: state
+            path: $(System.DefaultWorkingDirectory)/variables' # Path where to place the downloaded artifact
+
+
+        #- download: variables
+        #  artifact: state
 
         - script: ls -l
