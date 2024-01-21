@@ -20,7 +20,7 @@ stages:
         - checkout: templates
         - checkout: self
         - script: | 
-            python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json
+            python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }}
             echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
