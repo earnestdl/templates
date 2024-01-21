@@ -23,13 +23,14 @@ stages:
         - script: env | sort
           displayName: List environment variables
 
-        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json state.ini
+        - script: | 
+            python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }} validation.json
+            echo Validated state:
+            echo ...............................................................
+            cat state.ini
+            echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
-
-        - script: | 
-            cat $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
-          displayName: Validated variables state
 
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
           artifact: state

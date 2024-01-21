@@ -3,6 +3,9 @@ import json
 import yaml
 import argparse
 
+state_file='state.ini'
+regions_json='regions.json'
+
 def log(level, message):
     print(f"[{level}] {message}")
     
@@ -289,6 +292,23 @@ def validate_pipeline_data(pipeline_data, validation_data):
 
     return errors
 
+def create_regions_json(pipeline_data):
+    regions = {}
+
+    # Iterate through the data to extract regions for each environment
+    for key, value in pipeline_data.items():
+        if key.startswith("deploy_"):
+            env, region = key.rsplit('_', 1)
+            if env in regions:
+                regions[env].append(region)
+            else:
+                regions[env] = [region]
+
+    with open(regions_json, 'w') as file:
+        json.dump(regions, file)
+
+    return regions
+
 def create_ini_file(pipeline_data, output_file):
 
     with open(output_file, 'w') as file:
@@ -309,7 +329,7 @@ def get_platform():
     else:
         return 'shell'
 
-def main(variables_file, validation_file, output_file):
+def main(variables_file, validation_file):
 
     platform=get_platform()
 
@@ -354,9 +374,14 @@ def main(variables_file, validation_file, output_file):
     # 11. Populate pipeline data with region-specific vars from repo variables
     pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
 
+    # 12. Populate pipeline data with secrets from repo
     #pipeline_data=add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform)
 
-    # 11. Validate pipeline data
+    # uncomment next 2 lines to print out the output for debugging
+    #pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
+    #log("INFO",f"pipeline_data={pretty_pipeline_data}")
+
+    # 13. Validate pipeline data
     validation_errors = validate_pipeline_data(pipeline_data, validation_data)
     if validation_errors:
         print("Validation failed with the following errors:")
@@ -365,18 +390,17 @@ def main(variables_file, validation_file, output_file):
     else:
         print("Validation passed successfully.")
 
-    # 12. Create ini file
-    create_ini_file(pipeline_data, output_file)
+    # 14. create regions variables for azdo parallel job matrix 
+    create_regions_json(pipeline_data)
 
-    # uncomment next 2 lines to print out the output for debugging
-    #pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
-    #log("INFO",f"pipeline_data={pretty_pipeline_data}")
+    # 12. Create ini file
+    #create_ini_file(pipeline_data)
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('variables_file', type=str, help='Path to the variables JSON file')
     parser.add_argument('validation_file', type=str, help='Path to the validation JSON file')
-    parser.add_argument('output_file', type=str, help='Path to the output ini file')
 
     args = parser.parse_args()
-    main(args.variables_file, args.validation_file, args.output_file)
+    main(args.variables_file, args.validation_file)

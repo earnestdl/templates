@@ -1,0 +1,1 @@
+{"deploy_dev": ["east", "west"], "deploy_qa": ["east", "west"], "deploy_stress": ["east", "west"], "deploy_prod": ["east", "west"]}
