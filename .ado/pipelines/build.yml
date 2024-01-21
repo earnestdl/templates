@@ -46,8 +46,8 @@ stages:
             path: $(System.DefaultWorkingDirectory)/variables
 
         - script: |
-            chmod +x $(System.DefaultWorkingDirectory)/templates/scripts/export_state.sh
-            eval "$($(System.DefaultWorkingDirectory)/templates/scripts/export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini build_${{ parameters.id }} ado)"
+            chmod +x ${BUILD_SOURCESDIRECTORY}/templates/scripts/export_state.sh
+            eval $(${BUILD_SOURCESDIRECTORY}/templates/scripts/export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini build_${{ parameters.id }} ado)
           displayName: Export state
 
         - script: env | sort
