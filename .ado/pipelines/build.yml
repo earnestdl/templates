@@ -34,7 +34,7 @@ stages:
         - task: PublishPipelineArtifact@1
           inputs:
             targetPath: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
-            artifact: state
+            artifact: state_variables
             publishLocation: variables
 
     - job: Build
@@ -42,6 +42,6 @@ stages:
       steps:
         - task: DownloadPipelineArtifact@2
           inputs:
-            artifact: state
+            artifact: state_variables
             path: $(System.DefaultWorkingDirectory)/variables
         - script: ls -l
