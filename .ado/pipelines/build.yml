@@ -28,7 +28,7 @@ stages:
     - ${{ if eq(parameters.type, 'container') }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
-        dependsOn: validate
+        dependsOn: begin_${{parameters.type}}_build
         steps:
           - checkout: templates
           - checkout: self
@@ -48,7 +48,7 @@ stages:
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
-        dependsOn: validate
+        dependsOn: begin_${{parameters.type}}_build
         steps:
           - checkout: templates
           - checkout: self
