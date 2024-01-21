@@ -18,23 +18,31 @@ stages:
   dependsOn: ${{ parameters.dependsOn }}
 
   jobs:
-    - job: begin_deploy_${{parameters.type}}
-      displayName: Begin ${{parameters.type}} deploy
-      steps:
-      - checkout: templates
-      - task: DownloadPipelineArtifact@2
-        inputs:
-          artifact: state
-          path: $(System.DefaultWorkingDirectory)/variables
-      - script: |
-          python process_regions.py ${BUILD_SOURCESDIRECTORY}/variables/state.ini
-          echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
-        displayName: Process regions 
-        workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+    - ${{ if eq(parameters.type, 'qa-signoff') }}:
+      - job: qa_signoff
+        displayName: QA Signoff
+        steps:
+        - script: echo manual qa-signoff
+
+    - ${{ if ne(parameters.type, 'qa-signoff') }}:
+      - job: begin_deploy_${{parameters.type}}
+        displayName: Begin ${{parameters.type}} deploy
+        steps:
+        - checkout: templates
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: state
+            path: $(System.DefaultWorkingDirectory)/variables
+        - script: |
+            python process_regions.py ${BUILD_SOURCESDIRECTORY}/variables/state.ini
+            echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
+          displayName: Process regions 
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
 
     - ${{ if eq(parameters.type, 'openshift') }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
+        dependsOn: begin_deploy_${{parameters.type}}
         strategy: 
           matrix:
             ${{ each region in variables.deploymentRegions }}:
@@ -50,6 +58,7 @@ stages:
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
+        dependsOn: begin_deploy_${{parameters.type}}
         steps:
         - checkout: templates
         - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
@@ -57,3 +66,13 @@ stages:
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
         - script: env | sort
           displayName: List all variables
+
+    - ${{ if ne(parameters.type, 'qa-signoff') }}:
+      - job: end_deploy_${{parameters.type}}
+        displayName: End ${{parameters.type}} deploy
+        dependsOn: 
+          - begin_deploy_${{parameters.type}}
+          - deploy_${{parameters.type}}
+        steps:
+        - script: echo AutoCRQ...
+          displayName: AutoCRQ
