@@ -14,14 +14,12 @@ stages:
   displayName: 'Build ${{ parameters.id }}'
 
   jobs:
-    - job: validate
-      displayName: Validate
+    - job: begin_${{parameters.type}}_build
+      displayName: Begin ${{parameters.type}} build
       steps:
         - checkout: templates
         - checkout: self
-        - script: | 
-            python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }}
-            echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
+        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }}
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
@@ -45,7 +43,7 @@ stages:
             displayName: List all variables
 
           - script: echo Building for container...
-            displayName: Building Application
+            displayName: Build application
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: build_${{parameters.type}}
@@ -65,4 +63,13 @@ stages:
             displayName: List all variables
 
           - script: echo Building for Windows...
-            displayName: Build Application
+            displayName: Build application
+
+    - job: end_${{parameters.type}}_build
+      displayName: End ${{parameters.type}} build
+      dependsOn:
+        - begin_${{parameters.type}}_build
+        - build_${{parameters.type}}
+      steps:
+        - script: echo AutoCRQ...
+          displayName: AutoCRQ

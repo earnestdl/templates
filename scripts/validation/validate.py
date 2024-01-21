@@ -4,7 +4,6 @@ import yaml
 import argparse
 
 state_file='state.ini'
-regions_json='regions.json'
 validation_json='validation.json'
 
 def log(level, message):
@@ -293,23 +292,6 @@ def validate_pipeline_data(pipeline_data, validation_data):
 
     return errors
 
-def create_regions_json(pipeline_data):
-    regions = {}
-
-    # Iterate through the data to extract regions for each environment
-    for key, value in pipeline_data.items():
-        if key.startswith("deploy_"):
-            env, region = key.rsplit('_', 1)
-            if env in regions:
-                regions[env].append(region)
-            else:
-                regions[env] = [region]
-
-    with open(regions_json, 'w') as file:
-        json.dump(regions, file)
-
-    return regions
-
 def create_ini_file(pipeline_data):
 
     with open(state_file, 'w') as file:
@@ -381,8 +363,6 @@ def main(variables_file):
     else:
         log("INFO","Validation passed successfully.")
 
-    # 14. create regions variables for azdo parallel job matrix 
-    create_regions_json(pipeline_data)
 
     # 12. Create ini file
     create_ini_file(pipeline_data)

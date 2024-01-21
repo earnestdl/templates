@@ -18,22 +18,42 @@ stages:
   dependsOn: ${{ parameters.dependsOn }}
 
   jobs:
-  - job: deploy
-    displayName: Deploy
-    steps:
-    - checkout: templates
-    - checkout: self
+    - job: begin_deploy_${{parameters.type}}
+      displayName: Begin ${{parameters.type}} deploy
+      steps:
+      - checkout: templates
+      - task: DownloadPipelineArtifact@2
+        inputs:
+          artifact: state
+          path: $(System.DefaultWorkingDirectory)/variables
+      - script: |
+          python process_regions.py ${BUILD_SOURCESDIRECTORY}/variables/state.ini
+          echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
+        displayName: Process regions 
+        workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
 
-    - task: DownloadPipelineArtifact@2
-      inputs:
-        artifact: state
-        path: $(System.DefaultWorkingDirectory)/variables
+    - ${{ if eq(parameters.type, 'openshift') }}:
+      - job: deploy_${{parameters.type}}
+        displayName: Deploy ${{parameters.type}}
+        strategy: 
+          matrix:
+            ${{ each region in variables.deploymentRegions }}:
+              DEPLOY_REGION: $ {{ region }}
+        steps:
+        - checkout: templates
+        - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
+          displayName: Export state
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+        - script: env | sort
+          displayName: List all variables
 
-    - script: |
-        chmod +x export_state.sh
-        ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
-      displayName: Export state
-      workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
-
-    - script: env | sort
-      displayName: List all variables
+    - ${{ if eq(parameters.type, 'windows') }}:
+      - job: deploy_${{parameters.type}}
+        displayName: Deploy ${{parameters.type}}
+        steps:
+        - checkout: templates
+        - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
+          displayName: Export state
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+        - script: env | sort
+          displayName: List all variables
