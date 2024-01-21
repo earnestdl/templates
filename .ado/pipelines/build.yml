@@ -56,7 +56,7 @@ stages:
             inputs:
               artifact: state
               path: $(System.DefaultWorkingDirectory)/variables
-          - script: echo "TODO: write the powershell version of export_state.sh" 
+          - script: echo "TODO - write the powershell version of export_state.sh" 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
           - script: env | sort
