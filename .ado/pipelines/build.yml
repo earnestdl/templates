@@ -6,7 +6,7 @@ parameters:
   - name: type
     type: string
     values:
-      - openshift
+      - container
       - windows
 
 stages:
