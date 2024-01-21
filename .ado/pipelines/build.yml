@@ -48,9 +48,9 @@ stages:
         - script: |
             OUTPUT_FILE=variables.sh 
             awk -v RS= '/\[build_${{parameters.id}}\]/' ${BUILD_SOURCESDIRECTORY}/variables/state.ini > $OUTPUT_FILE
-            cat $OUTPUT_FILE
             sed -i -e "1d" $OUTPUT_FILE
-            source $OUTPUT_FILE
+            cat $OUTPUT_FILE
+            export $(cat $OUTPUT_FILE | xargs) 
             env | sort
           displayName: Export state
 
