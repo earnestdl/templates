@@ -45,9 +45,8 @@ stages:
             artifact: state
             path: $(System.DefaultWorkingDirectory)/variables
 
-        - script: bash -c export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
+        - script: bash -c $(System.DefaultWorkingDirectory)/templates/scripts/export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
           displayName: Export state
-          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
 
         - script: env | sort
           displayName: List all variables
