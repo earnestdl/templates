@@ -45,9 +45,15 @@ stages:
             artifact: state
             path: $(System.DefaultWorkingDirectory)/variables
 
+        - script: cat ${BUILD_SOURCESDIRECTORY}/variables/state.ini
+          displayName: Verify state
+
         - script: |
             chmod +x ${BUILD_SOURCESDIRECTORY}/templates/scripts/export_state.sh
-            eval $(${BUILD_SOURCESDIRECTORY}/templates/scripts/export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini build_${{ parameters.id }} ado)
+            echo Exporting state file ${BUILD_SOURCESDIRECTORY}/variables/state.ini for build_${{ parameters.id }}
+            eval "$($BUILD_SOURCESDIRECTORY/templates/scripts/export_state.sh $BUILD_SOURCESDIRECTORY/variables/state.ini build_${{ parameters.id }} ado)"
+            echo State successfully exported
+            env | sort
           displayName: Export state
 
         - script: env | sort
