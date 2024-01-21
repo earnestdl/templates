@@ -37,6 +37,9 @@ stages:
     - job: Build
       dependsOn: validate
       steps:
+        - checkout: templates
+        - checkout: self
+
         - task: DownloadPipelineArtifact@2
           inputs:
             artifact: state
