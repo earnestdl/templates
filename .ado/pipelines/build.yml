@@ -13,6 +13,9 @@ stages:
   jobs:
     - job: validate
       displayName: Validate
+      variables:
+        - name: system.debug
+          value: true
       steps:
         - checkout: templates
         - checkout: self
