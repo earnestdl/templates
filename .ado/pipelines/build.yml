@@ -54,5 +54,11 @@ stages:
             env | sort
           displayName: Export state
 
+        - script: |
+            chmod +x export_state.sh
+            ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini build_${{parameters.id}}
+          displayName: Export state
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+
         - script: env | sort
           displayName: List all variables
