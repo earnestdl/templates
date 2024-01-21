@@ -72,7 +72,8 @@ stages:
         displayName: End ${{parameters.type}} deploy
         dependsOn: 
           - begin_${{parameters.type}}_deploy
-          - deploy_${{parameters.type}}
+          - ${{ each region in parameters.regions }}:
+            - deploy_${{parameters.type}}_${{region}}
         steps:
-        - script: echo AutoCRQ...
-          displayName: AutoCRQ
+          - script: echo AutoCRQ...
+            displayName: AutoCRQ
