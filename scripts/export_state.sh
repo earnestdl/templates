@@ -13,6 +13,8 @@ parse_ini() {
     $0 == stage {flag=1; next}
     /^[/[]/ && flag {flag=0}
     flag && NF==2 {
+        gsub(/ /, "", $2); # Remove spaces in the value
+        print "export " $1"="$2
         if (platform == "ado") {
             print "echo \"##vso[task.setvariable variable="$1"]"$2"\""
         } else if (platform == "github") {
