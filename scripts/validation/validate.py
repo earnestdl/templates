@@ -40,6 +40,15 @@ def get_variables_data(variables_file):
 
     return variables_data
 
+def get_default_regions(deploy_file_path):
+    with open(deploy_file_path, 'r') as file:
+        deploy_data = yaml.safe_load(file)
+    
+    deploy_parameters = deploy_data.get('parameters', [])
+    default_regions = next((param for param in deploy_parameters if param['name'] == 'regions'), {}).get('default', [])
+    
+    return default_regions
+
 def validate_stage_consistency(pipeline_data, variables_data):
     # Initialize an empty set for missing stages
     missing_in_variables = set()
@@ -68,11 +77,9 @@ def validate_stage_consistency(pipeline_data, variables_data):
 
     return None  # Return None if validation passes
 
-
-def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data):
-    # Extract stage_types and default regions for APP_DEPLOY_REGIONS from validation_data
+def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data, default_regions):
+    # Extract stage_types for APP_DEPLOY_REGIONS from validation_data
     deploy_region_info = validation_data.get('deploy', {}).get('APP_DEPLOY_REGIONS', {})
-    default_regions = deploy_region_info.get('default', [])
     allowed_stage_types = deploy_region_info.get('stage_types', [])
 
     # Loop through stages in pipeline_yaml
@@ -81,40 +88,39 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
         if isinstance(stage, str) and (stage.lstrip().startswith("#")):
             continue
 
-        # Get template, id, and type
+        # Get template, id, type, and regions (if available)
         template = stage.get('template', '')
         stage_id = stage['parameters'].get('id')
         stage_type = stage['parameters'].get('type')
+        stage_regions = stage['parameters'].get('regions', default_regions)
 
         # Skip 'qa-signoff' stages
         if stage_type == "qa-signoff":
             continue
 
         # Determine the stage prefix
+        stage_prefix = ''
         if "build.yml" in template:
-            stage_prefix = "build"
+            stage_prefix = 'build_'
         elif "deploy.yml" in template:
-            stage_prefix = "deploy"
-        else:
-            stage_prefix = stage_type
+            stage_prefix = 'deploy_'
 
-        # Handle build and deploy stages
-        if stage_prefix in ["build", "deploy"]:
-            deploy_vars = variables_data.get('deploy', {}).get(stage_id, {})
-            regions = deploy_vars.get('APP_DEPLOY_REGIONS', default_regions if stage_type in allowed_stage_types else [])
-
-            # Check if regions are defined, else create a single deployment stage
-            if regions:
-                for region in regions:
-                    region_stage_full_name = f"{stage_prefix}_{stage_id}_{region}"
-                    pipeline_data[region_stage_full_name] = {"type": stage_type, "vars": {}}
-            else:
-                stage_name = f"{stage_prefix}_{stage_id}"
-                pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
+        # Check if the stage type is allowed and regions are applicable
+        if stage_type in allowed_stage_types:
+            # Create region-specific stages
+            for region in stage_regions:
+                regional_stage_id = f"{stage_prefix}{stage_id}_{region}"
+                pipeline_data[regional_stage_id] = {
+                    "type": stage_type,
+                    "vars": variables_data.get(regional_stage_id, {})
+                }
         else:
-            # Handle other types of stages
-            stage_name = f"{stage_prefix}_{stage_id}"
-            pipeline_data[stage_name] = {"type": stage_type, "vars": {}}
+            # Create a single stage without region specification
+            single_stage_id = f"{stage_prefix}{stage_id}"
+            pipeline_data[single_stage_id] = {
+                "type": stage_type,
+                "vars": variables_data.get(single_stage_id, {})
+            }
 
     return pipeline_data
 
@@ -304,7 +310,7 @@ def create_ini_file(pipeline_data):
                     file.write(f'{key} = {value}\n')
             file.write('\n')  # Add a newline for separation between sections
 
-def main(variables_file):
+def main(variables_file, deploy_yaml):
 
     # 1. Find pipeline yaml with reference to variables file
     pipeline_yaml = find_yaml_with_variables(variables_file)
@@ -318,12 +324,14 @@ def main(variables_file):
 
     # 3. Get repo variables
     variables_data=get_variables_data(variables_file)
-        
+
+    default_regions=get_default_regions(deploy_yaml)
+
     # 5. Create object to hold our pipeline data
     pipeline_data={}
 
     # 6. Populate object with stages and their types
-    pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data)
+    pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data, default_regions)
 
     # 4. Verify pipeline yaml and variables file match up
     try:
@@ -371,6 +379,7 @@ def main(variables_file):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('variables_file', type=str, help='Path to the variables JSON file')
+    parser.add_argument('deploy_yaml', type=str, help='Path to the deploy.yml file')
 
     args = parser.parse_args()
-    main(args.variables_file)
+    main(args.variables_file, args.deploy_yaml)
