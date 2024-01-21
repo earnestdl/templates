@@ -19,7 +19,7 @@ stages:
       steps:
         - checkout: templates
         - checkout: self
-        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{ parameters.state }}
+        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.ado/pipelines/deploy.yml
           displayName: Validate pipeline
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
