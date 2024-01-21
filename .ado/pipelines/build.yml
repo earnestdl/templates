@@ -31,11 +31,6 @@ stages:
             cat $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
           displayName: Validated variables state
 
-        #- task: PublishPipelineArtifact@1
-        #  inputs:
-        #    targetPath: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
-        #    artifact: state_variables
-        #    publishLocation: variables
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
           artifact: state
 
@@ -46,4 +41,10 @@ stages:
           inputs:
             artifact: state
             path: $(System.DefaultWorkingDirectory)/variables
-        - script: ls -l
+
+        - script: ./export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini
+          displayName: Export state
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+
+        - script: env | sort
+          displayName: List all variables
