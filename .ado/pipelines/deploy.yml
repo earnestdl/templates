@@ -45,10 +45,14 @@ stages:
     - ${{ if eq(parameters.type, 'openshift') }}:
       - ${{ each region in parameters.regions }}:
         - job: deploy_${{parameters.type}}_${{region}}
-          displayName: Deploy ${{parameters.type}}
+          displayName: Deploy ${{parameters.type}} ${{region}}
           dependsOn: begin_${{parameters.type}}_deploy
           steps:
           - checkout: templates
+          - task: DownloadPipelineArtifact@2
+            inputs:
+              artifact: state
+              path: $(System.DefaultWorkingDirectory)/variables
           - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/scripts
@@ -61,6 +65,10 @@ stages:
         dependsOn: begin_${{parameters.type}}_deploy
         steps:
         - checkout: templates
+        - task: DownloadPipelineArtifact@2
+          inputs:
+            artifact: state
+            path: $(System.DefaultWorkingDirectory)/variables
         - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}
           displayName: Export state
           workingDirectory: $(System.DefaultWorkingDirectory)/scripts
