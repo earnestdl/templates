@@ -49,11 +49,10 @@ stages:
           displayName: Verify state
 
         - script: |
-            chmod +x ${BUILD_SOURCESDIRECTORY}/templates/scripts/export_state.sh
-            bash -c "$BUILD_SOURCESDIRECTORY/templates/scripts/export_state.sh $BUILD_SOURCESDIRECTORY/variables/state.ini build_${{parameters.id}} ado"
-            source $BUILD_SOURCESDIRECTORY/statevars.sh
-            env | sort
+            chmod +x export_state.sh
+            ./export_state.sh $BUILD_SOURCESDIRECTORY/variables/state.ini build_${{parameters.id}} ado
           displayName: Export state
+          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts          
 
         - script: env | sort
           displayName: List all variables
