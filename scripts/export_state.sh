@@ -6,7 +6,7 @@ OUTPUT_FILE="variables.sh"
 
 echo "Processing state for $STAGE:"
 echo "------------------------------------------------------------------------------------"
-awk -v RS='' "/\\[$STAGE\\]/" > "$OUTPUT_FILE"
+awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
 cat "$OUTPUT_FILE"
 echo "------------------------------------------------------------------------------------"
 
