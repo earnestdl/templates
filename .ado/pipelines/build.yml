@@ -31,11 +31,13 @@ stages:
             cat $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
           displayName: Validated variables state
 
-        - task: PublishPipelineArtifact@1
-          inputs:
-            targetPath: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
-            artifact: state_variables
-            publishLocation: variables
+        #- task: PublishPipelineArtifact@1
+        #  inputs:
+        #    targetPath: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
+        #    artifact: state_variables
+        #    publishLocation: variables
+        - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
+          artifact: state
 
     - job: Build
       dependsOn: validate
