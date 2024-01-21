@@ -369,7 +369,7 @@ def main(variables_file):
     #pipeline_data=add_secrets_from_repo(pipeline_data, pipeline_yaml, validation_data, platform)
 
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
-    log("INFO",f"Validated State:\n{pretty_pipeline_data}")
+    log("INFO",f"Validated state:\n{pretty_pipeline_data}")
 
     # 13. Validate pipeline data
     validation_errors = validate_pipeline_data(pipeline_data, validation_data)
