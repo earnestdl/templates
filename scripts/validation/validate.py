@@ -374,11 +374,12 @@ def main(variables_file):
     # 13. Validate pipeline data
     validation_errors = validate_pipeline_data(pipeline_data, validation_data)
     if validation_errors:
-        print("Validation failed with the following errors:")
+        log("INFO","Validation failed with the following errors:")
         for error in validation_errors:
-            print(error)
+            log("INFO",error)
+        exit(1)
     else:
-        print("Validation passed successfully.")
+        log("INFO","Validation passed successfully.")
 
     # 14. create regions variables for azdo parallel job matrix 
     create_regions_json(pipeline_data)
