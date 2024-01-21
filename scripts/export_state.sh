@@ -5,17 +5,10 @@ STAGE=$2
 OUTPUT_FILE="variables.sh"
 
 echo "Processing state for $STAGE:"
-echo "------------------------------------------------------------------------------------"
+echo "---------------------------------------------------"
 awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
-cat "$OUTPUT_FILE"
-echo "------------------------------------------------------------------------------------"
-
-echo "Exporting variables:"
-echo "------------------------------------------------------------------------------------"
-
 while IFS='=' read -r key value; do
     if [[ -n $key && -n $value ]]; then
-        # Trim leading and trailing whitespace
         key=$(echo "$key" | xargs)
         value=$(echo "$value" | xargs)
         echo "$key=$value"
