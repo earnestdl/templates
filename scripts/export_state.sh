@@ -7,8 +7,6 @@ INI_FILE=$1
 STAGE=$2
 PLATFORM=$3
 
-echo Exporting state $INI_FILE for stage $STAGE on $PLATFORM
-
 # Function to parse INI file and export variables
 parse_ini() {
     awk -F'=' -v stage="[$STAGE]" -v platform="$PLATFORM" '
