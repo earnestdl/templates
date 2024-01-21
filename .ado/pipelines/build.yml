@@ -51,8 +51,10 @@ stages:
         - script: |
             chmod +x ${BUILD_SOURCESDIRECTORY}/templates/scripts/export_state.sh
             echo Exporting state file ${BUILD_SOURCESDIRECTORY}/variables/state.ini for build_${{parameters.id}}
-            eval "$($BUILD_SOURCESDIRECTORY/templates/scripts/export_state.sh $BUILD_SOURCESDIRECTORY/variables/state.ini build_${{parameters.id}} ado)"
+            bash -c "$BUILD_SOURCESDIRECTORY/templates/scripts/export_state.sh $BUILD_SOURCESDIRECTORY/variables/state.ini build_${{parameters.id}} ado"
             echo State successfully exported
+            cat statevars.sh
+            source statevars.sh
             env | sort
           displayName: Export state
 
