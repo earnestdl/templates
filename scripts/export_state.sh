@@ -6,14 +6,7 @@ OUTPUT_FILE="variables.sh"
 
 echo "Processing state for $STAGE:"
 echo "------------------------------------------------------------------------------------"
-
-# Use awk to extract the relevant section
-awk -v stage="[$STAGE]" '
-BEGIN {flag=0}
-$0 ~ stage {flag=1; next}
-/^\[/ && flag {flag=0}
-flag' "$INI_FILE" | sed -e 's/ \?= \?/=/g' > "$OUTPUT_FILE"
-
+awk -v RS='' "/\\[$STAGE\\]/" > "$OUTPUT_FILE"
 cat "$OUTPUT_FILE"
 echo "------------------------------------------------------------------------------------"
 
