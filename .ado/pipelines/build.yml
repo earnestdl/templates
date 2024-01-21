@@ -29,6 +29,7 @@ stages:
 
     - ${{ if eq(parameters.type, 'container') }}:
       - job: build_${{parameters.type}}
+        displayName: Build ${{parameters.type}}
         dependsOn: validate
         steps:
           - checkout: templates
@@ -48,6 +49,7 @@ stages:
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: build_${{parameters.type}}
+        displayName: Build ${{parameters.type}}
         dependsOn: validate
         steps:
           - checkout: templates

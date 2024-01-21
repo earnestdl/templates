@@ -5,6 +5,7 @@ import argparse
 
 state_file='state.ini'
 regions_json='regions.json'
+validation_json='validation.json'
 
 def log(level, message):
     print(f"[{level}] {message}")
@@ -28,8 +29,8 @@ def find_yaml_with_variables(variables_file):
                     log("ERROR", f"Error parsing YAML file {file_path}")
     return None
 
-def get_validation_data(validation_file):
-    with open(validation_file, 'r') as file:
+def get_validation_data():
+    with open(validation_json, 'r') as file:
         validation_data = json.load(file)
 
     return validation_data
@@ -309,9 +310,9 @@ def create_regions_json(pipeline_data):
 
     return regions
 
-def create_ini_file(pipeline_data, output_file):
+def create_ini_file(pipeline_data):
 
-    with open(output_file, 'w') as file:
+    with open(state_file, 'w') as file:
         for stage_name, stage_data in pipeline_data.items():
             # Write the section header
             file.write(f'[{stage_name}]\n')
@@ -321,17 +322,7 @@ def create_ini_file(pipeline_data, output_file):
                     file.write(f'{key} = {value}\n')
             file.write('\n')  # Add a newline for separation between sections
 
-def get_platform():
-    if 'GITHUB_ACTIONS' in os.environ:
-        return 'github'
-    elif 'AZURE_HTTP_USER_AGENT' in os.environ:
-        return 'azdo'
-    else:
-        return 'shell'
-
-def main(variables_file, validation_file):
-
-    platform=get_platform()
+def main(variables_file):
 
     # 1. Find pipeline yaml with reference to variables file
     pipeline_yaml = find_yaml_with_variables(variables_file)
@@ -340,11 +331,11 @@ def main(variables_file, validation_file):
     else:
         log("ERROR", "No matching YAML file found.")
 
-    # 2. Get repo variables
-    variables_data=get_variables_data(variables_file)
+    # 2. Get validation data
+    validation_data=get_validation_data()
 
-    # 3. Get validation data
-    validation_data=get_validation_data(validation_file)
+    # 3. Get repo variables
+    variables_data=get_variables_data(variables_file)
         
     # 5. Create object to hold our pipeline data
     pipeline_data={}
@@ -393,13 +384,12 @@ def main(variables_file, validation_file):
     create_regions_json(pipeline_data)
 
     # 12. Create ini file
-    #create_ini_file(pipeline_data)
+    create_ini_file(pipeline_data)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')
     parser.add_argument('variables_file', type=str, help='Path to the variables JSON file')
-    parser.add_argument('validation_file', type=str, help='Path to the validation JSON file')
 
     args = parser.parse_args()
-    main(args.variables_file, args.validation_file)
+    main(args.variables_file)
