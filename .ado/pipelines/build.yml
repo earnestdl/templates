@@ -35,10 +35,7 @@ stages:
           inputs:
             targetPath: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
             artifact: state
-            publishLocation: 'variables'
-
-        #- publish: $(Build.ArtifactStagingDirectory)/variables.ini
-        #  artifact: state        
+            publishLocation: variables
 
     - job: Build
       dependsOn: validate
@@ -46,10 +43,5 @@ stages:
         - task: DownloadPipelineArtifact@2
           inputs:
             artifact: state
-            path: $(System.DefaultWorkingDirectory)/variables' # Path where to place the downloaded artifact
-
-
-        #- download: variables
-        #  artifact: state
-
+            path: $(System.DefaultWorkingDirectory)/variables
         - script: ls -l
