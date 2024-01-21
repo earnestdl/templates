@@ -24,7 +24,7 @@ foreach ($line in $iniContent) {
         $name = $matches[1]
         $value = $matches[2]
 
-        if ($Platform -eq "azdo") {
+        if ($Platform -eq "ado") {
             Write-Host "##vso[task.setvariable variable=$name]$value"
         } elseif ($Platform -eq "github") {
             "$name=$value" | Out-File -Append -FilePath $env:GITHUB_ENV

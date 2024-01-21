@@ -13,7 +13,7 @@ parse_ini() {
     $0 == stage {flag=1; next}
     /^[/[]/ && flag {flag=0}
     flag && NF==2 {
-        if (platform == "azdo") {
+        if (platform == "ado") {
             print "echo \"##vso[task.setvariable variable="$1"]"$2"\""
         } else if (platform == "github") {
             print $1"="$2" >> $GITHUB_ENV"

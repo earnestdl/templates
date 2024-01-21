@@ -47,7 +47,7 @@ stages:
 
         - script: |
             chmod +x $(System.DefaultWorkingDirectory)/templates/scripts/export_state.sh
-            bash -c "$(System.DefaultWorkingDirectory)/templates/scripts/export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini"
+            bash -c "$(System.DefaultWorkingDirectory)/templates/scripts/export_state.sh $(System.DefaultWorkingDirectory)/variables/state.ini build_${{ parameters.id }} ado"
           displayName: Export state
 
         - script: env | sort
