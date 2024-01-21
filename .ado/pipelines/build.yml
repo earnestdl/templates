@@ -44,6 +44,6 @@ stages:
       steps:
         - task: DownloadPipelineArtifact@2
           inputs:
-            artifact: state_variables
+            artifact: state
             path: $(System.DefaultWorkingDirectory)/variables
         - script: ls -l
