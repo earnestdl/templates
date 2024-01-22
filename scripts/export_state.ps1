@@ -1,33 +1,53 @@
-# Usage: .\script.ps1 -IniFile "ini_file" -Stage "stage" -Platform "platform"
-# Example: .\script.ps1 -IniFile ".\variables.ini" -Stage "build_default" -Platform "azdo"
-
 param (
-    [String]$IniFile,
-    [String]$Stage,
-    [String]$Platform
+    [string]$INI_FILE,
+    [string]$STAGE
 )
 
-$iniContent = Get-Content $IniFile
-$sectionFound = $false
+$OUTPUT_FILE = "variables.ps1"
 
-foreach ($line in $iniContent) {
-    if ($line -like "[$Stage]") {
-        $sectionFound = $true
-        continue
+function Get-Platform {
+    if ($env:GITHUB_ACTIONS) {
+        return "github"
+    } elseif ($env:AZURE_HTTP_USER_AGENT) {
+        return "azdo"
+    } else {
+        return "shell"
     }
+}
 
-    if ($sectionFound -and $line -match "^\[.*\]$") {
-        break
-    }
+$platform = Get-Platform
+Write-Host "Processing state for $STAGE on $platform:"
+Write-Host "---------------------------------------------------"
 
-    if ($sectionFound -and $line -match "^(.*?)\s*=\s*(.*)$") {
-        $name = $matches[1]
-        $value = $matches[2]
+Get-Content $INI_FILE | Select-String "\[$STAGE\]" | Out-File $OUTPUT_FILE
 
-        if ($Platform -eq "ado") {
-            Write-Host "##vso[task.setvariable variable=$name]$value"
-        } elseif ($Platform -eq "github") {
-            "$name=$value" | Out-File -Append -FilePath $env:GITHUB_ENV
+Get-Content $OUTPUT_FILE | ForEach-Object {
+    $split = $_ -split '=', 2
+    $key = $split[0]
+    $value = $split[1]
+
+    if ($key -and $value) {
+        Write-Host "$key=$value"
+
+        # Check for spaces in value and encapsulate in quotes if necessary
+        if ($value -match ' ') {
+            $value = "`"$value`""
+        }
+
+        switch ($platform) {
+            'github' {
+                # Handling for GitHub Actions
+                Write-Host "::set-env name=$key::$value"
+            }
+            'azdo' {
+                # Handling for Azure DevOps
+                [System.Environment]::SetEnvironmentVariable($key, $value)
+                Write-Host "##vso[task.setvariable variable=$key]$value"
+            }
+            'shell' {
+                # Default shell export
+                [System.Environment]::SetEnvironmentVariable($key, $value)
+            }
         }
     }
 }

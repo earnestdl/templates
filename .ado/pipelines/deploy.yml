@@ -27,21 +27,6 @@ stages:
         steps:
         - script: echo manual qa-signoff
 
-    - ${{ if ne(parameters.type, 'qa-signoff') }}:
-      - job: begin_${{parameters.type}}_deploy
-        displayName: Begin ${{parameters.type}} deploy
-        steps:
-        - checkout: templates
-        - task: DownloadPipelineArtifact@2
-          inputs:
-            artifact: state
-            path: $(System.DefaultWorkingDirectory)/variables
-        - script: |
-            python process_regions.py ${BUILD_SOURCESDIRECTORY}/variables/state.ini
-            echo "##vso[task.setvariable variable=deploymentRegions;isOutput=true]$(cat regions.json)"
-          displayName: Process regions 
-          workingDirectory: $(System.DefaultWorkingDirectory)/scripts
-
     - ${{ if eq(parameters.type, 'openshift') }}:
       - ${{ each region in parameters.regions }}:
         - job: deploy_${{parameters.type}}_${{region}}
@@ -74,14 +59,3 @@ stages:
           workingDirectory: $(System.DefaultWorkingDirectory)/scripts
         - script: env | sort
           displayName: List all variables
-
-    - ${{ if ne(parameters.type, 'qa-signoff') }}:
-      - job: end_${{parameters.type}}_deploy
-        displayName: End ${{parameters.type}} deploy
-        dependsOn: 
-          - begin_${{parameters.type}}_deploy
-          - ${{ each region in parameters.regions }}:
-            - deploy_${{parameters.type}}_${{region}}
-        steps:
-          - script: echo AutoCRQ...
-            displayName: AutoCRQ

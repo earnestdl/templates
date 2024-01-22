@@ -14,13 +14,13 @@ stages:
   displayName: 'Build ${{ parameters.id }}'
 
   jobs:
-    - job: begin_${{parameters.type}}_build
-      displayName: Begin ${{parameters.type}} build
+    - job: validate_${{parameters.type}}_build
+      displayName: Validate ${{parameters.type}} build
       steps:
         - checkout: templates
         - checkout: self
         - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.ado/pipelines/deploy.yml
-          displayName: Validate pipeline
+          displayName: Validate state
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
           artifact: state
@@ -28,7 +28,7 @@ stages:
     - ${{ if eq(parameters.type, 'container') }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
-        dependsOn: begin_${{parameters.type}}_build
+        dependsOn: validate_${{parameters.type}}_build
         steps:
           - checkout: templates
           - checkout: self
@@ -48,7 +48,7 @@ stages:
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
-        dependsOn: begin_${{parameters.type}}_build
+        dependsOn: validate_${{parameters.type}}_build
         steps:
           - checkout: templates
           - checkout: self
@@ -64,12 +64,3 @@ stages:
 
           - script: echo Building for Windows...
             displayName: Build application
-
-    - job: end_${{parameters.type}}_build
-      displayName: End ${{parameters.type}} build
-      dependsOn:
-        - begin_${{parameters.type}}_build
-        - build_${{parameters.type}}
-      steps:
-        - script: echo AutoCRQ...
-          displayName: AutoCRQ
