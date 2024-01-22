@@ -314,7 +314,7 @@ def create_ini_file(pipeline_data):
             if "vars" in stage_data:
                 for key, value in stage_data["vars"].items():
                     # Write each key-value pair
-                    file.write(f'{key} = {value}\n')
+                    file.write(f'{key}={value}\n')
             file.write('\n')  # Add a newline for separation between sections
 
 def main(variables_file, deploy_yaml):
