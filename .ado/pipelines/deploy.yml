@@ -31,7 +31,6 @@ stages:
       - ${{ each region in parameters.regions }}:
         - job: deploy_${{parameters.type}}_${{region}}
           displayName: Deploy ${{parameters.type}} ${{region}}
-          dependsOn: begin_${{parameters.type}}_deploy
           steps:
           - checkout: templates
           - task: DownloadPipelineArtifact@2
@@ -47,7 +46,6 @@ stages:
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
-        dependsOn: begin_${{parameters.type}}_deploy
         steps:
         - checkout: templates
         - task: DownloadPipelineArtifact@2
