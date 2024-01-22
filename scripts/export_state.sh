@@ -18,9 +18,13 @@ echo "---------------------------------------------------"
 awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
 while IFS='=' read -r key value; do
     if [[ -n $key && -n $value ]]; then
-        key=$(echo "$key" | xargs)
-        value=$(echo "$value" | xargs)
+        # No need to trim spaces anymore
         echo "$key=$value"
+
+        # Check for spaces in value
+        if [[ $value =~ \  ]]; then
+            value="\"$value\""
+        fi
         
         case $PLATFORM in
         'github')
