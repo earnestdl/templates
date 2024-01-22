@@ -209,12 +209,13 @@ def override_region_specific_vars(pipeline_data, variables_data):
 
     return pipeline_data
 
-def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data):
+def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions):
     for stage in pipeline_yaml.get('stages', []):
         stage_id = stage['parameters'].get('id', '')
         secrets = stage['parameters'].get('secrets', {})
+        # Use overridden regions if provided, otherwise use default regions
+        provided_regions = stage['parameters'].get('regions', default_regions)
 
-        # Skip 'deploy_qa_signoff' stage
         if stage_id == 'qa_signoff':
             continue
 
@@ -222,16 +223,19 @@ def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data):
         matching_stages = [key for key in pipeline_data if key.startswith(f"deploy_{stage_id}")]
 
         for secret_key, secret_value in secrets.items():
-            # Check if the secret is region-specific
-            region_specific = any(region in secret_key.upper() for region in ['_EAST', '_WEST'])
+            secret_assigned = False
+            for region in provided_regions:
+                region_suffix = f"_{region.upper()}"
+                if secret_key.upper().endswith(region_suffix):
+                    # Find the matching stage for this region-specific secret
+                    for stage_key in matching_stages:
+                        if stage_key.endswith(region.lower()):
+                            pipeline_data[stage_key]['vars'][secret_key] = secret_value
+                            secret_assigned = True
+                            break
 
-            if region_specific:
-                # Add the secret to the corresponding region-specific stage
-                for stage_key in matching_stages:
-                    if secret_key.upper().endswith(stage_key.split('_')[-1].upper()):
-                        pipeline_data[stage_key]['vars'][secret_key] = secret_value
-            else:
-                # Add non-region-specific secrets to all matching stages
+            # For non-region-specific secrets or if the region-specific secret has not been assigned
+            if not secret_assigned:
                 for stage_key in matching_stages:
                     pipeline_data[stage_key]['vars'][secret_key] = secret_value
 
@@ -277,6 +281,7 @@ def validate_pipeline_data(pipeline_data, validation_data):
 
             # Check if the variable is required
             if var_details.get('required', False):
+
                 if var_name not in stage_vars:
                     errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage.")
                 else:
@@ -299,6 +304,7 @@ def validate_pipeline_data(pipeline_data, validation_data):
     # Stage-specific validation
     for stage_category in ['build', 'deploy']:
         stage_vars = validation_data.get(stage_category, {})
+
         for stage_name, stage_details in pipeline_data.items():
             if stage_category in stage_name:  # Check if stage name contains the category name
                 check_variables(stage_details['type'], stage_details['vars'], stage_vars, stage_name)
@@ -363,7 +369,7 @@ def main(variables_file, deploy_yaml):
     pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
 
     # 12. Populate pipeline data with secrets from repo
-    pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data)
+    pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions)
 
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
     log("INFO",f"Validated state:\n{pretty_pipeline_data}")

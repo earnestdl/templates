@@ -59,13 +59,46 @@
             "type": "string",
             "stage_types": ["openshift"]
         },    
-        "OPENSHIFT_CLUSTER_1": {
+        "OPENSHIFT_CLUSTER_NORTH": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"],
+            "regions": ["north"],
+            "default": "openshift-cluster-north.com"
+        },    
+        "OPENSHIFT_CLUSTER_SOUTH": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"],
+            "regions": ["south"],
+            "default": "openshift-cluster-south.com"
+        },    
+        "OPENSHIFT_CLUSTER_EAST": {
             "required": true,
             "type": "string",
             "stage_types": ["openshift"],
             "regions": ["east"],
-            "default": "mycluster1.com"
+            "default": "openshift-cluster-east.com"
         },    
+        "OPENSHIFT_CLUSTER_WEST": {
+            "required": true,
+            "type": "string",
+            "stage_types": ["openshift"],
+            "regions": ["west"],
+            "default": "openshift-cluster-west.com"
+        },    
+        "OPENSHIFT_TOKEN_NORTH": {
+            "required": true,
+            "type": "secret",
+            "stage_types": ["openshift"],            
+            "regions": ["north"]
+        },
+        "OPENSHIFT_TOKEN_SOUTH": {
+            "required": true,
+            "type": "secret",
+            "stage_types": ["openshift"],            
+            "regions": ["south"]
+        },
         "OPENSHIFT_TOKEN_EAST": {
             "required": true,
             "type": "secret",
