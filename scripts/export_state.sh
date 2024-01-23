@@ -18,6 +18,28 @@ echo "Processing state for $STAGE on $PLATFORM:"
 echo "---------------------------------------------------"
 awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
 
+# Handle regular variables
+while IFS='=' read -r key value; do
+    if [[ -n $key && -n $value ]]; then
+        echo "$key=$value"
+        case $PLATFORM in
+        'github')
+            # Handling for GitHub Actions
+            echo "$key=$value" >> $GITHUB_ENV
+            ;;
+        'azdo')
+            # Handling for Azure DevOps
+            export "$key=$value"
+            echo "##vso[task.setvariable variable=$key]$value"
+            ;;
+        'shell')
+            # Default shell export
+            export "$key=$value"
+            ;;
+        esac
+    fi
+done < "$OUTPUT_FILE"
+
 # Handle secrets
 if [ -n "$SECRETS_JSON" ]; then
     echo "Setting secrets..."
@@ -40,25 +62,3 @@ if [ -n "$SECRETS_JSON" ]; then
         esac
     done
 fi
-
-# Handle regular variables
-while IFS='=' read -r key value; do
-    if [[ -n $key && -n $value ]]; then
-        echo "$key=$value"
-        case $PLATFORM in
-        'github')
-            # Handling for GitHub Actions
-            echo "$key=$value" >> $GITHUB_ENV
-            ;;
-        'azdo')
-            # Handling for Azure DevOps
-            export "$key=$value"
-            echo "##vso[task.setvariable variable=$key]$value"
-            ;;
-        'shell')
-            # Default shell export
-            export "$key=$value"
-            ;;
-        esac
-    fi
-done < "$OUTPUT_FILE"
