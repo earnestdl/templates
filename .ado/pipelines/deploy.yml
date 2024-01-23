@@ -44,7 +44,10 @@ stages:
             env:
               SECRETS: ${{ convertToJson(parameters.secrets) }}
 
-          - script: env | sort
+          - script: |
+              echo $OPENSHIFT_TOKEN_EAST
+              echo $API_KEY 
+              env | sort
             displayName: List all variables
 
     - ${{ if eq(parameters.type, 'windows') }}:
