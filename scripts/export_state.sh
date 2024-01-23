@@ -2,7 +2,7 @@
 
 INI_FILE=$1
 STAGE=$2
-SECRETS_JSON=$3
+SECRETS_JSON=$SECRETS
 OUTPUT_FILE="variables.sh"
 
 # Detecting platform
