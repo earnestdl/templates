@@ -38,9 +38,9 @@ stages:
               artifact: state
               path: $(System.DefaultWorkingDirectory)/variables
 
-          - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}_${{region}} ${{parameters.secrets}}
+          - script: chmod +x export_state.sh && ./export_state.sh $(BUILD_SOURCESDIRECTORY)/variables/state.ini deploy_${{ parameters.id }}_${{ region }} "$(convertToJson ${{ parameters.secrets }})"
             displayName: Export state
-            workingDirectory: $(System.DefaultWorkingDirectory)/scripts
+            workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
 
 #          - powershell: |
 #              $secrets = '${{ convertToJson(parameters.secrets) }}' | ConvertFrom-Json
