@@ -1,40 +1,34 @@
-#!/bin/bash
-
-INI_FILE=$1
-STAGE=$2
-OUTPUT_FILE="variables.sh"
-
-# Detecting platform
-if [ -n "$GITHUB_ACTIONS" ]; then
-    PLATFORM='github'
-elif [ -n "$AZURE_HTTP_USER_AGENT" ]; then
-    PLATFORM='azdo'
-else
-    PLATFORM='shell'
-fi
-
-echo "Processing state for $STAGE on $PLATFORM:"
-echo "---------------------------------------------------"
-awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
 while IFS='=' read -r key value; do
     if [[ -n $key && -n $value ]]; then
-        # No need to trim spaces anymore
+        # Check if the value is in the secret format
+        if [[ $value == \$\(*\) || $value == \${{ secrets.* }} ]]; then
+            is_secret=true
+        else
+            is_secret=false
+        fi
+
+        # Print the variable (for debugging purposes, you might want to remove this in production)
         echo "$key=$value"
 
-        # Check for spaces in value
-        if [[ $value =~ \  ]]; then
-            value="\"$value\""
-        fi
-        
         case $PLATFORM in
         'github')
             # Handling for GitHub Actions
-            echo "::set-env name=$key::$value"
+            if [ "$is_secret" = true ]; then
+                # Treat as a secret
+                echo "$key=$value" >> $GITHUB_ENV
+            else
+                echo "$key='$value'" >> $GITHUB_ENV
+            fi
             ;;
         'azdo')
             # Handling for Azure DevOps
-            export "$key=$value"
-            echo "##vso[task.setvariable variable=$key]$value"
+            if [ "$is_secret" = true ]; then
+                # Treat as a secret
+                echo "##vso[task.setvariable variable=$key;isSecret=true]$value"
+            else
+                export "$key=$value"
+                echo "##vso[task.setvariable variable=$key]$value"
+            fi
             ;;
         'shell')
             # Default shell export
