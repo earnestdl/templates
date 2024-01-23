@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import yaml
 import argparse
@@ -325,37 +326,60 @@ def validate_pipeline_data(pipeline_data, validation_data):
 
     return errors
 
-def create_ini_file_current(pipeline_data):
-
-    with open(state_file, 'w') as file:
-        for stage_name, stage_data in pipeline_data.items():
-            # Write the section header
-            file.write(f'[{stage_name}]\n')
-            if "vars" in stage_data:
-                for key, value in stage_data["vars"].items():
-                    # Write each key-value pair
-                    file.write(f'{key}={value}\n')
-            file.write('\n')  # Add a newline for separation between sections
-
-def create_ini_file(pipeline_data):
-    ini_content = ""
+def create_validated_state(pipeline_data):
+    validated_state= ""
 
     for stage_name, stage_data in pipeline_data.items():
         # Write the section header to the string
-        ini_content += f'[{stage_name}]\n'
+        validated_state += f'[{stage_name}]\n'
         if "vars" in stage_data:
             for key, value in stage_data["vars"].items():
                 # Write each key-value pair to the string
-                ini_content += f'{key}={value}\n'
-        ini_content += '\n'  # Add a newline for separation between sections
+                validated_state += f'{key}={value}\n'
+        validated_state += '\n'  # Add a newline for separation between sections
 
-    # Write the string to the INI file
+    return validated_state
+
+def remove_region_identifiers(validated_state):
+    # Split the content into stages
+    stages = re.split(r'(\[\w+\])', validated_state)
+
+    # Process each stage
+    processed_stages = []
+    region = None  # Initialize region variable
+    for stage in stages:
+        if stage.startswith('['):  # Check if it's a stage header
+            header_match = re.match(r'\[(\w+_\w+)_(\w+)\]', stage)
+            if header_match:
+                _, region = header_match.groups()
+                region = region.upper()  # Ensure region is uppercase
+            processed_stages.append(stage.strip() + '\n')  # Append the stage header with newline
+        else:
+            # Process the variables in the stage
+            if region:
+                processed_variables = []
+                for line in stage.split('\n'):
+                    if line.strip() and '=' in line:
+                        # Split variable name and value
+                        var_name, var_value = line.split('=', 1)
+                        # Remove the region suffix from the variable name if present
+                        if var_name.endswith(f'_{region}'):
+                            var_name = var_name[:-len(region) - 1]
+                        processed_variables.append(f'{var_name}={var_value}')
+                processed_stage = '\n'.join(processed_variables)
+                processed_stages.append(processed_stage.strip() + '\n\n')  # Append variables with newline
+            else:
+                # If region is not set, append the stage as is
+                processed_stages.append(stage.strip() + '\n\n')  # Append non-region stage with newline
+
+    # Combine the processed stages back into the full content
+    return ''.join(processed_stages).strip()
+
+def create_state_file(validated_state):
     with open(state_file, 'w') as file:
-        file.write(ini_content)
+        file.write(validated_state)
 
-    # Return the INI file content
-    return ini_content
-
+    return validated_state
 
 def main(variables_file, deploy_yaml):
 
@@ -419,8 +443,14 @@ def main(variables_file, deploy_yaml):
     else:
         log("INFO","Validation passed successfully.")
 
-    # 15. Create ini file
-    validated_state=create_ini_file(pipeline_data)    
+    # 15. Create validated state in ini format
+    validated_state=create_validated_state(pipeline_data)
+
+    # 16. Remove region identifiers from state
+    validated_state=remove_region_identifiers(validated_state)
+
+    # 15. Create state file
+    validated_state=create_state_file(validated_state)    
     log("INFO",f"Validated state:\n{validated_state}")
 
 if __name__ == "__main__":
