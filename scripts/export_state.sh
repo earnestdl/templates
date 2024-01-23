@@ -14,11 +14,9 @@ else
     PLATFORM='shell'
 fi
 
-echo "Processing state for $STAGE on $PLATFORM:"
+echo "Processing state variables for $STAGE on $PLATFORM:"
 echo "---------------------------------------------------"
 awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
-
-# Handle regular variables
 while IFS='=' read -r key value; do
     if [[ -n $key && -n $value ]]; then
         echo "$key=$value"
@@ -40,7 +38,8 @@ while IFS='=' read -r key value; do
     fi
 done < "$OUTPUT_FILE"
 
-# Handle secrets
+echo "Processing state secrets for $STAGE on $PLATFORM:"
+echo "---------------------------------------------------"
 if [ -n "$SECRETS_JSON" ]; then
     echo "Setting secrets..."
     for key in $(echo $SECRETS_JSON | jq -r 'keys[]'); do
