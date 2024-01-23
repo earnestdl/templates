@@ -190,24 +190,29 @@ def add_stage_vars_from_repo(pipeline_data, variables_data):
 
     return pipeline_data
 
-def override_region_specific_vars(pipeline_data, variables_data):
-    # Iterate through each stage in pipeline_data
+def override_region_specific_vars(pipeline_data, validation_data):
+    # Loop through pipeline data and find stages that start with "deploy_"
     for stage_name, stage_info in pipeline_data.items():
         if stage_name.startswith("deploy_"):
-            # Extract the deployment stage and region
-            _, deploy_stage, region = stage_name.split('_')
+            # Extract the region (the token after the last "_")
+            region = stage_name.rsplit('_', 1)[-1]
 
-            # Construct the region-specific key in variables_data
-            region_specific_key = f"{deploy_stage}_{region}"
+            # Extract the stage type
+            stage_type = stage_info['type']
 
-            # Check if region-specific key exists in variables_data under 'deploy'
-            if 'deploy' in variables_data and region_specific_key in variables_data['deploy']:
-                # Update or add region-specific variables in this stage's vars
-                if 'vars' not in stage_info:
-                    stage_info['vars'] = {}
-                stage_info['vars'].update(variables_data['deploy'][region_specific_key])
+            # Check if the region exists in the validation data
+            if region in validation_data['regions']:
+                region_data = validation_data['regions'][region]
+
+                # Loop through the variables in the region
+                for var_name, var_info in region_data.items():
+                    # Check if the variable's stage type matches and has a default value
+                    if 'stage_types' in var_info and stage_type in var_info['stage_types'] and 'default' in var_info:
+                        # Add the variable and its default value to the pipeline stage
+                        pipeline_data[stage_name]['vars'][var_name] = var_info['default']
 
     return pipeline_data
+
 
 def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions):
     for stage in pipeline_yaml.get('stages', []):
@@ -249,39 +254,30 @@ def validate_pipeline_data(pipeline_data, validation_data):
             return "bool"
         elif isinstance(value, int):
             return "int"
-        elif isinstance(value, str):
-            return "string"
         elif isinstance(value, list):
             return "array"
+        elif isinstance(value, dict):
+            return "dict"
         elif isinstance(value, str):
             # Recognize secret placeholders for both Azure DevOps and GitHub Actions
             if value.startswith("$(") and value.endswith(")") or \
             value.startswith("${{ secrets.") and value.endswith(" }}"):
                 return "secret"
-            return "string"        
-        elif isinstance(value, dict):
-            return "dict"
+            return "string"
         else:
             return "unknown"
-        
-    def check_variables(stage_type, stage_vars, required_vars, stage_name):
+
+    def check_variables(stage_type, stage_vars, required_vars, stage_name, region_specific_vars=None):
         # Extract the region from the stage name, if any
-        parts = stage_name.split('_')
-        stage_region = parts[-1] if len(parts) > 2 else None
+        stage_region = stage_name.rsplit('_', 1)[-1] if stage_name.count('_') > 1 else None
 
         for var_name, var_details in required_vars.items():
-            # Skip variables not relevant for this region
-            required_regions = var_details.get('regions')
-            if required_regions and stage_region not in required_regions:
-                continue
-
             # Skip variables not matching the stage type
             if var_details.get('stage_types') and stage_type not in var_details['stage_types']:
                 continue
 
             # Check if the variable is required
             if var_details.get('required', False):
-
                 if var_name not in stage_vars:
                     errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage.")
                 else:
@@ -296,6 +292,24 @@ def validate_pipeline_data(pipeline_data, validation_data):
                         if actual_type != expected_type:
                             errors.append(f"Variable '{var_name}' in '{stage_name}' stage is of type '{actual_type}', expected '{expected_type}'.")
 
+        # Check region-specific variables
+        if stage_region and region_specific_vars:
+            regional_vars = region_specific_vars.get(stage_region, {})
+            for var_name, var_details in regional_vars.items():
+                # Additional check for stage types in regional vars
+                if var_details.get('stage_types') and stage_type not in var_details['stage_types']:
+                    continue
+
+                # Check if the variable is required
+                if var_details.get('required', False):
+                    if var_name not in stage_vars:
+                        errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage (region '{stage_region}').")
+                    else:
+                        actual_type = get_variable_type(stage_vars.get(var_name, ""))
+                        expected_type = var_details['type']
+                        if actual_type != expected_type:
+                            errors.append(f"Variable '{var_name}' in '{stage_name}' stage (region '{stage_region}') is of type '{actual_type}', expected '{expected_type}'.")
+
     # Global validation
     global_vars = validation_data.get('global', {})
     for stage_name, stage_details in pipeline_data.items():
@@ -307,11 +321,11 @@ def validate_pipeline_data(pipeline_data, validation_data):
 
         for stage_name, stage_details in pipeline_data.items():
             if stage_category in stage_name:  # Check if stage name contains the category name
-                check_variables(stage_details['type'], stage_details['vars'], stage_vars, stage_name)
+                check_variables(stage_details['type'], stage_details['vars'], stage_vars, stage_name, validation_data.get('regions', {}))
 
     return errors
 
-def create_ini_file(pipeline_data):
+def create_ini_file_current(pipeline_data):
 
     with open(state_file, 'w') as file:
         for stage_name, stage_data in pipeline_data.items():
@@ -322,6 +336,26 @@ def create_ini_file(pipeline_data):
                     # Write each key-value pair
                     file.write(f'{key}={value}\n')
             file.write('\n')  # Add a newline for separation between sections
+
+def create_ini_file(pipeline_data):
+    ini_content = ""
+
+    for stage_name, stage_data in pipeline_data.items():
+        # Write the section header to the string
+        ini_content += f'[{stage_name}]\n'
+        if "vars" in stage_data:
+            for key, value in stage_data["vars"].items():
+                # Write each key-value pair to the string
+                ini_content += f'{key}={value}\n'
+        ini_content += '\n'  # Add a newline for separation between sections
+
+    # Write the string to the INI file
+    with open(state_file, 'w') as file:
+        file.write(ini_content)
+
+    # Return the INI file content
+    return ini_content
+
 
 def main(variables_file, deploy_yaml):
 
@@ -340,13 +374,13 @@ def main(variables_file, deploy_yaml):
 
     default_regions=get_default_regions(deploy_yaml)
 
-    # 5. Create object to hold our pipeline data
+    # 4. Create object to hold our pipeline data
     pipeline_data={}
 
-    # 6. Populate object with stages and their types
+    # 5. Populate object with stages and their types
     pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, validation_data, default_regions)
 
-    # 4. Verify pipeline yaml and variables file match up
+    # 6. Verify pipeline yaml and variables file match up
     try:
         validate_stage_consistency(pipeline_data, variables_data)
         log("INFO","Stage consistency validated successfully.")
@@ -366,15 +400,16 @@ def main(variables_file, deploy_yaml):
     pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
     # 11. Populate pipeline data with region-specific vars from repo variables
-    pipeline_data=override_region_specific_vars(pipeline_data, variables_data)
+    pipeline_data=override_region_specific_vars(pipeline_data, validation_data)
 
     # 12. Populate pipeline data with secrets from repo
     pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions)
 
+    # 13. Print out the data being validated
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
-    log("INFO",f"Validated state:\n{pretty_pipeline_data}")
+    log("INFO",f"Validating state:\n{pretty_pipeline_data}")
 
-    # 13. Validate pipeline data
+    # 14. Validate pipeline data
     validation_errors = validate_pipeline_data(pipeline_data, validation_data)
     if validation_errors:
         log("INFO","Validation failed with the following errors:")
@@ -384,9 +419,9 @@ def main(variables_file, deploy_yaml):
     else:
         log("INFO","Validation passed successfully.")
 
-    # 12. Create ini file
-    create_ini_file(pipeline_data)
-
+    # 15. Create ini file
+    validated_state=create_ini_file(pipeline_data)    
+    log("INFO",f"Validated state:\n{validated_state}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')

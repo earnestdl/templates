@@ -58,58 +58,60 @@
             "required": true,
             "type": "string",
             "stage_types": ["openshift"]
-        },    
-        "OPENSHIFT_CLUSTER_NORTH": {
-            "required": true,
-            "type": "string",
-            "stage_types": ["openshift"],
-            "regions": ["north"],
-            "default": "openshift-cluster-north.com"
-        },    
-        "OPENSHIFT_CLUSTER_SOUTH": {
-            "required": true,
-            "type": "string",
-            "stage_types": ["openshift"],
-            "regions": ["south"],
-            "default": "openshift-cluster-south.com"
-        },    
-        "OPENSHIFT_CLUSTER_EAST": {
-            "required": true,
-            "type": "string",
-            "stage_types": ["openshift"],
-            "regions": ["east"],
-            "default": "openshift-cluster-east.com"
-        },    
-        "OPENSHIFT_CLUSTER_WEST": {
-            "required": true,
-            "type": "string",
-            "stage_types": ["openshift"],
-            "regions": ["west"],
-            "default": "openshift-cluster-west.com"
-        },    
-        "OPENSHIFT_TOKEN_NORTH": {
-            "required": true,
-            "type": "secret",
-            "stage_types": ["openshift"],            
-            "regions": ["north"]
+        }    
+    },
+    "regions": {
+        "north": {
+            "OPENSHIFT_CLUSTER_NORTH": {
+                "required": true,
+                "type": "string",
+                "stage_types": ["openshift"],
+                "default": "${APP_DEPLOY_ENV}-north.openshift-cluster.com"
+            },    
+            "OPENSHIFT_TOKEN_NORTH": {
+                "required": true,
+                "type": "secret",
+                "stage_types": ["openshift"]            
+            }
         },
-        "OPENSHIFT_TOKEN_SOUTH": {
-            "required": true,
-            "type": "secret",
-            "stage_types": ["openshift"],            
-            "regions": ["south"]
+        "south":{
+            "OPENSHIFT_CLUSTER_SOUTH": {
+                "required": true,
+                "type": "string",
+                "stage_types": ["openshift"],
+                "default": "${APP_DEPLOY_ENV}-south.openshift-cluster.com"
+            },    
+            "OPENSHIFT_TOKEN_SOUTH": {
+                "required": true,
+                "type": "secret",
+                "stage_types": ["openshift"]
+            }
         },
-        "OPENSHIFT_TOKEN_EAST": {
-            "required": true,
-            "type": "secret",
-            "stage_types": ["openshift"],            
-            "regions": ["east"]            
+        "east":{
+            "OPENSHIFT_CLUSTER_EAST": {
+                "required": true,
+                "type": "string",
+                "stage_types": ["openshift"],
+                "default": "${APP_DEPLOY_ENV}-east.openshift-cluster.com"
+            },    
+            "OPENSHIFT_TOKEN_EAST": {
+                "required": true,
+                "type": "secret",
+                "stage_types": ["openshift"]   
+            }
         },
-        "OPENSHIFT_TOKEN_WEST": {
-            "required": true,
-            "type": "secret",
-            "stage_types": ["openshift"],            
-            "regions": ["west"]
+        "west":{
+            "OPENSHIFT_CLUSTER_WEST": {
+                "required": true,
+                "type": "string",
+                "stage_types": ["openshift"],
+                "default": "${APP_DEPLOY_ENV}-west-openshift-cluster.com"
+            },    
+            "OPENSHIFT_TOKEN_WEST": {
+                "required": true,
+                "type": "secret",
+                "stage_types": ["openshift"]
+            }
         }
-    }
+    }    
 }
