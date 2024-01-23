@@ -23,6 +23,7 @@ if [ -n "$SECRETS_JSON" ]; then
     echo "Setting secrets..."
     for key in $(echo $SECRETS_JSON | jq -r 'keys[]'); do
         value=$(echo $SECRETS_JSON | jq -r ".${key}")
+        echo "$key=$value"
         case $PLATFORM in
         'github')
             # Handling for GitHub Actions
@@ -43,6 +44,7 @@ fi
 # Handle regular variables
 while IFS='=' read -r key value; do
     if [[ -n $key && -n $value ]]; then
+        echo "$key=$value"
         case $PLATFORM in
         'github')
             # Handling for GitHub Actions
