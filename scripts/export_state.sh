@@ -1,34 +1,57 @@
-while IFS='=' read -r key value; do
-    if [[ -n $key && -n $value ]]; then
-        # Check if the value is in the secret format
-        if [[ $value == \$\(*\) || $value == \${{ secrets.* }} ]]; then
-            is_secret=true
-        else
-            is_secret=false
-        fi
+#!/bin/bash
 
-        # Print the variable (for debugging purposes, you might want to remove this in production)
-        echo "$key=$value"
+INI_FILE=$1
+STAGE=$2
+SECRETS_JSON=$3
+OUTPUT_FILE="variables.sh"
 
+# Detecting platform
+if [ -n "$GITHUB_ACTIONS" ]; then
+    PLATFORM='github'
+elif [ -n "$AZURE_HTTP_USER_AGENT" ]; then
+    PLATFORM='azdo'
+else
+    PLATFORM='shell'
+fi
+
+echo "Processing state for $STAGE on $PLATFORM:"
+echo "---------------------------------------------------"
+awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
+
+# Handle secrets
+if [ -n "$SECRETS_JSON" ]; then
+    echo "Setting secrets..."
+    for key in $(echo $SECRETS_JSON | jq -r 'keys[]'); do
+        value=$(echo $SECRETS_JSON | jq -r ".${key}")
         case $PLATFORM in
         'github')
             # Handling for GitHub Actions
-            if [ "$is_secret" = true ]; then
-                # Treat as a secret
-                echo "$key=$value" >> $GITHUB_ENV
-            else
-                echo "$key='$value'" >> $GITHUB_ENV
-            fi
+            echo "$key=$value" >> $GITHUB_ENV
             ;;
         'azdo')
             # Handling for Azure DevOps
-            if [ "$is_secret" = true ]; then
-                # Treat as a secret
-                echo "##vso[task.setvariable variable=$key;isSecret=true]$value"
-            else
-                export "$key=$value"
-                echo "##vso[task.setvariable variable=$key]$value"
-            fi
+            echo "##vso[task.setvariable variable=$key;isSecret=true]$value"
+            ;;
+        'shell')
+            # Default shell export
+            export "$key=$value"
+            ;;
+        esac
+    done
+fi
+
+# Handle regular variables
+while IFS='=' read -r key value; do
+    if [[ -n $key && -n $value ]]; then
+        case $PLATFORM in
+        'github')
+            # Handling for GitHub Actions
+            echo "$key=$value" >> $GITHUB_ENV
+            ;;
+        'azdo')
+            # Handling for Azure DevOps
+            export "$key=$value"
+            echo "##vso[task.setvariable variable=$key]$value"
             ;;
         'shell')
             # Default shell export
