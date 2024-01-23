@@ -2,7 +2,6 @@
 
 INI_FILE=$1
 STAGE=$2
-SECRETS_JSON=$SECRETS
 OUTPUT_FILE="variables.sh"
 
 # Detecting platform
@@ -17,36 +16,20 @@ fi
 echo "Processing state for $STAGE on $PLATFORM:"
 echo "---------------------------------------------------"
 awk -v RS='' "/\\[$STAGE\\]/" "$INI_FILE" > "$OUTPUT_FILE"
-
-# Handle secrets
-if [ -n "$SECRETS_JSON" ]; then
-    echo "Setting secrets..."
-    for key in $(echo $SECRETS_JSON | jq -r 'keys[]'); do
-        value=$(echo $SECRETS_JSON | jq -r ".${key}")
-        case $PLATFORM in
-        'github')
-            # Handling for GitHub Actions
-            echo "$key=$value" >> $GITHUB_ENV
-            ;;
-        'azdo')
-            # Handling for Azure DevOps
-            echo "##vso[task.setvariable variable=$key;isSecret=true]$value"
-            ;;
-        'shell')
-            # Default shell export
-            export "$key=$value"
-            ;;
-        esac
-    done
-fi
-
-# Handle regular variables
 while IFS='=' read -r key value; do
     if [[ -n $key && -n $value ]]; then
+        # No need to trim spaces anymore
+        echo "$key=$value"
+
+        # Check for spaces in value
+        if [[ $value =~ \  ]]; then
+            value="\"$value\""
+        fi
+        
         case $PLATFORM in
         'github')
             # Handling for GitHub Actions
-            echo "$key=$value" >> $GITHUB_ENV
+            echo "::set-env name=$key::$value"
             ;;
         'azdo')
             # Handling for Azure DevOps
