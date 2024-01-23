@@ -30,7 +30,7 @@ if [ -n "$SECRETS_JSON" ]; then
             echo "$key=$value" >> $GITHUB_ENV
             ;;
         'azdo')
-            # Handling for Azure DevOps
+            # Handling for Azure DevOps 
             echo "##vso[task.setvariable variable=$key;isSecret=true]$value"
             ;;
         'shell')
