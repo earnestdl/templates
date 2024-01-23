@@ -38,7 +38,7 @@ stages:
               artifact: state
               path: $(System.DefaultWorkingDirectory)/variables
 
-          - script: chmod +x export_state.sh && ./export_state.sh $(BUILD_SOURCESDIRECTORY)/variables/state.ini deploy_${{ parameters.id }}_${{ region }}
+          - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{ parameters.id }}_${{ region }}
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
             env:
