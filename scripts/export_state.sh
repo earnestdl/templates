@@ -21,15 +21,23 @@ fi
 # Initialize secrets array
 declare -A secrets_array
 
+# Convert REGIONS JSON array to bash array
+readarray -t regions_array < <(echo "$REGIONS" | jq -r '.[]')
+
 # Process secrets from SECRETS
 for key in $(echo "$SECRETS" | jq -r 'keys[]'); do
     secret_value=$(echo "$SECRETS" | jq -r ".${key}")
     secrets_array[$key]=$secret_value
 done
 
-# Read the state file and process variables
+# Filter the state file for the relevant stage and process variables
+processing_stage=false
 while IFS= read -r line; do
-    if [[ "$line" == *"="* ]]; then
+    if [[ "$line" == "[$STAGE]" ]]; then
+        processing_stage=true
+        continue
+    fi
+    if $processing_stage && [[ "$line" == *"="* ]]; then
         var_name=$(echo "$line" | cut -d= -f1)
         var_value=$(echo "$line" | cut -d= -f2-)
 
@@ -42,21 +50,26 @@ while IFS= read -r line; do
             echo "$var_name=$var_value"
         fi
     fi
+    if [[ "$line" == *"]" ]] && $processing_stage; then
+        break
+    fi
 done < "$STATE_FILE"
 
 echo "Processing state secrets for $STAGE on $PLATFORM:"
 echo "---------------------------------------------------"
 echo "Setting secrets..."
 
-# Process OPENSHIFT_TOKEN based on region
-openshift_token_key="OPENSHIFT_TOKEN_$REGION"
-if [[ -v secrets_array[$openshift_token_key] ]]; then
-    echo "OPENSHIFT_TOKEN=***"
-fi
-
-# Process other secrets
+# Process secrets considering region specificity
 for key in "${!secrets_array[@]}"; do
-    if [[ "$key" != "$openshift_token_key" ]]; then
+    # Extract potential region suffix from the key
+    key_region="${key##*_}"
+    base_key="${key%_*}"
+
+    if [[ " ${regions_array[@]} " =~ " ${key_region} " && "$key_region" == "$REGION" ]]; then
+        # Region-specific secret for the current region
+        echo "$base_key=***"
+    elif [[ ! " ${regions_array[@]} " =~ " ${key_region} " ]]; then
+        # Non-region-specific secret
         echo "$key=***"
     fi
 done
