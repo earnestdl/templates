@@ -40,11 +40,10 @@ stages:
       id: dev
       env: dev
       type: openshift
-      regions: ['north', 'south']
       dependsOn: build_default
       secrets:
-        OPENSHIFT_TOKEN_NORTH: $(OPENSHIFT_TOKEN_DEV_E1)
-        OPENSHIFT_TOKEN_SOUTH: $(OPENSHIFT_TOKEN_DEV_E2)
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_DEV_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_DEV_E2)
         API_KEY: $(API_KEY_DEV)
 
   - template: .ado/pipelines/deploy.yml@templates
@@ -52,11 +51,10 @@ stages:
       id: qa
       env: qa
       type: openshift
-      regions: ['north', 'south']
       dependsOn: deploy_dev
       secrets:
-        OPENSHIFT_TOKEN_NORTH: $(OPENSHIFT_TOKEN_DEV_E1)
-        OPENSHIFT_TOKEN_SOUTH: $(OPENSHIFT_TOKEN_DEV_E2)
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_DEV_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_DEV_E2)
         API_KEY: $(API_KEY_QA)
 
   - template: .ado/pipelines/deploy.yml@templates
@@ -64,11 +62,10 @@ stages:
       id: stress
       env: stress
       type: openshift
-      regions: ['north', 'south']
       dependsOn: deploy_qa
       secrets:
-        OPENSHIFT_TOKEN_NORTH: $(OPENSHIFT_TOKEN_DEV_E1)
-        OPENSHIFT_TOKEN_SOUTH: $(OPENSHIFT_TOKEN_DEV_E2)
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_DEV_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_DEV_E2)
         API_KEY: $(API_KEY_QA)
 
   - template: .ado/pipelines/deploy.yml@templates
