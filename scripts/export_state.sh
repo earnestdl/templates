@@ -8,6 +8,9 @@ echo STAGE=$2
 echo REGIONS=$REGIONS
 echo SECRETS=$SECRETS
 
+# Extract the region from the STAGE variable
+REGION=$(echo "$STAGE" | awk -F'_' '{print $NF}')
+
 # Detecting platform
 if [ -n "$GITHUB_ACTIONS" ]; then
     PLATFORM='github'
@@ -22,58 +25,45 @@ echo "---------------------------------------------------"
 
 # Read the state file and process variables and secrets
 while IFS= read -r line; do
-    # Check if the line contains "=" (indicating a variable)
     if [[ "$line" == *"="* ]]; then
         var_name=$(echo "$line" | cut -d= -f1)
         var_value=$(echo "$line" | cut -d= -f2-)
-        
-        # Check if it's a secret by comparing with the SECRETS parameter
-        secrets_json=$(echo "$SECRETS" | jq -r '.')
+
+        # Check if the variable is in the SECRETS list
         is_secret=false
-        if [ -n "$secrets_json" ]; then
-            for key in $(echo "$secrets_json" | jq -r 'keys[]'); do
-                value=$(echo "$secrets_json" | jq -r ".${key}")
-                if [ "$var_value" == "$value" ]; then
-                    is_secret=true
-                    break
-                fi
-            done
-        fi
-        
-        # Check if it's a region-specific variable and remove the region
-        if [ -n "$REGIONS" ] && [[ "$var_name" == *"_EAST" || "$var_name" == *"_WEST" ]]; then
-            var_name=$(echo "$var_name" | sed -E "s/_(EAST|WEST)//")
-        fi
-        
+        for key in $(echo "$SECRETS" | jq -r 'keys[]'); do
+            if [[ "$var_name" == "$key" || "$var_name" == "${key}_${REGION}" ]]; then
+                is_secret=true
+                var_value=$(echo "$SECRETS" | jq -r ".${key}")
+                break
+            fi
+        done
+
+        # Exporting the variable/secret
         if $is_secret; then
-            # It's a secret
             echo "Secret: $var_name"
-            # Depending on the platform, set the secret
             case $PLATFORM in
             'github')
-                echo "::add-mask::$var_value"  # Mask the secret
-                echo "echo \"$var_name=\$var_value\" >> \$GITHUB_ENV"  # Set as GitHub variable
+                echo "::add-mask::$var_value"
+                echo "echo \"$var_name=\$var_value\" >> \$GITHUB_ENV"
                 ;;
             'azdo')
-                echo "##vso[task.setvariable variable=$var_name;issecret=true]$var_value"  # Set as AzDO secret variable
+                echo "##vso[task.setvariable variable=$var_name;issecret=true]$var_value"
                 ;;
             'shell')
-                # Default shell export
                 export "$var_name=$var_value"
                 ;;
             esac
         else
-            # Regular variable
             echo "Variable: $var_name=$var_value"
             case $PLATFORM in
             'github')
-                echo "echo \"$var_name=\$var_value\" >> \$GITHUB_ENV"  # Set as GitHub variable
+                echo "echo \"$var_name=\$var_value\" >> \$GITHUB_ENV"
                 ;;
             'azdo')
-                echo "##vso[task.setvariable variable=$var_name]$var_value"  # Set as AzDO variable
+                echo "##vso[task.setvariable variable=$var_name]$var_value"
                 ;;
             'shell')
-                # Default shell export
                 export "$var_name=$var_value"
                 ;;
             esac
