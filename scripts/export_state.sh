@@ -3,10 +3,8 @@
 STATE_FILE=$1
 STAGE=$2
 
-echo STATE_FILE=$1
-echo STAGE=$2
-echo REGIONS=$REGIONS
-echo SECRETS=$SECRETS
+echo "Processing state variables for $STAGE on $PLATFORM:"
+echo "---------------------------------------------------"
 
 # Extract the region from the STAGE variable
 REGION=$(echo "$STAGE" | awk -F'_' '{print $NF}')
@@ -20,53 +18,45 @@ else
     PLATFORM='shell'
 fi
 
-echo "Processing state for $STAGE on $PLATFORM:"
-echo "---------------------------------------------------"
+# Initialize secrets array
+declare -A secrets_array
 
-# Read the state file and process variables and secrets
+# Process secrets from SECRETS
+for key in $(echo "$SECRETS" | jq -r 'keys[]'); do
+    secret_value=$(echo "$SECRETS" | jq -r ".${key}")
+    secrets_array[$key]=$secret_value
+done
+
+# Read the state file and process variables
 while IFS= read -r line; do
     if [[ "$line" == *"="* ]]; then
         var_name=$(echo "$line" | cut -d= -f1)
         var_value=$(echo "$line" | cut -d= -f2-)
 
-        # Check if the variable is in the SECRETS list
-        is_secret=false
-        for key in $(echo "$SECRETS" | jq -r 'keys[]'); do
-            if [[ "$var_name" == "$key" || "$var_name" == "${key}_${REGION}" ]]; then
-                is_secret=true
-                var_value=$(echo "$SECRETS" | jq -r ".${key}")
-                break
-            fi
-        done
-
-        # Exporting the variable/secret
-        if $is_secret; then
-            echo "Secret: $var_name"
-            case $PLATFORM in
-            'github')
-                echo "::add-mask::$var_value"
-                echo "echo \"$var_name=\$var_value\" >> \$GITHUB_ENV"
-                ;;
-            'azdo')
-                echo "##vso[task.setvariable variable=$var_name;issecret=true]$var_value"
-                ;;
-            'shell')
-                export "$var_name=$var_value"
-                ;;
-            esac
+        # Check if the variable is a secret
+        if [[ -v secrets_array[$var_name] ]]; then
+            # Secret variable
+            echo "$var_name=***"
         else
-            echo "Variable: $var_name=$var_value"
-            case $PLATFORM in
-            'github')
-                echo "echo \"$var_name=\$var_value\" >> \$GITHUB_ENV"
-                ;;
-            'azdo')
-                echo "##vso[task.setvariable variable=$var_name]$var_value"
-                ;;
-            'shell')
-                export "$var_name=$var_value"
-                ;;
-            esac
+            # Regular variable
+            echo "$var_name=$var_value"
         fi
     fi
 done < "$STATE_FILE"
+
+echo "Processing state secrets for $STAGE on $PLATFORM:"
+echo "---------------------------------------------------"
+echo "Setting secrets..."
+
+# Process OPENSHIFT_TOKEN based on region
+openshift_token_key="OPENSHIFT_TOKEN_$REGION"
+if [[ -v secrets_array[$openshift_token_key] ]]; then
+    echo "OPENSHIFT_TOKEN=***"
+fi
+
+# Process other secrets
+for key in "${!secrets_array[@]}"; do
+    if [[ "$key" != "$openshift_token_key" ]]; then
+        echo "$key=***"
+    fi
+done
