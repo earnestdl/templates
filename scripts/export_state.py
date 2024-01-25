@@ -29,17 +29,35 @@ def add_region_to_stage_data(stage_data, regions):
     # Assuming stage_data has only one key, which is the stage name
     stage = next(iter(stage_data))
 
-    # Extract the last token of the stage name
-    last_token = stage.split("_")[-1]
-
-    # Check if the last token matches any of the regions
-    if last_token in regions:
-        region=last_token
-        stage_data[stage]["region"] = region
+    # Split stage name and check if the last part is in regions
+    parts = stage.split("_")
+    if len(parts) > 1 and parts[-1] in regions:
+        stage_data[stage]["region"] = parts[-1]
 
     return stage_data
 
-def process_secrets(stage_data, state, secrets, region):
+def process_secrets(stage_data, state, secrets_dict, region=None):
+    stage_name = next(iter(stage_data))
+    stage_config = read_state_file(state, stage_name)
+
+    for key, value in stage_config.items():
+        if "$(" in value or "${{secrets." in value:
+            # Handle secrets considering the region (if provided)
+            if region:
+                # Regional secret processing
+                secret_suffix = "_" + region.upper()
+                for secret_key, secret_value in secrets_dict.items():
+                    if secret_key.startswith(key) and (secret_key == key or secret_key.endswith(secret_suffix)):
+                        stage_data[stage_name]["secrets"][key] = secret_value
+                        break
+            else:
+                # Non-regional secret processing
+                if key in secrets_dict:
+                    stage_data[stage_name]["secrets"][key] = secrets_dict[key]
+
+    return stage_data
+
+def process_secrets_working(stage_data, state, secrets, region):
     stage_name = next(iter(stage_data))
     # Use the provided state file path instead of a hardcoded filename
     stage_config = read_state_file(state, stage_name)
@@ -135,28 +153,27 @@ def parse_string_to_json(json_string):
         log("ERROR", "Invalid JSON format.")
         return None
 
-def main(stage, state, regions, secrets):
+def main(stage, state, secrets, regions):
     state_data = read_state_file(state, stage)
     if not state_data:
         return
 
-    regions_list = parse_string_to_json(regions)
-    secrets_dict = parse_string_to_json(secrets)
-    if secrets_dict is None:
-        log("ERROR", "Invalid JSON format in secrets.")
-        return
-    
-    if not regions_list or not secrets_dict:
-        return
+    # Correctly parse regions and secrets
+    regions_list = json.loads(regions) if regions else []
+    secrets_dict = json.loads(secrets) if secrets else {}
+
+    # Debugging
+    print("Parsed Regions List:", regions_list)
+    print("Parsed Secrets Dict:", secrets_dict)
 
     # Initialize stage data
     stage_data = initialize_stage_data(stage)
 
-    # See if this is a regional deployment 
-    stage_data = add_region_to_stage_data(stage_data, regions)
+    # Add region to stage data
+    stage_data = add_region_to_stage_data(stage_data, regions_list)
 
     # Process secrets
-    region = stage_data[stage]["region"]
+    region = stage_data[stage].get("region", None)
     stage_data = process_secrets(stage_data, state, secrets_dict, region)
 
     # Process Variables
@@ -166,10 +183,10 @@ def main(stage, state, regions, secrets):
     log("INFO", f"Stage data:\n{pretty_stage_data}")
 
     # Write export scripts
-    write_export_script(stage_data,stage)
+    #write_export_script(stage_data,stage)
 
     # Write output for logging
-    print_stage_data(stage_data)
+    #print_stage_data(stage_data)
 
     # TODO: Process Scripts
 
@@ -180,7 +197,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process arguments')
     parser.add_argument('stage', type=str, help='Stage to export')
     parser.add_argument('state', type=str, help='State file')
-    parser.add_argument('regions', type=str, help='Regions for this environment')
     parser.add_argument('secrets', type=str, help='Secrets for this environment')
+    parser.add_argument('regions', nargs='?', type=str, default='[]', help='Regions for this environment')
     args = parser.parse_args()
-    main(args.stage, args.state, args.regions, args.secrets)
+    main(args.stage, args.state, args.secrets, args.regions)
+

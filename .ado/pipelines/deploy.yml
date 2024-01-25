@@ -39,7 +39,7 @@ stages:
               path: $(System.DefaultWorkingDirectory)/variables
 
           - script: | 
-              python export_state.py deploy_${{parameters.id}}_${{region}} ${{convertToJson(parameters.regions)}} ${{convertToJson(parameters.secrets)}}
+              python export_state.py deploy_${{parameters.id}}_${{region}} ${{convertToJson(parameters.secrets)}} ${{convertToJson(parameters.regions)}} 
               chmod +x deploy_${{parameters.id}}_${{region}}.sh && source deploy_${{parameters.id}}_${{region}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/scripts
