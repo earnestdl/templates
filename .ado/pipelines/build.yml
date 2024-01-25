@@ -41,7 +41,7 @@ stages:
               path: $(System.DefaultWorkingDirectory)/variables
 
           - script: | 
-              python export_state.py build_${{parameters.id}} ${{convertToJson(parameters.secrets)}}
+              python export_state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/variables/state.ini ${{convertToJson(parameters.secrets)}}
               chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
