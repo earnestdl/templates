@@ -171,10 +171,6 @@ def main(stage, state, secrets, regions):
         print(f"Error parsing regions: {regions}")
         raise e
     
-    # Debugging
-    print("Parsed Regions List:", regions_list)
-    print("Parsed Secrets Dict:", secrets_dict)
-
     # Initialize stage data
     stage_data = initialize_stage_data(stage)
 
@@ -209,9 +205,4 @@ if __name__ == "__main__":
     parser.add_argument('secrets', type=str, help='Secrets for this environment')
     parser.add_argument('regions', nargs='?', type=str, default='[]', help='Regions for this environment')
     args = parser.parse_args()
-    print(f"Received stage: {args.stage}")
-    print(f"Received state file path: {args.state}")
-    print(f"Received secrets: {args.secrets}")
-    print(f"Received regions: {args.regions}")
     main(args.stage, args.state, args.secrets, args.regions)
-
