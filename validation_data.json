@@ -1,0 +1,10 @@
+{
+  "jobAData": {
+    "name": "Alice",
+    "age": 30
+  },
+  "jobBData": {
+    "city": "New York",
+    "country": "USA"
+  }
+}
