@@ -47,6 +47,9 @@ stages:
               SECRETS: "${{convertToJson(parameters.secrets)}}"
               REGIONS: "${{convertToJson(parameters.regions)}}"
 
+          - script: env | sort
+            displayName: List all variables
+
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
