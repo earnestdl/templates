@@ -40,11 +40,11 @@ stages:
               artifact: state
               path: $(System.DefaultWorkingDirectory)/variables
 
-          - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini build_${{ parameters.id }}
+          - script: | 
+              python export_state.py build_${{parameters.id}} ${{convertToJson(parameters.regions)}} ${{convertToJson(parameters.secrets)}}
+              chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
-            env:
-              SECRETS: ${{ convertToJson(parameters.secrets) }}
 
           - script: env | sort
             displayName: List all variables
