@@ -31,7 +31,7 @@ stages:
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
 
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
-          artifact: state
+          artifact: build-artifacts
 
     - ${{ if eq(parameters.type, 'container') }}:
       - job: build_${{parameters.type}}
@@ -42,11 +42,11 @@ stages:
           - checkout: self
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifact: state
-              path: $(System.DefaultWorkingDirectory)/variables
+              artifact: build-artifacts
+              path: $(System.DefaultWorkingDirectory)/build-artifacts
 
           - script: | 
-              python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/variables/state.ini "$SECRETS"
+              python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS"
               chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
@@ -74,7 +74,7 @@ stages:
           - task: DownloadPipelineArtifact@2
             inputs:
               artifact: state
-              path: $(System.DefaultWorkingDirectory)/variables
+              path: $(System.DefaultWorkingDirectory)/build-artifacts
           - script: echo "TODO - write the powershell version of export_state.sh" 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts

@@ -38,14 +38,14 @@ stages:
           - checkout: templates
           - task: DownloadPipelineArtifact@2
             inputs:
-              artifact: state
-              path: $(System.DefaultWorkingDirectory)/variables
+              artifact: build-artifacts
+              path: $(System.DefaultWorkingDirectory)/build-artifacts
 
           - script: | 
-              python export-state.py deploy_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/variables/state.ini "$SECRETS" "$REGIONS" 
+              python export-state.py deploy_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS" 
               chmod +x deploy_${{parameters.id}}_${{region}}.sh && source deploy_${{parameters.id}}_${{region}}.sh 
             displayName: Export state
-            workingDirectory: $(System.DefaultWorkingDirectory)/scripts
+            workingDirectory: $(System.DefaultWorkingDirectory)/scripts/process
             env:
               SECRETS: "${{convertToJson(parameters.secrets)}}"
               REGIONS: "${{convertToJson(parameters.regions)}}"
@@ -68,10 +68,10 @@ stages:
         - checkout: templates
         - task: DownloadPipelineArtifact@2
           inputs:
-            artifact: state
-            path: $(System.DefaultWorkingDirectory)/variables
-        - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/variables/state.ini deploy_${{parameters.id}}_${{region}}
+            artifact: build-artifacts
+            path: $(System.DefaultWorkingDirectory)/build-artifacts
+        - script: chmod +x export_state.sh && ./export_state.sh ${BUILD_SOURCESDIRECTORY}/build-artifacts/state.ini deploy_${{parameters.id}}_${{region}}
           displayName: Export state
-          workingDirectory: $(System.DefaultWorkingDirectory)/scripts
+          workingDirectory: $(System.DefaultWorkingDirectory)/scripts/process
         - script: env | sort
           displayName: List all variables
