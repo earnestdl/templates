@@ -118,7 +118,7 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
                 }
         else:
             # Create a single stage without region specification
-            single_stage_id = f"{stage_prefix}{stage_id}"
+            single_stage_id = f"{stage_prefix}{stage_id}_default"
             pipeline_data[single_stage_id] = {
                 "type": stage_type,
                 "vars": variables_data.get(single_stage_id, {})
