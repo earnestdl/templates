@@ -54,11 +54,11 @@ stages:
             displayName: List all variables
 
           - script: echo Deploying...
-            displayName: Deploy ${{parameters.type}} ${{region}}
+            displayName: Deploy ${{parameters.type}}
             condition: and(succeeded(), eq(${{ parameters.dryrun }}, false))
 
           - script: echo Dryrun of deployment...
-            displayName: Deploy ${{parameters.type}} ${{region}}
+            displayName: Deploy ${{parameters.type}}
             condition: and(succeeded(), eq(${{ parameters.dryrun }}, true))
 
     - ${{ if eq(parameters.type, 'windows') }}:

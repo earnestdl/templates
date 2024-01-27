@@ -49,7 +49,7 @@ stages:
               python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS"
               chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
             displayName: Export state
-            workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
+            workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
             env:
               SECRETS: "${{convertToJson(parameters.secrets)}}"
 
