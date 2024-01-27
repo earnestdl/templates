@@ -2,11 +2,13 @@
     "global": {
         "APP_NAME": {
             "required": true,
-            "type": "string"
+            "type": "string",
+            "default": "${CD_REPO_NAME}"
         },
         "APP_PLATFORM":  {
             "required": true,
-            "type": "string"
+            "type": "string",
+            "default": "${CDP_PLATFORM}"
         },
         "APP_REGISTRY_URL": {
             "required": true,
@@ -16,7 +18,7 @@
     },
     "build": {
         "APP_BUILD_PATH":  {
-            "required": true,
+            "required": false,
             "type": "string"
         },
         "APP_BUILD_CONTEXT":  {
@@ -30,17 +32,13 @@
             "stage_types": ["container"]
         },
         "APP_BUILD_ARGS":  {
-            "required": true,
+            "required": false,
             "type": "string"
         }
     },
     "deploy": {
-        "APP_DEPLOY_ENV": {
-            "required": true,
-            "type": "string"
-        },
         "APP_RUNTIME_ARGS": {
-            "required": true,
+            "required": false,
             "default": "default_test",
             "type": "string"
         },
