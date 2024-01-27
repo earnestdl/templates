@@ -44,11 +44,6 @@
             "default": "default_test",
             "type": "string"
         },
-        "APP_DEPLOY_REGIONS": {
-            "required": false,
-            "type": "array",
-            "stage_types": ["openshift"]
-        },
         "OPENSHIFT_PREFIX": {
             "required": true,
             "type": "string",

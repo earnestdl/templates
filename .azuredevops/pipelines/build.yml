@@ -20,8 +20,8 @@ stages:
   displayName: 'Build ${{ parameters.id }}'
 
   jobs:
-    - job: validate_pipeline
-      displayName: Validate pipeline
+    - job: begin_build
+      displayName: Begin Build
       steps:
         - checkout: templates
         - checkout: self

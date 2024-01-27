@@ -203,6 +203,6 @@ if __name__ == "__main__":
     parser.add_argument('stage', type=str, help='Stage to export')
     parser.add_argument('state', type=str, help='State file')
     parser.add_argument('secrets', type=str, help='Secrets for this environment')
-    parser.add_argument('regions', nargs='?', type=str, default='[]', help='Regions for this environment')
+    parser.add_argument('regions', type=str, help='Regions for this environment')
     args = parser.parse_args()
     main(args.stage, args.state, args.secrets, args.regions)
