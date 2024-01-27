@@ -13,7 +13,7 @@ on:
       regions: 
         required: false
         type: string
-        default: '[]'
+        default: '["single"]'
 
 jobs:
   deploy:
