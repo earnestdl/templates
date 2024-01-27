@@ -3,13 +3,9 @@ parameters:
     type: string
   - name: env
     type: string
-    default: 'dev'
+    default: 'build'
   - name: type
     type: string
-    values:
-      - openshift
-      - windows
-      - bash
   - name: dependsOn
     type: string
   - name: regions
@@ -19,7 +15,6 @@ parameters:
     type: object
     default: []
   - name: dryrun
-    required: false
     type: boolean
     default: false
 
