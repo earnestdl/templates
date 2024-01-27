@@ -77,8 +77,6 @@ def validate_stage_consistency(pipeline_data, variables_data):
 def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, default_regions):
     # Loop through stages in pipeline_yaml
     for stage in pipeline_yaml.get('stages', []):
-
-        print(stage)
         # Skip commented lines and 'qa-signoff' stages
         if isinstance(stage, str) and (stage.lstrip().startswith("#")):
             continue
@@ -90,8 +88,6 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
 
         # Use regions from pipeline_yaml if available, otherwise use default_regions
         stage_regions = stage['parameters'].get('regions')
-
-        print(stage_regions)
 
         if stage_regions is None:
             stage_regions = default_regions
@@ -118,49 +114,6 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
 
     return pipeline_data
 
-
-
-
-
-
-def populate_pipeline_data_with_stages_almost(pipeline_data, pipeline_yaml, variables_data, default_regions):
-    # Loop through stages in pipeline_yaml
-    for stage in pipeline_yaml.get('stages', []):
-        # Skip commented lines and 'qa-signoff' stages
-        if isinstance(stage, str) and (stage.lstrip().startswith("#")):
-            continue
-
-        #print(stage)
-
-        # Get template, id, type, and regions (if available)
-        template = stage.get('template', '')
-        stage_id = stage['parameters'].get('id')
-        stage_type = stage['parameters'].get('type')
-        stage_regions = stage['parameters'].get('regions', default_regions)
-
-        # Skip 'qa-signoff' stages
-        if stage_type == "qa-signoff":
-            continue
-
-        # Determine the stage prefix based on the template
-        if "build.yml" in template:
-            stage_prefix = 'build_'
-        elif "deploy.yml" in template:
-            stage_prefix = 'deploy_'
-        elif "test.yml" in template:
-            stage_prefix = 'test_'
-        else:
-            continue  # Skip unknown template types
-
-        # Create stages for each specified region
-        for region in stage_regions:
-            regional_stage_id = f"{stage_prefix}{stage_id}_{region}"
-            pipeline_data[regional_stage_id] = {
-                "type": stage_type,
-                "vars": variables_data.get(regional_stage_id, {})
-            }
-
-    return pipeline_data
 
 def add_global_defaults_from_validation(pipeline_data, validation_data):
     # Extract global defaults from validation data
@@ -209,24 +162,6 @@ def add_global_vars_from_repo(pipeline_data, variables_data):
     for stage in pipeline_data.values():
         # Update or add global variables in each stage's vars
         stage['vars'].update(global_vars)
-
-    return pipeline_data
-
-def add_stage_vars_from_repo_nope(pipeline_data, variables_data):
-    # Loop through each stage in pipeline_data
-    for stage_name, stage_info in pipeline_data.items():
-        # Split the stage name and determine the stage's base and specific parts
-        stage_parts = stage_name.split('_')
-        stage_base = stage_parts[0]  # This should be 'build', 'deploy', etc.
-
-        # The stage-specific part could be multiple sections (handling 'deploy_dev_east', etc.)
-        stage_specific_parts = stage_parts[1:]
-
-        # Iterate through the keys in variables_data to find a matching stage-specific key
-        for key in variables_data.get(stage_base, {}):
-            if all(part in key.split('_') for part in stage_specific_parts):
-                # Update or add stage-specific variables in this stage's vars
-                stage_info.setdefault('vars', {}).update(variables_data[stage_base][key])
 
     return pipeline_data
 
