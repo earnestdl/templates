@@ -24,11 +24,14 @@ pr:
       - master
       - main
 
+variables:
+  - group: secrets-flask
+
 stages:
 
   - template: .ado/pipelines/build.yml@templates
     parameters:
-      id: default
+      id: asdf
       state: variables-openshift.json
       type: container
 
@@ -36,22 +39,34 @@ stages:
     parameters:
       id: dev
       env: dev
-      type: registry
+      type: openshift
       dependsOn: build_default
+      secrets:
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_DEV_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_DEV_E2)
+        API_KEY: $(API_KEY_DEV)
 
   - template: .ado/pipelines/deploy.yml@templates
     parameters:
       id: qa
       env: qa
-      type: registry
+      type: openshift
       dependsOn: deploy_dev
+      secrets:
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_QA_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_QA_E2)
+        API_KEY: $(API_KEY_QA)
 
   - template: .ado/pipelines/deploy.yml@templates
     parameters:
       id: stress
       env: stress
-      type: registry
+      type: openshift
       dependsOn: deploy_qa
+      secrets:
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_QA_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_QA_E2)
+        API_KEY: $(API_KEY_QA)
 
   - template: .ado/pipelines/deploy.yml@templates
     parameters:
@@ -63,5 +78,9 @@ stages:
     parameters:
       id: prod
       env: prod
-      type: registry
+      type: openshift
       dependsOn: deploy_qa_signoff
+      secrets:
+        OPENSHIFT_TOKEN_EAST: $(OPENSHIFT_TOKEN_PROD_E1)
+        OPENSHIFT_TOKEN_WEST: $(OPENSHIFT_TOKEN_PROD_E2)
+        API_KEY: $(API_KEY_PROD)

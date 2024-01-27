@@ -1,6 +1,0 @@
-{
-    "deploy_dev_east": {
-      "variables": {},
-      "secrets": {}
-    }
-}

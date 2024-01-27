@@ -12,7 +12,7 @@ on:
         type: string
 
 jobs:
-  validate_workflow
+  validate_workflow:
     runs-on: ubuntu-latest
     name: Validate workflow
     steps:
