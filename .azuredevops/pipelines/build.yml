@@ -60,7 +60,7 @@ stages:
             displayName: Build ${{parameters.type}}
             condition: and(succeeded(), eq(${{ parameters.dryrun }}, false))
 
-          - script: echo Dryrun of deployment...
+          - script: echo Dry run of build...
             displayName: Deploy ${{parameters.type}}
             condition: and(succeeded(), eq(${{ parameters.dryrun }}, true))
 
