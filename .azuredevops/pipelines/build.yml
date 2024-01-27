@@ -60,7 +60,7 @@ stages:
 
             - ${{ if eq(parameters.dryrun,'true') }}:
               - script: echo Dry run of build...
-                displayName: Deploy ${{parameters.type}}
+                displayName: Build ${{parameters.type}} (dry run)
 
             - ${{ if eq(parameters.dryrun,'true') }}:
               - script: echo Building...
