@@ -5,7 +5,7 @@ import yaml
 import argparse
 
 state_file='state.ini'
-validation_json='validation.json'
+validation_json='../../variables/state/validation.json'
 
 def log(level, message):
     print(f"[{level}] {message}")

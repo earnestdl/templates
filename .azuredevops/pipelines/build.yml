@@ -1,28 +1,32 @@
 parameters:
   - name: id
     type: string
-  - name: state
-    type: string
-  - name: secrets
-    type: object
-    default: []
   - name: type
     type: string
     values:
       - container
       - windows
+      - linux
+  - name: state
+    type: string
+  - name: regions
+    type: object
+    default: ["default"]
+  - name: secrets
+    type: object
+    default: []
 
 stages:
 - stage: build_${{ parameters.id }}
   displayName: 'Build ${{ parameters.id }}'
 
   jobs:
-    - job: validate_${{parameters.type}}_build
-      displayName: Validate ${{parameters.type}} build
+    - job: validate_pipeline
+      displayName: Validate pipeline
       steps:
         - checkout: templates
         - checkout: self
-        - script: python validate.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.ado/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.ado/pipelines/deploy.yml
+        - script: python validate-state.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.azuredevops/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.ado/pipelines/deploy.yml
           displayName: Validate state
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/validation
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/validation/state.ini
@@ -31,7 +35,7 @@ stages:
     - ${{ if eq(parameters.type, 'container') }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
-        dependsOn: validate_${{parameters.type}}_build
+        dependsOn: validate_pipeline
         steps:
           - checkout: templates
           - checkout: self
@@ -41,7 +45,7 @@ stages:
               path: $(System.DefaultWorkingDirectory)/variables
 
           - script: | 
-              python export_state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/variables/state.ini "$SECRETS"
+              python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/variables/state.ini "$SECRETS"
               chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts

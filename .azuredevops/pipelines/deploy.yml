@@ -10,7 +10,7 @@ parameters:
     type: string
   - name: regions
     type: object
-    default: ['east', 'west']
+    default: ['default']
   - name: secrets
     type: object
     default: []
@@ -39,7 +39,7 @@ stages:
               path: $(System.DefaultWorkingDirectory)/variables
 
           - script: | 
-              python export_state.py deploy_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/variables/state.ini "$SECRETS" "$REGIONS" 
+              python export-state.py deploy_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/variables/state.ini "$SECRETS" "$REGIONS" 
               chmod +x deploy_${{parameters.id}}_${{region}}.sh && source deploy_${{parameters.id}}_${{region}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/scripts
