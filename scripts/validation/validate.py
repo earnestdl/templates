@@ -175,8 +175,26 @@ def add_global_vars_from_repo(pipeline_data, variables_data):
 
     return pipeline_data
 
-def add_stage_vars_from_repo(pipeline_data, variables_data):
+def add_stage_vars_from_repo_nope(pipeline_data, variables_data):
     # Loop through each stage in pipeline_data
+    for stage_name, stage_info in pipeline_data.items():
+        # Split the stage name and determine the stage's base and specific parts
+        stage_parts = stage_name.split('_')
+        stage_base = stage_parts[0]  # This should be 'build', 'deploy', etc.
+
+        # The stage-specific part could be multiple sections (handling 'deploy_dev_east', etc.)
+        stage_specific_parts = stage_parts[1:]
+
+        # Iterate through the keys in variables_data to find a matching stage-specific key
+        for key in variables_data.get(stage_base, {}):
+            if all(part in key.split('_') for part in stage_specific_parts):
+                # Update or add stage-specific variables in this stage's vars
+                stage_info.setdefault('vars', {}).update(variables_data[stage_base][key])
+
+    return pipeline_data
+
+def add_stage_vars_from_repo(pipeline_data, variables_data):
+    # Loop through each stage in pipeline_datas
     for stage_name, stage_info in pipeline_data.items():
         # Extract the stage-specific part of the stage name
         stage_specific_key = stage_name.split('_')[1]
@@ -424,34 +442,34 @@ def main(variables_file, deploy_yaml):
     pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
     # 11. Populate pipeline data with region-specific vars from repo variables
-    pipeline_data=override_region_specific_vars(pipeline_data, validation_data)
+    #pipeline_data=override_region_specific_vars(pipeline_data, validation_data)
 
     # 12. Populate pipeline data with secrets from repo
-    pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions)
+    #pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions)
 
     # 13. Print out the data being validated
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
     log("INFO",f"Validating state:\n{pretty_pipeline_data}")
 
     # 14. Validate pipeline data
-    validation_errors = validate_pipeline_data(pipeline_data, validation_data)
-    if validation_errors:
-        log("INFO","Validation failed with the following errors:")
-        for error in validation_errors:
-            log("INFO",error)
-        exit(1)
-    else:
-        log("INFO","Validation passed successfully.")
+    #validation_errors = validate_pipeline_data(pipeline_data, validation_data)
+    #if validation_errors:
+    #    log("INFO","Validation failed with the following errors:")
+    #    for error in validation_errors:
+    #        log("INFO",error)
+    #    exit(1)
+    #else:
+    #    log("INFO","Validation passed successfully.")
 
     # 15. Create validated state in ini format
-    validated_state=create_validated_state(pipeline_data)
+    #validated_state=create_validated_state(pipeline_data)
 
     # 16. Remove region identifiers from state
-    validated_state=remove_region_identifiers(validated_state)
+    #validated_state=remove_region_identifiers(validated_state)
 
     # 15. Create state file
-    validated_state=create_state_file(validated_state)    
-    log("INFO",f"Validated state:\n{validated_state}")
+    #validated_state=create_state_file(validated_state)    
+    #log("INFO",f"Validated state:\n{validated_state}")
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')

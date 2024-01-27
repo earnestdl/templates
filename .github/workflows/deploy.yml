@@ -1,27 +1,27 @@
 on: 
   workflow_call: 
     inputs:
-      deployTarget:
+      id:
         required: true
         type: string
-      deployEnvironment: 
+      type: 
         required: true
         type: string
-      deployRegions: 
+      env:
         required: true
         type: string
-    secrets:
-      TOKEN_E1:
+      regions: 
         required: true
-      TOKEN_E2:
-        required: true
+        type: string
+        default: '[]'
 
 jobs:
   deploy:
-    name: Deploy OpenShift
-    if: ${{ inputs.deployTarget == 'openshift' }} 
-    uses: earnestdl/templates/.github/workflows/openshift.yml@main
-    secrets: inherit
-    with:
-      deployEnvironment: ${{ inputs.deployEnvironment }}
-      deployRegions: ${{ inputs.deployRegions }}
+    name: Deploy
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        region: ${{ fromJson(inputs.regions) }}
+    steps:
+      - name: Deploy
+        run: echo "Deploying to ${{ inputs.env }} in ${{ matrix.region }} region"

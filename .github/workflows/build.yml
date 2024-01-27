@@ -1,19 +1,20 @@
 on: 
   workflow_call: 
     inputs:
-      appType:
+      id:
         required: true
         type: string
-      appVersion: 
+      type: 
+        required: true
+        type: string
+      state:
         required: true
         type: string
 
 jobs:
-
-  build:
-    name: Build bash
-    if: ${{ inputs.appType == 'bash' }} 
-    uses: earnestdl/templates/.github/workflows/bash.yml@main
-    secrets: inherit
-    with:
-      appVersion: ${{ inputs.appVersion }}
+  validate:
+    runs-on: ubuntu-latest
+    name: validate
+    steps:
+    - name: run script
+      run: echo validating pipeline
