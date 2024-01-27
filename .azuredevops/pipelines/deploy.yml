@@ -53,13 +53,13 @@ stages:
           - script: env | sort
             displayName: List all variables
 
-            - ${{ if eq(parameters.dryrun,'true') }}:
-              - script: echo Dry run of deployment...
-                displayName: Deploy ${{parameters.type}} (dry run)
+          - ${{ if eq(parameters.dryrun,'true') }}:
+            - script: echo Dry run of deployment...
+              displayName: Deploy ${{parameters.type}} (dry run)
 
-            - ${{ if eq(parameters.dryrun,'false') }}:
-              - script: echo Deploying...
-                displayName: Deploy ${{parameters.type}}
+          - ${{ if eq(parameters.dryrun,'false') }}:
+            - script: echo Deploying...
+              displayName: Deploy ${{parameters.type}}
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
