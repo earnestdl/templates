@@ -12,9 +12,9 @@ on:
         type: string
 
 jobs:
-  validate_${{inputs.type}}:
+  validate_workflow
     runs-on: ubuntu-latest
-    name: Validate ${{inputs.type}}
+    name: Validate workflow
     steps:
     - name: run script
       run: echo validating pipeline
