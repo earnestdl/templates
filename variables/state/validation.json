@@ -21,15 +21,17 @@
             "required": false,
             "type": "string"
         },
-        "APP_BUILD_CONTEXT":  {
+        "APP_DOCKERFILE":  {
             "required": true,
             "type": "string",
-            "stage_types": ["container"]
+            "stage_types": ["container"],
+            "default": "."
         },
         "APP_BUILD_TARGET":  {
             "required": true,
             "type": "string",
-            "stage_types": ["container"]
+            "stage_types": ["container"],
+            "default": "runtime"
         },
         "APP_BUILD_ARGS":  {
             "required": false,
