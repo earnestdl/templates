@@ -25,10 +25,12 @@ stages:
       steps:
         - checkout: templates
         - checkout: self
+
         - script: python validate-state.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.azuredevops/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.azuredevops/pipelines/deploy.yml
           displayName: Validate state
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
-        - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/state.ini
+
+        - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
           artifact: state
 
     - ${{ if eq(parameters.type, 'container') }}:

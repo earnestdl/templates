@@ -4,6 +4,7 @@ import json
 import yaml
 import argparse
 
+output_folder='./output'
 state_file='state.ini'
 validation_json='../../variables/state/validation.json'
 
@@ -394,7 +395,10 @@ def remove_region_identifiers(validated_state):
     return ''.join(processed_stages).strip()
 
 def create_state_file(validated_state):
-    with open(state_file, 'w') as file:
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    output_path = os.path.join(output_folder, state_file)
+    with open(output_path, 'w') as file:
         file.write(validated_state)
 
     return validated_state
