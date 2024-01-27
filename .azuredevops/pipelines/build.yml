@@ -46,12 +46,13 @@ stages:
               path: $(System.DefaultWorkingDirectory)/build-artifacts
 
           - script: | 
-              python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS"
+              python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
               chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
             displayName: Export state
             workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
             env:
               SECRETS: "${{convertToJson(parameters.secrets)}}"
+              REGIONS: "${{convertToJson(parameters.regions)}}"
 
           - script: env | sort
             displayName: List all variables
