@@ -18,4 +18,6 @@ jobs:
     steps:
     - name: run script
       run: echo validating pipeline
+
+    - name: list all variables
       run: env | sort
