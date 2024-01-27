@@ -11,12 +11,8 @@ parameters:
   - name: secrets
     type: object
     default: []
-  - regions: 
-    type: object
-    default: ["default"]
   - name: dryrun
     type: boolean
-    required: false
     default: false
 
 stages:
