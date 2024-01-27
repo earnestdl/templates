@@ -33,7 +33,7 @@ stages:
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
           artifact: build-artifacts
 
-    - ${{ if eq(parameters.type, 'container') }}:
+    - ${{ if or(eq(parameters.type,'container'),eq(parameters.type,'bash')) }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
         dependsOn: validate_pipeline
