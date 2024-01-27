@@ -1,0 +1,12 @@
+{
+    "global":{},
+    "build":{
+        "app":{}
+    },
+    "deploy": {
+        "dev":{},
+        "qa":{},
+        "stress":{},
+        "prod":{}
+    }
+}
