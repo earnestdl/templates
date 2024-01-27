@@ -3,10 +3,6 @@ parameters:
     type: string
   - name: type
     type: string
-    values:
-      - container
-      - windows
-      - linux
   - name: state
     type: string
   - name: regions
@@ -15,6 +11,13 @@ parameters:
   - name: secrets
     type: object
     default: []
+  - regions: 
+    type: object
+    default: ["default"]
+  - name: dryrun
+    type: boolean
+    required: false
+    default: false
 
 stages:
 - stage: build_${{ parameters.id }}
@@ -55,8 +58,13 @@ stages:
           - script: env | sort
             displayName: List all variables
 
-          - script: echo Building for container...
-            displayName: Build application
+          - script: echo Building...
+            displayName: Build ${{parameters.type}}
+            condition: and(succeeded(), eq(${{ parameters.dryrun }}, false))
+
+          - script: echo Dryrun of deployment...
+            displayName: Deploy ${{parameters.type}} ${{region}}
+            condition: and(succeeded(), eq(${{ parameters.dryrun }}, true))
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: build_${{parameters.type}}

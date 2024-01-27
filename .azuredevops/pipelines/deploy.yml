@@ -6,6 +6,10 @@ parameters:
     default: 'dev'
   - name: type
     type: string
+    values:
+      - openshift
+      - windows
+      - bash
   - name: dependsOn
     type: string
   - name: regions
@@ -14,6 +18,10 @@ parameters:
   - name: secrets
     type: object
     default: []
+  - name: dryrun
+    required: false
+    type: boolean
+    default: false
 
 stages:
 - stage: deploy_${{ parameters.id }}
@@ -27,7 +35,7 @@ stages:
         steps:
         - script: echo manual qa-signoff
 
-    - ${{ if eq(parameters.type, 'openshift') }}:
+    - ${{ if or((eq(parameters.type,'openshift'),eq(parameters.type,'bash')) }}:
       - ${{ each region in parameters.regions }}:
         - job: deploy_${{parameters.type}}_${{region}}
           displayName: Deploy ${{parameters.type}} ${{region}}
@@ -49,6 +57,14 @@ stages:
 
           - script: env | sort
             displayName: List all variables
+
+          - script: echo Deploying...
+            displayName: Deploy ${{parameters.type}} ${{region}}
+            condition: and(succeeded(), eq(${{ parameters.dryrun }}, false))
+
+          - script: echo Dryrun of deployment...
+            displayName: Deploy ${{parameters.type}} ${{region}}
+            condition: and(succeeded(), eq(${{ parameters.dryrun }}, true))
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: deploy_${{parameters.type}}
