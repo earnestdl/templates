@@ -36,7 +36,7 @@ stages:
     - ${{ if or(eq(parameters.type,'container'),eq(parameters.type,'bash')) }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
-        dependsOn: validate_pipeline
+        dependsOn: begin_build
         steps:
           - checkout: templates
           - checkout: self
