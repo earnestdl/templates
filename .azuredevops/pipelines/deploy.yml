@@ -30,7 +30,7 @@ stages:
         steps:
         - script: echo manual qa-signoff
 
-    - ${{ if or((eq(parameters.type,'openshift'),eq(parameters.type,'bash')) }}:
+    - ${{ if or(eq(parameters.type,'openshift'),eq(parameters.type,'bash')) }}:
       - ${{ each region in parameters.regions }}:
         - job: deploy_${{parameters.type}}_${{region}}
           displayName: Deploy ${{parameters.type}} ${{region}}
