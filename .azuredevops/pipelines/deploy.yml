@@ -57,7 +57,7 @@ stages:
               - script: echo Dry run of deployment...
                 displayName: Deploy ${{parameters.type}} (dry run)
 
-            - ${{ if eq(parameters.dryrun,'true') }}:
+            - ${{ if eq(parameters.dryrun,'false') }}:
               - script: echo Deploying...
                 displayName: Deploy ${{parameters.type}}
 
