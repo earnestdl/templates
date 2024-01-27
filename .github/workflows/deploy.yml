@@ -20,20 +20,22 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        region: ${{ fromJson(inputs.regions) }}
+        include:
+          - region: ${{ fromJson(inputs.regions)[0] }}
     steps:
-      - name: Set Random Region
-        if: ${{ inputs.regions == '["default"]' }}
-        id: random_region
+      - name: Set Random Region if Default
+        if: matrix.region == 'default'
         run: |
           # Define your regions here
           REGIONS=("east" "west")
           # Select a random region
           RANDOM_REGION=${REGIONS[$RANDOM % ${#REGIONS[@]}]}
-          echo "REGION=$RANDOM_REGION" >> $GITHUB_ENV
+          echo "RANDOM_REGION=$RANDOM_REGION" >> $GITHUB_ENV
 
       - name: Deploy
         run: |
-          REGION=${{ steps.random_region.outputs.region || matrix.region }}
+          REGION=${{ env.RANDOM_REGION || matrix.region }}
           echo "Deploying to ${{ inputs.env }} in $REGION region"
+          # Add the deployment script or command here
