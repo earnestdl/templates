@@ -34,36 +34,37 @@ stages:
           artifact: build-artifacts
 
     - ${{ if or(eq(parameters.type,'container'),eq(parameters.type,'bash')) }}:
-      - job: build_${{parameters.type}}
-        displayName: Build ${{parameters.type}}
-        dependsOn: begin_build
-        steps:
-          - checkout: templates
-          - checkout: self
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: build-artifacts
-              path: $(System.DefaultWorkingDirectory)/build-artifacts
+      - ${{ each region in parameters.regions }}:
+        - job: build_${{parameters.type}}
+          displayName: Build ${{parameters.type}}
+          dependsOn: begin_build
+          steps:
+            - checkout: templates
+            - checkout: self
+            - task: DownloadPipelineArtifact@2
+              inputs:
+                artifact: build-artifacts
+                path: $(System.DefaultWorkingDirectory)/build-artifacts
 
-          - script: | 
-              python export-state.py build_${{parameters.id}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
-              chmod +x build_${{parameters.id}}.sh && source build_${{parameters.id}}.sh 
-            displayName: Export state
-            workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
-            env:
-              SECRETS: "${{convertToJson(parameters.secrets)}}"
-              REGIONS: "${{convertToJson(parameters.regions)}}"
+            - script: | 
+                python export-state.py build_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+                chmod +x build_${{parameters.id}}_${{region}}.sh && source build_${{parameters.id}}_${{region}}.sh 
+              displayName: Export state
+              workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
+              env:
+                SECRETS: "${{convertToJson(parameters.secrets)}}"
+                REGIONS: "${{convertToJson(parameters.regions)}}"
 
-          - script: env | sort
-            displayName: List all variables
+            - script: env | sort
+              displayName: List all variables
 
-          - script: echo Building...
-            displayName: Build ${{parameters.type}}
-            condition: and(succeeded(), eq(${{ parameters.dryrun }}, false))
+            - script: echo Building...
+              displayName: Build ${{parameters.type}}
+              condition: and(succeeded(), eq(${{ parameters.dryrun }}, false))
 
-          - script: echo Dry run of build...
-            displayName: Deploy ${{parameters.type}}
-            condition: and(succeeded(), eq(${{ parameters.dryrun }}, true))
+            - script: echo Dry run of build...
+              displayName: Deploy ${{parameters.type}}
+              condition: and(succeeded(), eq(${{ parameters.dryrun }}, true))
 
     - ${{ if eq(parameters.type, 'windows') }}:
       - job: build_${{parameters.type}}
