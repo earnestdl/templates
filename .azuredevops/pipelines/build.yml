@@ -58,11 +58,11 @@ stages:
             - script: env | sort
               displayName: List all variables
 
-            - ${{ if eq(parameters.dryrun,'true') }}:
+            - ${{ if eq(parameters.dryrun) }}:
               - script: echo Dry run of build...
                 displayName: Build ${{parameters.type}} (dry run)
 
-            - ${{ if eq(parameters.dryrun,'false') }}:
+            - ${{ if ne(parameters.dryrun) }}:
               - script: echo Building...
                 displayName: Build ${{parameters.type}}
 
