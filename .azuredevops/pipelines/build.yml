@@ -62,7 +62,7 @@ stages:
               - script: echo Dry run of build...
                 displayName: Build ${{parameters.type}} (dry run)
 
-            - ${{ if ne(parameters.dryrun) true}}:
+            - ${{ if ne(parameters.dryrun), true}}:
               - script: echo Building...
                 displayName: Build ${{parameters.type}}
 
