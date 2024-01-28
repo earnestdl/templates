@@ -47,12 +47,14 @@
         "OPENSHIFT_PREFIX": {
             "required": true,
             "type": "string",
-            "stage_types": ["openshift"]
+            "stage_types": ["openshift"],
+            "default": "${APP_PLATFORM}-${APP_NAME}"
         },
         "OPENSHIFT_PROJECT": {
             "required": true,
             "type": "string",
-            "stage_types": ["openshift"]
+            "stage_types": ["openshift"],
+            "default": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}"
         }    
     },
     "regions": {
