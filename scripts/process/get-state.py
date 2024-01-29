@@ -2,22 +2,16 @@ import os
 import re
 import json
 import yaml
+import shutil
 import argparse
 
-output_folder='./output'
 state_file='state.ini'
+output_folder='./output'
 validation_json='../../variables/state/validation.json'
-
-def log(level, message):
-    print(f"[{level}] {message}")
-    
-    if level == "ERROR":
-        exit(1)
 
 def find_yaml_with_variables(variables_file):
     directory = os.path.dirname(variables_file) or os.getcwd()
     variables_filename = os.path.basename(variables_file)
-
     for file in os.listdir(directory):
         file_path = os.path.join(directory, file)
         if file.endswith('.yml') or file.endswith('.yaml'):
@@ -25,7 +19,10 @@ def find_yaml_with_variables(variables_file):
                 try:
                     content = yaml.safe_load(yaml_file)
                     if variables_filename in str(content):
+                        log("INFO",f"YAML file found in: {file_path}")
                         return content
+                    else:
+                        log("ERROR",f"YAML file not found.")
                 except yaml.YAMLError as exc:
                     log("ERROR", f"Error parsing YAML file {file_path}")
     return None
@@ -114,17 +111,19 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
 
     return pipeline_data
 
-
 def add_global_defaults_from_validation(pipeline_data, validation_data):
     # Extract global defaults from validation data
     global_defaults = validation_data.get('global', {})
 
-    # Populate each stage in pipeline_data with global default values
-    for stage in pipeline_data.values():
+    # Populate each stage in pipeline_data with relevant global default values
+    for stage_name, stage_data in pipeline_data.items():
+        stage_type = stage_data.get('type')  # Get the type of the stage
+
         for key, value in global_defaults.items():
-            if 'default' in value:
+            # Check if the variable is required and if the stage type matches one of the allowed stage_types
+            if value.get('required', False) and stage_type in value.get('stage_types', []):
                 # Add the default value to the vars of each stage
-                stage['vars'][key] = value['default']
+                stage_data['vars'][key] = value.get('default')
 
     return pipeline_data
 
@@ -166,6 +165,30 @@ def add_global_vars_from_repo(pipeline_data, variables_data):
     return pipeline_data
 
 def add_stage_vars_from_repo(pipeline_data, variables_data):
+    # Loop through each stage in pipeline_data
+    for stage_name, stage_info in pipeline_data.items():
+        # Split the stage name and extract the relevant parts
+        parts = stage_name.split('_')
+        stage_key, stage_type = parts[0], parts[1]
+
+        # Determine the appropriate section in variables_data based on the stage_key
+        if stage_key in variables_data:
+            # Check for stage_type or its default variant in variables_data
+            if stage_type in variables_data[stage_key]:
+                # Update or add stage-specific variables in this stage's vars
+                if 'vars' not in stage_info:
+                    stage_info['vars'] = {}
+                stage_info['vars'].update(variables_data[stage_key][stage_type])
+            elif "default" in variables_data[stage_key]:
+                # Handle the default case
+                if 'vars' not in stage_info:
+                    stage_info['vars'] = {}
+                stage_info['vars'].update(variables_data[stage_key]["default"])
+
+    return pipeline_data
+
+
+def add_stage_vars_from_repo_broke(pipeline_data, variables_data):
     # Loop through each stage in pipeline_datas
     for stage_name, stage_info in pipeline_data.items():
         # Extract the stage-specific part of the stage name
@@ -364,6 +387,47 @@ def remove_region_identifiers(validated_state):
 
     # Combine the processed stages back into the full content
     return ''.join(processed_stages).strip()
+ 
+def process_custom_scripts(validated_state, variables_file):
+    defaults_path = os.path.normpath(os.path.join(os.getcwd(), "..", "defaults"))
+    scripts_path = os.path.join(os.path.dirname(variables_file) or os.getcwd(), "scripts")
+    output_path = os.path.join(output_folder, "scripts")
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    # Updated regex pattern with non-capturing groups
+    pattern = r'^(PRE_SCRIPT|POST_SCRIPT|APP_BUILD_SCRIPT|APP_DEPLOY_SCRIPT)=(.*)$'
+    matches = re.findall(pattern, validated_state, re.MULTILINE)
+    for full_key, value in matches:
+        if value.startswith('default'):
+            # Copy from default directory
+            source_path = os.path.join(defaults_path, value)
+            destination_path = os.path.join(output_path, value)
+            copy_file(source_path, destination_path)
+        else:
+            # Check in custom directory
+            source_path = os.path.join(scripts_path, value)
+            if os.path.exists(source_path):
+                destination_path = os.path.join(output_path, value)
+                copy_file(source_path, destination_path)
+            else:
+                print(f"Error: {value} not found in {scripts_path}")
+
+def process_helm_charts(pipeline_data,variables_file):
+    output_path = os.path.join(output_folder, state_file, "charts")
+    charts_path = os.path.join(os.path.dirname(variables_file) or os.getcwd(), "charts")
+
+    # Read contents of helm chart
+    with open(charts_path, 'r') as file:
+        chart = file.read()
+
+    # Substitute variable references with pipeline data values
+    for key, value in pipeline_data.items():
+        chart = chart.replace("${" + key + "}", str(value))
+
+    # output helm chart
+    with open(output_path, 'w') as file:
+        file.write(chart)
 
 def create_state_file(validated_state):
     if not os.path.exists(output_folder):
@@ -374,59 +438,98 @@ def create_state_file(validated_state):
 
     return validated_state
 
+def update_file_extensions(pipeline_data,validation_data):
+    # Extract the supported script types and their extensions from the new location
+    supported_scripts = validation_data.get('supported', {}).get('scripts', {})
+
+    # Process each stage in the pipeline data
+    for stage, stage_data in pipeline_data.items():
+        stage_type = stage_data.get("type")
+        stage_vars = stage_data.get("vars", {})
+
+        # Check if the stage type is supported
+        if stage_type not in supported_scripts:
+            continue
+
+        # Get the file extension for the current script type
+        file_extension = supported_scripts[stage_type]
+
+        # Update file extensions for relevant keys
+        for key in ['PRE_SCRIPT', 'POST_SCRIPT', 'APP_BUILD_SCRIPT', 'APP_DEPLOY_SCRIPT']:
+            if key in stage_vars:
+                filename = stage_vars[key]
+                new_filename = f"{filename.split('.')[0]}.{file_extension}"
+                stage_vars[key] = new_filename
+                print(f"Updated {key} in stage '{stage}' to: {new_filename}")
+
+    return pipeline_data    
+
+def copy_file(source, destination):
+    # Check if the destination file already exists
+    if os.path.exists(destination):
+        return
+    try:
+        shutil.copy(source, destination)
+        print(f"Copied {source} to {destination}")
+    except FileNotFoundError:
+        print(f"Error: {source} not found")
+
+def log(level, message):
+    print(f"[{level}] {message}")
+    
+    if level == "ERROR":
+        exit(1)
+
 def main(variables_file, deploy_yaml):
 
     # 1. Find pipeline yaml with reference to variables file
     pipeline_yaml = find_yaml_with_variables(variables_file)
-    if pipeline_yaml:
-        log("INFO", f"Found Pipeline YAML file")
-    else:
-        log("ERROR", "No matching YAML file found.")
 
-    # 2. Get validation data
+    # Get validation data
     validation_data=get_validation_data()
 
-    # 3. Get repo variables
+    # Get repo variables
     variables_data=get_variables_data(variables_file)
 
     default_regions=get_default_regions(deploy_yaml)
 
-    # 4. Create object to hold our pipeline data
+    # Create object to hold our pipeline data
     pipeline_data={}
 
-    # 5. Populate object with stages and their types
+    # Populate object with stages and their types
     pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, default_regions)
 
-    # 6. Verify pipeline yaml and variables file match up
+    # Verify pipeline yaml and variables file match up
     try:
         validate_stage_consistency(pipeline_data, variables_data)
         log("INFO","Stage consistency validated successfully.")
     except ValueError as e:
         log("ERROR",f"Stage consistency validation failed: {str(e)}")
 
-    # 7. Populate pipeline data with global defaults from validation data
+    # Populate pipeline data with global defaults from validation data
     pipeline_data=add_global_defaults_from_validation(pipeline_data, validation_data)
 
-    # 8. Populate pipeline data with stage-specific defaults from validation data
+    # Populate pipeline data with stage-specific defaults from validation data
     pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
 
-    # 9. Populate pipeline data with global vars from repo variables
+    # Populate pipeline data with global vars from repo variables
     pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
 
-    # 10. Populate pipeline data with stage-specific vars from repo variables
+    # Populate pipeline data with stage-specific vars from repo variables
     pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
-    # 11. Populate pipeline data with region-specific vars from repo variables
+    # Populate pipeline data with region-specific vars from repo variables
     pipeline_data=override_region_specific_vars(pipeline_data, validation_data)
 
-    # 12. Populate pipeline data with secrets from repo
+    # Populate pipeline data with secrets from repo
     pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions)
 
-    # 13. Print out the data being validated
+    # Print out the data being validated
+    pipeline_data=update_file_extensions(pipeline_data,validation_data)
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
-    log("INFO",f"Validating state:\n{pretty_pipeline_data}")
+    log("INFO",f"Validating variables and secrets:\n{pretty_pipeline_data}")
 
-    # 14. Validate pipeline data
+    # Validate pipeline data
     validation_errors = validate_pipeline_data(pipeline_data, validation_data)
     if validation_errors:
         log("INFO","Validation failed with the following errors:")
@@ -434,17 +537,26 @@ def main(variables_file, deploy_yaml):
             log("INFO",error)
         exit(1)
     else:
-        log("INFO","Validation passed successfully.")
+        log("INFO","Variables and secrets passed successfully.")
 
-    # 15. Create validated state in ini format
+    # Create validated state in ini format
     validated_state=create_validated_state(pipeline_data)
 
-    # 16. Remove region identifiers from state
+    # Remove region identifiers from state
     validated_state=remove_region_identifiers(validated_state)
 
-    # 15. Create state file
+    # Process custom scripts
+    process_custom_scripts(validated_state, variables_file)
+ 
+    # Create state file
     validated_state=create_state_file(validated_state)    
-    log("INFO",f"Validated state:\n{validated_state}")
+
+    # Process helm charts
+    #helm_charts=process_helm_charts()
+        
+    print("\nValidated state:")
+    print("---------------------------------------------------------------------------------------------------------")
+    print(validated_state)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')

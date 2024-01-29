@@ -30,6 +30,17 @@ stages:
           displayName: Validate state
           workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
 
+        - script: |
+            COMMON_SCRIPT_EXT=sh
+            if [ -f $(Build.SourcesDirectory)/src/build.$(COMMON_SCRIPT_EXT) ]; then
+              echo "Script found, proceeding with execution"
+              chmod +x $(Build.SourcesDirectory)/src/build.$(COMMON_SCRIPT_EXT)
+              cp $(Build.SourcesDirectory)/src/build.$(COMMON_SCRIPT_EXT) $(Build.ArtifactStagingDirectory)
+            else
+              echo "Script not found, skipping this step"
+            fi
+          displayName: 'Check and Prepare Script'
+
         - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
           artifact: build-artifacts
 

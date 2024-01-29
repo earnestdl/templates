@@ -1,0 +1,16 @@
+{
+    "global":{
+        "PRE_SCRIPT": "custom.sh",
+        "POST_SCRIPT": "custom.sh"
+},
+    "build":{
+        "app":{
+        }
+    },
+    "deploy": {
+        "dev":{},
+        "qa":{},
+        "stress":{},
+        "prod":{}
+    }
+}

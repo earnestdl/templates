@@ -1,0 +1,29 @@
+{
+    "global":{},
+    "build":{
+        "app":{
+            "APP_BUILD_PATH": "src",
+            "APP_BUILD_CONTEXT": ".",
+            "APP_BUILD_TARGET": "runtime",
+            "APP_BUILD_ARGS": "--build-arg=APP_NAME=${APP_NAME}"
+        }
+    },
+    "deploy": {
+        "dev":{
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
+        },
+        "qa":{
+            "ASPNETCORE_ENVIRONMENT": "QA",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
+        },
+        "stress":{
+            "ASPNETCORE_ENVIRONMENT": "Stress",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
+        },
+        "prod":{
+            "ASPNETCORE_ENVIRONMENT": "Prod",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}"
+        }
+    }
+}
