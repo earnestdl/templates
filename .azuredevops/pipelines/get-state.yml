@@ -6,9 +6,15 @@ steps:
   - checkout: templates
   - checkout: self
 
+  - script: env | sort
+    displayName: List all variables
+
   - script: python get-state.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.azuredevops/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.azuredevops/pipelines/deploy.yml
     displayName: Get state
     workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
 
   - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
     artifact: build-artifacts
+
+  - script: env | sort
+    displayName: List all variables
