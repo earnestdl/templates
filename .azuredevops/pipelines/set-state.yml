@@ -20,8 +20,8 @@ steps:
       path: $(System.DefaultWorkingDirectory)/build-artifacts
 
   - script: | 
-      python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
-      chmod +x ${{parameters.stage}}_${{parameters.id}}_${{region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{region}}.sh 
+      python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+      chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
     displayName: Set state
     workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
     env:
