@@ -30,7 +30,7 @@ stages:
         steps:
         - script: echo manual qa-signoff
 
-    - ${{ if or(eq(parameters.type,'openshift'),eq(parameters.type,'bash')) }}:
+    - ${{ if or(eq(parameters.type,'default'),eq(parameters.type,'bash'),eq(parameters.type,'python'),eq(parameters.type,'openshift')) }}:
       - ${{ each region in parameters.regions }}:
         - job: deploy_${{parameters.type}}_${{region}}
           displayName: Deploy ${{parameters.type}} ${{region}}
@@ -61,7 +61,7 @@ stages:
             - script: echo Deploying...
               displayName: Deploy ${{parameters.type}}
 
-    - ${{ if eq(parameters.type, 'windows') }}:
+    - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
       - job: deploy_${{parameters.type}}
         displayName: Deploy ${{parameters.type}}
         steps:

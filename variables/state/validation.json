@@ -35,18 +35,6 @@
                 "type": "string",
                 "default": "default.py"
             }
-        },
-        "go":{
-            "PRE_SCRIPT": {
-                "required": true,
-                "type": "string",
-                "default": "default.go"
-            },
-            "POST_SCRIPT": {
-                "required": true,
-                "type": "string",
-                "default": "default.go"
-            }
         }
     },
     "build": {
@@ -136,18 +124,6 @@
                 "type": "string",
                 "default": "default.py"
             }
-        },
-        "go":{
-            "APP_BUILD_ARGS":  {
-                "required": true,
-                "type": "string",
-                "default": "build"
-            },
-            "APP_BUILD_SCRIPT":  {
-                "required": true,
-                "type": "string",
-                "default": "default.go"
-            }
         }
     },
     "deploy": {
@@ -205,18 +181,6 @@
             }
         },
         "python":{
-            "APP_DEPLOY_SCRIPT":  {
-                "required": true,
-                "type": "string",
-                "default": "default.py"
-            },
-            "APP_DEPLOY_ARGS":  {
-                "required": true,
-                "type": "string",
-                "default": "deploy"
-            }
-        },
-        "go":{
             "APP_DEPLOY_SCRIPT":  {
                 "required": true,
                 "type": "string",
@@ -298,9 +262,7 @@
             "default": "sh",
             "bash": "sh",
             "pwsh": "ps1",
-            "python": "py",
-            "javascript": "js",
-            "go": "go"
+            "python": "py"
         },
         "types":{
             "apps":["custom","dotnet","angular","react","django","flask"],
