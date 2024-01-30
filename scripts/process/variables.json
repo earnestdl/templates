@@ -1,6 +1,8 @@
 {
     "global":{},
-    "build":{},
+    "build":{
+        "app": {}
+    },
     "deploy": {
         "dev":{},
         "qa":{},

@@ -222,7 +222,7 @@ def add_regional_vars_from_validation(pipeline_data, validation_data):
 
     return pipeline_data
 
-def override_regional_variables_from_repo(pipeline_data, stage_regions):
+def add_regional_variables_from_repo(pipeline_data, stage_regions):
     # Process each stage based on its region
     for stage, data in pipeline_data.items():
         stage_region = stage.split('_')[-1]
@@ -470,29 +470,23 @@ def log(level, message):
 
 def main(variables_file, deploy_yaml):
 
-    # 1. Find pipeline yaml with reference to variables file
-    pipeline_yaml = find_yaml_with_variables(variables_file)
-
-    # Get validation data
-    validation_data=get_validation_data()
+    # Create object to hold our pipeline data
+    pipeline_data={}
 
     # Get repo variables
     variables_data=get_variables_data(variables_file)
 
+    # Get validation data
+    validation_data=get_validation_data()
+
+    # Get default regions
     default_regions=get_default_regions(deploy_yaml)
 
-    # Create object to hold our pipeline data
-    pipeline_data={}
+    # Find pipeline yaml with reference to variables file
+    pipeline_yaml = find_yaml_with_variables(variables_file)
 
     # Populate object with stages and their types
     pipeline_data,stage_regions=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, default_regions)
-
-    # Verify pipeline yaml and variables file match up
-    try:
-        validate_stage_consistency(pipeline_data, variables_data)
-        log("INFO","Stage consistency validated successfully.")
-    except ValueError as e:
-        log("ERROR",f"Stage consistency validation failed: {str(e)}")
 
     # Populate pipeline data with global defaults from validation data
     pipeline_data=add_global_defaults_from_validation(pipeline_data, validation_data)
@@ -510,10 +504,10 @@ def main(variables_file, deploy_yaml):
     pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
     # Populate pipeline data with regional vars from repo variables
-    pipeline_data=override_regional_variables_from_repo(pipeline_data, stage_regions)
+    pipeline_data=add_regional_variables_from_repo(pipeline_data, stage_regions)
 
     # Populate pipeline data with region groups from repo variables
-    add_region_groups_from_repo(pipeline_data, variables_data)
+    pipeline_data=add_region_groups_from_repo(pipeline_data, variables_data)
 
     # Populate pipeline data with secrets from repo
     pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, stage_regions)
@@ -524,6 +518,14 @@ def main(variables_file, deploy_yaml):
     log("INFO",f"Validating variables and secrets:\n{pretty_pipeline_data}")
 
     # Validate pipeline data
+    #######################################################################################
+    # Verify pipeline yaml and variables file match up
+    try:
+        validate_stage_consistency(pipeline_data, variables_data)
+        log("INFO","Stage consistency validated successfully.")
+    except ValueError as e:
+        log("ERROR",f"Stage consistency validation failed: {str(e)}")
+
     validation_errors = validate_pipeline_data(pipeline_data, validation_data)
     if validation_errors:
         log("INFO","Validation failed with the following errors:")
@@ -532,6 +534,7 @@ def main(variables_file, deploy_yaml):
         exit(1)
     else:
         log("INFO","Variables and secrets passed successfully.")
+    #######################################################################################
 
     # Create validated state in ini format
     validated_state=create_validated_state(pipeline_data)
