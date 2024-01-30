@@ -5,7 +5,7 @@ import yaml
 import shutil
 import argparse
 
-DEBUG_MODE = True
+DEBUG_MODE = False
 
 state_file='state.ini'
 output_folder='./output'
