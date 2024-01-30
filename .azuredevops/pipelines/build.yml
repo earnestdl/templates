@@ -23,7 +23,7 @@ stages:
     - ${{ if or(eq(parameters.type,'default'),eq(parameters.type,'bash'),eq(parameters.type,'python'),eq(parameters.type,'container')) }}:
       - ${{ each region in parameters.regions }}:
         - job: build_${{parameters.id}}_${{region}}
-          displayName: Build ${{parameters.type}}
+          displayName: Build ${{region}}
           steps:
 
             - template: get-state.yml
@@ -54,7 +54,7 @@ stages:
 
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
       - job: build_${{parameters.type}}
-        displayName: Build ${{parameters.type}}
+        displayName: Build ${{region}}
         dependsOn: validate_${{parameters.type}}_build
         steps:
           - checkout: templates
