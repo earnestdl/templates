@@ -21,12 +21,12 @@ def find_yaml_with_variables(variables_file):
                 try:
                     content = yaml.safe_load(yaml_file)
                     if variables_filename in str(content):
-                        log("INFO",f"YAML file found in: {file_path}")
+                        log("INFO", f"YAML file found in: {file_path}")
                         return content
-                    else:
-                        log("ERROR",f"YAML file not found.")
                 except yaml.YAMLError as exc:
                     log("ERROR", f"Error parsing YAML file {file_path}")
+
+    log("ERROR", "YAML file not found.")
     return None
 
 def get_validation_data():

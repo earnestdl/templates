@@ -1,25 +1,6 @@
 {
     "global": {
         "common":{
-            "GLOBAL_VAR_FROM_VALIDATION": {
-                "required": true,
-                "type": "string",
-                "default": "global from validation should go in all stages"
-            }
-        },
-        "default":{
-            "PRE_SCRIPT": {
-                "required": true,
-                "type": "string",
-                "default": "default.sh"
-            },
-            "POST_SCRIPT": {
-                "required": true,
-                "type": "string",
-                "default": "default.sh"
-            }
-        },
-        "bash":{
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
