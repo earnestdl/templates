@@ -49,14 +49,14 @@ stages:
                   echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
                   echo ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
                   echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
-                displayName: '*** DEPLOY ***'
+                displayName: DEPLOY
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
                   echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
                   echo ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
                   echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
-                displayName: '*** DEPLOY (dry run) ***'
+                displayName: DEPLOY (dry run)
 
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
       - job: deploy_${{parameters.type}}
@@ -75,12 +75,12 @@ stages:
                   echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
                   echo ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
                   echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
-                displayName: '*** DEPLOY ***'
+                displayName: DEPLOY
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
                   echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
                   echo ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
                   echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
-                displayName: '*** DEPLOY (dry run) ***'
+                displayName: DEPLOY (dry run)
  
