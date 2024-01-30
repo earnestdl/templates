@@ -20,31 +20,15 @@ stages:
   displayName: 'Build ${{ parameters.id }}'
 
   jobs:
-    - job: begin_build
-      displayName: Begin Build
-      steps:
-        - checkout: templates
-        - checkout: self
-
-        - script: python get-state.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.azuredevops/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.azuredevops/pipelines/deploy.yml
-          displayName: Get state
-          workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
-
-        - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
-          artifact: build-artifacts
-
-    - ${{ if or(eq(parameters.type,'container'),eq(parameters.type,'bash')) }}:
+    - ${{ if or(eq(parameters.type,'default'),eq(parameters.type,'bash'),eq(parameters.type,'python'),eq(parameters.type,'container')) }}:
       - ${{ each region in parameters.regions }}:
         - job: build_${{parameters.type}}
           displayName: Build ${{parameters.type}}
           dependsOn: begin_build
           steps:
-            - checkout: templates
-            - checkout: self
-            - task: DownloadPipelineArtifact@2
-              inputs:
-                artifact: build-artifacts
-                path: $(System.DefaultWorkingDirectory)/build-artifacts
+
+            - template: get-state.yml
+              parameters: ${{parameters.state}}
 
             - script: | 
                 python set-state.py build_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
@@ -66,7 +50,7 @@ stages:
               - script: echo Building...
                 displayName: Build ${{parameters.type}}
 
-    - ${{ if eq(parameters.type, 'windows') }}:
+    - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
       - job: build_${{parameters.type}}
         displayName: Build ${{parameters.type}}
         dependsOn: validate_${{parameters.type}}_build
