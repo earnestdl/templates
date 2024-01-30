@@ -53,21 +53,34 @@ stages:
                 displayName: BUILD (dry run)
 
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
-      - job: build_${{parameters.type}}
-        displayName: Build ${{region}}
-        dependsOn: validate_${{parameters.type}}_build
-        steps:
-          - checkout: templates
-          - checkout: self
-          - task: DownloadPipelineArtifact@2
-            inputs:
-              artifact: state
-              path: $(System.DefaultWorkingDirectory)/build-artifacts
-          - script: echo "TODO - write the powershell version of export_state.sh" 
-            displayName: Export state
-            workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts
-          - script: env | sort
-            displayName: List all variables
+      - ${{ each region in parameters.regions }}:
+        - job: build_${{parameters.type}}
+          displayName: Build ${{region}}
+          dependsOn: validate_${{parameters.type}}_build
+          steps:
+            - template: get-state.yml
+              parameters: 
+                state: ${{parameters.state}}
 
-          - script: echo Building for Windows...
-            displayName: Build application
+            - template: set-state.yml
+              parameters:
+                id: ${{parameters.id}} 
+                stage: build
+                region: ${{region}}
+                regions: ${{parameters.regions}}
+                secrets: ${{parameters.secrets}}
+
+            - ${{if eq(parameters.dryrun,false)}}:
+              - script: |
+                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  echo ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
+                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                displayName: BUILD
+
+            - ${{if eq(parameters.dryrun,true)}}:
+              - script: |
+                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  echo ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
+                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                displayName: BUILD (dry run)
+
