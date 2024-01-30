@@ -1,16 +1,32 @@
 parameters:
   - name: id
     type: string
-  - name: type
+  - name: stage
     type: string
-  - name: state
+  - name: region
     type: string
-  - name: regions
-    type: object
-    default: ["default"]
   - name: secrets
     type: object
     default: []
-  - name: dryrun
-    type: boolean
-    default: false
+  - name: regions
+    type: object
+    default: []
+
+steps:
+  - checkout: templates
+  - task: DownloadPipelineArtifact@2
+    inputs:
+      artifact: build-artifacts
+      path: $(System.DefaultWorkingDirectory)/build-artifacts
+
+  - script: | 
+      python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+      chmod +x ${{parameters.stage}}_${{parameters.id}}_${{region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{region}}.sh 
+    displayName: Set state
+    workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
+    env:
+      SECRETS: "${{convertToJson(parameters.secrets)}}"
+      REGIONS: "${{convertToJson(parameters.regions)}}"
+
+  - script: env | sort
+    displayName: List all variables

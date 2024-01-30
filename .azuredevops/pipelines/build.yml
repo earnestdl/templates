@@ -30,25 +30,27 @@ stages:
               parameters: 
                 state: ${{parameters.state}}
 
-            - script: | 
-                python set-state.py build_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
-                chmod +x build_${{parameters.id}}_${{region}}.sh && source build_${{parameters.id}}_${{region}}.sh 
-              displayName: Set state
-              workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
-              env:
-                SECRETS: "${{convertToJson(parameters.secrets)}}"
-                REGIONS: "${{convertToJson(parameters.regions)}}"
+            - template: set-state.yml
+              parameters:
+                id: ${{parameters.id}} 
+                stage: build
+                region: ${{region}}
+                regions: ${{parameters.regions}}
+                secrets: ${{parameters.secrets}}
 
-            - script: env | sort
-              displayName: List all variables
+            - ${{if eq(parameters.dryrun,false)}}:
+              - script: |
+                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  echo ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
+                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                displayName: BUILD
 
             - ${{if eq(parameters.dryrun,true)}}:
-              - script: echo Dry run of build...
-                displayName: Build ${{parameters.type}} (dry run)
-
-            - ${{if ne(parameters.dryrun,true)}}:
-              - script: echo Building...
-                displayName: Build ${{parameters.type}}
+              - script: |
+                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  echo ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
+                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                displayName: BUILD (dry run)
 
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
       - job: build_${{parameters.type}}
