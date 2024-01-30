@@ -19,14 +19,25 @@ steps:
       artifact: build-artifacts
       path: $(System.DefaultWorkingDirectory)/build-artifacts
 
-  - script: | 
-      python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
-      chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
-    displayName: Set state
-    workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
-    env:
-      SECRETS: "${{convertToJson(parameters.secrets)}}"
-      REGIONS: "${{convertToJson(parameters.regions)}}"
+  - ${{if eq(parameters.stage,'build')}}:
+    - script: | 
+        python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
+      displayName: Set state
+      workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
+      env:
+        SECRETS: "${{convertToJson(parameters.secrets)}}"
+        REGIONS: "${{convertToJson(parameters.regions)}}"
+
+  - ${{if eq(parameters.stage,'deploy')}}:
+    - script: | 
+        python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
+      displayName: Set state
+      workingDirectory: $(System.DefaultWorkingDirectory)/scripts/process
+      env:
+        SECRETS: "${{convertToJson(parameters.secrets)}}"
+        REGIONS: "${{convertToJson(parameters.regions)}}"
 
   - script: env | sort
     displayName: List all variables
