@@ -84,3 +84,6 @@ stages:
       type: openshift
       dependsOn: deploy_qa_signoff
       regions: ['east', 'west']
+      secrets:
+        "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_PROD_EAST)"
+        "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_PROD_WEST)"

@@ -84,11 +84,8 @@
                 "required": true,
                 "type": "string",
                 "default": "post-build"
-            },
-            "REQUIRED_COMMON_BUILD_VAR": {
-                "required": true,
-                "type": "string"
-            }        },
+            }
+        },
         "container":{
             "APP_BUILD_ARGS":  {
                 "required": true,
@@ -109,10 +106,6 @@
                 "required": true,
                 "type": "string",
                 "default": "runtime"
-            },
-            "REQUIRED_CONTAINER_BUILD_VAR": {
-                "required": true,
-                "type": "string"
             }
         },
         "default":{
@@ -125,10 +118,6 @@
                 "required": true,
                 "type": "string",
                 "default": "default.sh"
-            },
-            "REQUIRED_DEFAULT_BUILD_VAR": {
-                "required": true,
-                "type": "string"
             }
         },
         "bash":{
@@ -196,10 +185,6 @@
                 "required": true,
                 "type": "string",
                 "default": "running"
-            },
-            "REQUIRED_COMMON_DEPLOY_VAR": {
-                "required": true,
-                "type": "string"
             }
         },
         "default":{
@@ -212,10 +197,6 @@
                 "required": true,
                 "type": "string",
                 "default": "deploy"
-            },
-            "REQUIRED_DEFAULT_DEPLOY_VAR": {
-                "required": true,
-                "type": "string"
             }
         },
         "bash":{
@@ -290,10 +271,6 @@
             "OPENSHIFT_TOKEN": {
                 "required": true,
                 "type": "secret"
-            },
-            "REQUIRED_OPENSHIFT_DEPLOY_VAR": {
-                "required": true,
-                "type": "string"
             }
         }
     },
@@ -322,10 +299,6 @@
                     "required": true,
                     "type": "string",
                     "default": "${APP_DEPLOY_ENV}-east.openshift-cluster.com"
-                },
-                "OPENSHIFT_REGION_EAST_REQUIRED": {
-                    "required": true,
-                    "type": "string"
                 }
             }
         },
