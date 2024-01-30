@@ -56,7 +56,6 @@ stages:
       - ${{ each region in parameters.regions }}:
         - job: build_${{parameters.type}}
           displayName: Build ${{region}}
-          dependsOn: validate_${{parameters.type}}_build
           steps:
             - template: get-state.yml
               parameters: 
