@@ -28,7 +28,8 @@ stages:
           steps:
 
             - template: get-state.yml
-              parameters: ${{parameters.state}}
+              parameters: 
+                state: ${{parameters.state}}
 
             - script: | 
                 python set-state.py build_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
