@@ -42,9 +42,9 @@ stages:
               path: $(System.DefaultWorkingDirectory)/build-artifacts
 
           - script: | 
-              python export-state.py deploy_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS" 
+              python set-state.py deploy_${{parameters.id}}_${{region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS" 
               chmod +x deploy_${{parameters.id}}_${{region}}.sh && source deploy_${{parameters.id}}_${{region}}.sh 
-            displayName: Export state
+            displayName: Set state
             workingDirectory: $(System.DefaultWorkingDirectory)/scripts/process
             env:
               SECRETS: "${{convertToJson(parameters.secrets)}}"
