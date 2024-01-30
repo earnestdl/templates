@@ -12,7 +12,7 @@
                 "default": "default.sh"
             }
         },
-        "pwsh":{
+        "powershell":{
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
@@ -101,7 +101,7 @@
                 "default": "default.sh"
             }
         },
-        "pwsh":{
+        "powershell":{
             "APP_BUILD_ARGS":  {
                 "required": true,
                 "type": "string",
@@ -168,7 +168,7 @@
                 "default": "default.sh"
             }
         },
-        "pwsh":{
+        "powershell":{
             "APP_DEPLOY_ARGS":  {
                 "required": true,
                 "type": "string",
@@ -256,19 +256,5 @@
                 }
             }
         }
-    },
-    "supported": {
-        "scripts": {
-            "default": "sh",
-            "bash": "sh",
-            "pwsh": "ps1",
-            "python": "py"
-        },
-        "types":{
-            "apps":["custom","dotnet","angular","react","django","flask"],
-            "build": ["windows","linux","container"],
-            "test": ["unit","smoke","coverage","accessibility","regression"],    
-            "deploy": ["windows-server","linux-server","openshift","mulesoft","artifactory","scheduled"]
-        }
-    }    
+    }
 }
