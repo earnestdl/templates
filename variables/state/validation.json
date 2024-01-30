@@ -177,7 +177,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "default.sh"
+                "default": "default.ps1"
             }
         },
         "python":{
@@ -189,7 +189,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "default.sh"
+                "default": "default.py"
             }
         },
         "openshift":{
