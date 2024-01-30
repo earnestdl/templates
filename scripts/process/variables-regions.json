@@ -11,15 +11,11 @@
     "test":{},
     "deploy": {
         "dev":{
-            "DEPLOY_VAR_FROM_REPO": "this should go in the dev deploy stage"
-        },
-        "dev_east":{
-            "DEPLOY_REGION": "this should go in the east region only in dev",
-            "APPDYNAMICS_ENV": "Development East"
-        },
-        "dev_west":{
-            "DEPLOY_REGION": "this should go in the west region only in dev",
-            "APPDYNAMICS_ENV": "Development West"
+            "DEPLOY_VAR_FROM_REPO": "this should go in the dev deploy stage",
+            "DEPLOY_REGION_EAST": "this should go in the east region only in dev",
+            "DEPLOY_REGION_WEST": "this should go in the west region only in dev",
+            "APPDYNAMICS_ENV_EAST": "Development East",
+            "APPDYNAMICS_ENV_WEST": "Development West"
         },
         "qa":{
             "DEPLOY_VAR_FROM_REPO": "this should go in the qa deploy stage"

@@ -339,7 +339,6 @@ def validate_pipeline_data(pipeline_data, validation_data):
 
     # Global common variables validation
     global_common_vars = validation_data.get('global', {}).get('common', {})
-    region_specific_vars = validation_data.get('regions', {})
 
     for stage_name, stage_details in pipeline_data.items():
         # Global common variables
@@ -376,41 +375,6 @@ def create_validated_state(pipeline_data):
         validated_state += '\n'  # Add a newline for separation between sections
 
     return validated_state
-
-def remove_region_identifiers(validated_state):
-    # Split the content into stages
-    stages = re.split(r'(\[\w+\])', validated_state)
-
-    # Process each stage
-    processed_stages = []
-    region = None  # Initialize region variable
-    for stage in stages:
-        if stage.startswith('['):  # Check if it's a stage header
-            header_match = re.match(r'\[(\w+_\w+)_(\w+)\]', stage)
-            if header_match:
-                _, region = header_match.groups()
-                region = region.upper()  # Ensure region is uppercase
-            processed_stages.append(stage.strip() + '\n')  # Append the stage header with newline
-        else:
-            # Process the variables in the stage
-            if region:
-                processed_variables = []
-                for line in stage.split('\n'):
-                    if line.strip() and '=' in line:
-                        # Split variable name and value
-                        var_name, var_value = line.split('=', 1)
-                        # Remove the region suffix from the variable name if present
-                        if var_name.endswith(f'_{region}'):
-                            var_name = var_name[:-len(region) - 1]
-                        processed_variables.append(f'{var_name}={var_value}')
-                processed_stage = '\n'.join(processed_variables)
-                processed_stages.append(processed_stage.strip() + '\n\n')  # Append variables with newline
-            else:
-                # If region is not set, append the stage as is
-                processed_stages.append(stage.strip() + '\n\n')  # Append non-region stage with newline
-
-    # Combine the processed stages back into the full content
-    return ''.join(processed_stages).strip()
  
 def process_custom_scripts(validated_state, variables_file):
     defaults_path = os.path.normpath(os.path.join(os.getcwd(), "..", "defaults"))
@@ -571,9 +535,6 @@ def main(variables_file, deploy_yaml):
 
     # Create validated state in ini format
     validated_state=create_validated_state(pipeline_data)
-
-    # Remove region identifiers from state
-    #validated_state=remove_region_identifiers(validated_state)
 
     # Process custom scripts
     process_custom_scripts(validated_state, variables_file)
