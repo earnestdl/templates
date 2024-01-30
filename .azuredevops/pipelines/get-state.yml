@@ -13,7 +13,7 @@ steps:
     displayName: Get state
     workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
 
-  - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output/state.ini
+  - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output
     artifact: build-artifacts
 
   - script: env | sort
