@@ -22,7 +22,7 @@ stages:
   jobs:
     - ${{ if or(eq(parameters.type,'default'),eq(parameters.type,'bash'),eq(parameters.type,'python'),eq(parameters.type,'container')) }}:
       - ${{ each region in parameters.regions }}:
-        - job: build_${{parameters.type}}
+        - job: build_${{parameters.type}}_${{region}}
           displayName: Build ${{parameters.type}}
           steps:
 
