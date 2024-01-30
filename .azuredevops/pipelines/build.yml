@@ -24,7 +24,6 @@ stages:
       - ${{ each region in parameters.regions }}:
         - job: build_${{parameters.type}}
           displayName: Build ${{parameters.type}}
-          dependsOn: begin_build
           steps:
 
             - template: get-state.yml
