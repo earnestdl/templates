@@ -87,6 +87,11 @@
                 "required": true,
                 "type": "string",
                 "default": "default.sh"
+            },
+            "APP_BUILD_COMMAND":  {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
             }
         },
         "bash":{
@@ -154,6 +159,11 @@
                 "required": true,
                 "type": "string",
                 "default": "deploy"
+            },
+            "APP_DEPLOY_COMMAND":  {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
             }
         },
         "bash":{
