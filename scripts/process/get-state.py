@@ -72,6 +72,7 @@ def validate_stage_consistency(pipeline_data, variables_data):
     return None  # Return None if validation passes
 
 def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, default_regions):
+
     # Loop through stages in pipeline_yaml
     for stage in pipeline_yaml.get('stages', []):
         # Skip commented lines and 'qa-signoff' stages
@@ -109,25 +110,34 @@ def populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_d
                 "vars": variables_data.get(regional_stage_id, {})
             }
 
-    return pipeline_data
+    return pipeline_data, stage_regions
 
 def add_global_defaults_from_validation(pipeline_data, validation_data):
     # Extract global defaults from validation data
     global_defaults = validation_data.get('global', {})
+    global_common_defaults = global_defaults.get('common', {})
 
     # Populate each stage in pipeline_data with relevant global default values
     for stage_name, stage_data in pipeline_data.items():
         stage_type = stage_data.get('type')  # Get the type of the stage
 
-        for key, value in global_defaults.items():
-            # Check if the variable is required and if the stage type matches one of the allowed stage_types
-            if value.get('required', False) and stage_type in value.get('stage_types', []):
+        # Add common defaults to all stages
+        for key, value in global_common_defaults.items():
+            if value.get('required', False):
+                stage_data['vars'][key] = value.get('default')
+
+        # Retrieve the default values for the given stage type
+        type_defaults = global_defaults.get(stage_type, {})
+
+        for key, value in type_defaults.items():
+            # Check if the variable is required
+            if value.get('required', False):
                 # Add the default value to the vars of each stage
                 stage_data['vars'][key] = value.get('default')
 
     return pipeline_data
 
-def add_stage_defaults_from_validation(pipeline_data, validation_data):
+def add_stage_defaults_from_validation_old(pipeline_data, validation_data):
     # Loop through each stage in pipeline_data
     for stage_name, stage_info in pipeline_data.items():
         # Extract the main part of the stage name (e.g., "build", "deploy") and the region if any
@@ -152,6 +162,38 @@ def add_stage_defaults_from_validation(pipeline_data, validation_data):
                     stage_info['vars'][var_name] = var_details['default']
 
     return pipeline_data
+
+def add_stage_defaults_from_validation(pipeline_data, validation_data):
+    # Loop through each stage in pipeline_data
+    for stage_name, stage_info in pipeline_data.items():
+        # Extract the main part of the stage name (e.g., "build", "deploy") and the region if any
+        parts = stage_name.split('_')
+        stage_key = parts[0]
+        stage_region = parts[-1] if len(parts) > 2 else None
+
+        # Check if this stage key exists in validation_data
+        if stage_key in validation_data:
+            # Include common defaults for this stage key
+            common_defaults = validation_data[stage_key].get('common', {})
+            for key, value in common_defaults.items():
+                if 'default' in value:
+                    stage_info['vars'][key] = value['default']
+
+            # Iterate through the specific types in this validation section
+            for type_key, type_values in validation_data[stage_key].items():
+                if type_key != 'common':  # Skip the common section
+                    for var_name, var_details in type_values.items():
+                        # Check if the stage type matches and if region-specific requirements are met
+                        valid_for_stage = stage_info['type'] == type_key
+                        valid_for_region = 'regions' not in var_details or (stage_region and stage_region in var_details['regions'])
+
+                        # Check for a default value and whether the type and region match
+                        if valid_for_stage and valid_for_region and 'default' in var_details:
+                            # Populate the default value in the stage's vars
+                            stage_info['vars'][var_name] = var_details['default']
+
+    return pipeline_data
+
 
 def add_global_vars_from_repo(pipeline_data, variables_data):
     # Extract global variables from variables.json
@@ -204,31 +246,99 @@ def add_stage_vars_from_repo_broke(pipeline_data, variables_data):
 
     return pipeline_data
 
-def override_region_specific_vars(pipeline_data, validation_data):
-    # Loop through pipeline data and find stages that start with "deploy_"
+def add_regional_vars_from_validation(pipeline_data, validation_data):
+    # Loop through pipeline data and apply region-specific variables based on stage type
     for stage_name, stage_info in pipeline_data.items():
-        if stage_name.startswith("deploy_"):
-            # Extract the region (the token after the last "_")
-            region = stage_name.rsplit('_', 1)[-1]
+        # Determine if the stage has a specific region
+        region = stage_name.rsplit('_', 1)[-1] if '_' in stage_name else None
+        stage_type = stage_info['type']
 
-            # Extract the stage type
-            stage_type = stage_info['type']
+        # Apply region-specific variables only if the region exists and the stage type matches
+        if region and region in validation_data['regions'] and stage_type in validation_data['regions'][region]:
+            region_specific_vars = validation_data['regions'][region][stage_type]
 
-            # Check if the region exists in the validation data
-            if region in validation_data['regions']:
-                region_data = validation_data['regions'][region]
-
-                # Loop through the variables in the region
-                for var_name, var_info in region_data.items():
-                    # Check if the variable's stage type matches and has a default value
-                    if 'stage_types' in var_info and stage_type in var_info['stage_types'] and 'default' in var_info:
-                        # Add the variable and its default value to the pipeline stage
-                        pipeline_data[stage_name]['vars'][var_name] = var_info['default']
+            for var_name, var_info in region_specific_vars.items():
+                # Check if the variable has a default value
+                if 'default' in var_info:
+                    stage_info['vars'][var_name] = var_info['default']
 
     return pipeline_data
 
+def override_regional_variables_from_repo(pipeline_data, stage_regions):
+    # Process each stage based on its region
+    for stage, data in pipeline_data.items():
+        stage_region = stage.split('_')[-1]
 
-def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions):
+        # Process only if stage is not "default"
+        if stage_region != "default":
+            vars_to_override = {}
+            for var, value in data['vars'].items():
+                # Check if variable ends with any of the identified regions
+                for region in stage_regions:
+                    if var.endswith(f"_{region.upper()}"):
+                        # Keep and rename variables for the matching region
+                        if stage_region == region:
+                            new_var = var[:-len(region) - 1]  # Remove region identifier
+                            vars_to_override[new_var] = value
+                        break
+                else:
+                    # Keep variables that don't have any region identifier
+                    vars_to_override[var] = value
+
+            # Update pipeline data
+            data['vars'] = vars_to_override
+
+    return pipeline_data
+
+def add_region_groups_from_repo(pipeline_data, variables_data):
+    for stage_key, stage_value in pipeline_data.items():
+        # Extracting stage type and specific stage name
+        stage_parts = stage_key.split('_')
+        stage_type = stage_parts[0]
+        stage_name = '_'.join(stage_parts[1:])
+
+        # Checking if there is a corresponding section in variables_data
+        if stage_type in variables_data and stage_name in variables_data[stage_type]:
+            specific_variables = variables_data[stage_type][stage_name]
+            # Add these variables to the respective stage in pipeline_data
+            for var_key, var_value in specific_variables.items():
+                stage_value['vars'][var_key] = var_value
+
+    return pipeline_data
+
+def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, stage_regions):
+    for stage in pipeline_yaml.get('stages', []):
+        stage_id = stage['parameters'].get('id', '')
+        secrets = stage['parameters'].get('secrets', {})
+
+        if stage_id == 'qa_signoff':
+            continue
+
+        # Identify the stages in pipeline_data that match this stage_id
+        matching_stages = [key for key in pipeline_data if key.split('_')[1] == stage_id]
+
+        for secret_key, secret_value in secrets.items():
+            secret_assigned = False
+            for region in stage_regions:
+                region_suffix = f"_{region.upper()}"
+                if secret_key.upper().endswith(region_suffix):
+                    # Find the matching stage for this region-specific secret
+                    for stage_key in matching_stages:
+                        if stage_key.split('_')[-1].lower() == region.lower():
+                            # Strip off the region part and assign the secret
+                            new_secret_key = secret_key[:-len(region) - 1]
+                            pipeline_data[stage_key]['vars'][new_secret_key] = secret_value
+                            secret_assigned = True
+                            break
+
+            # For non-region-specific secrets or if the region-specific secret has not been assigned
+            if not secret_assigned:
+                for stage_key in matching_stages:
+                    pipeline_data[stage_key]['vars'][secret_key] = secret_value
+
+    return pipeline_data
+
+def add_secrets_to_pipeline_data_old(pipeline_yaml, pipeline_data, default_regions):
     for stage in pipeline_yaml.get('stages', []):
         stage_id = stage['parameters'].get('id', '')
         secrets = stage['parameters'].get('secrets', {})
@@ -260,7 +370,7 @@ def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions):
 
     return pipeline_data
 
-def validate_pipeline_data(pipeline_data, validation_data):
+def validate_pipeline_data_old(pipeline_data, validation_data):
     errors = []
 
     def get_variable_type(value):
@@ -336,6 +446,143 @@ def validate_pipeline_data(pipeline_data, validation_data):
         for stage_name, stage_details in pipeline_data.items():
             if stage_category in stage_name:  # Check if stage name contains the category name
                 check_variables(stage_details['type'], stage_details['vars'], stage_vars, stage_name, validation_data.get('regions', {}))
+
+    return errors
+
+def validate_pipeline_data_works_except_for_regions(pipeline_data, validation_data):
+    errors = []
+
+    def get_variable_type(value):
+        if isinstance(value, bool):
+            return "bool"
+        elif isinstance(value, int):
+            return "int"
+        elif isinstance(value, list):
+            return "array"
+        elif isinstance(value, dict):
+            return "dict"
+        elif isinstance(value, str):
+            # Recognize secret placeholders for both Azure DevOps and GitHub Actions
+            if value.startswith("$(") and value.endswith(")") or \
+            value.startswith("${{ secrets.") and value.endswith(" }}"):
+                return "secret"
+            return "string"
+        else:
+            return "unknown"
+
+    def check_variables(stage_vars, required_vars, stage_name):
+        for var_name, var_details in required_vars.items():
+            if var_details.get('required', False):
+                # Check if the variable is in stage_vars
+                if var_name not in stage_vars:
+                    errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage.")
+                else:
+                    var_value = stage_vars[var_name]
+                    # Check for None, empty string, or placeholder secret format
+                    if var_value in [None, ""] or re.match(r"\$\((.*?)\)", str(var_value)):
+                        errors.append(f"Empty or placeholder value for required variable '{var_name}' in '{stage_name}' stage.")
+                    else:                        # For non-secret variables, check the type
+                        actual_type = get_variable_type(stage_vars.get(var_name, ""))
+                        expected_type = var_details['type']
+                        if actual_type != expected_type:
+                            errors.append(f"Variable '{var_name}' in '{stage_name}' stage is of type '{actual_type}', expected '{expected_type}'.")
+
+    # Global common variables validation
+    global_common_vars = validation_data.get('global', {}).get('common', {})
+    for stage_name, stage_details in pipeline_data.items():
+        check_variables(stage_details['vars'], global_common_vars, stage_name)
+
+    # Stage-specific (build, deploy, test) common variables validation
+    for stage_category in ['build', 'deploy', 'test']:
+        common_vars = validation_data.get(stage_category, {}).get('common', {})
+        for stage_name, stage_details in pipeline_data.items():
+            if stage_category in stage_name:  # Check if stage name contains the category name
+                check_variables(stage_details['vars'], common_vars, stage_name)
+
+    # Stage type-specific variables validation
+    for stage_category in ['build', 'deploy', 'test']:
+        for stage_name, stage_details in pipeline_data.items():
+            if stage_category in stage_name:
+                stage_type = stage_details['type']
+                type_specific_vars = validation_data.get(stage_category, {}).get(stage_type, {})
+                check_variables(stage_details['vars'], type_specific_vars, stage_name)
+
+    # Region-specific variables validation
+    for stage_name, stage_details in pipeline_data.items():
+        region = stage_name.rsplit('_', 1)[-1]  # Extract the region from the stage name
+        region_vars = validation_data.get('regions', {}).get(region, {})
+        check_variables(stage_details['vars'], region_vars, stage_name)
+
+    return errors
+
+def validate_pipeline_data(pipeline_data, validation_data):
+    errors = []
+
+    def get_variable_type(value):
+        if isinstance(value, bool):
+            return "bool"
+        elif isinstance(value, int):
+            return "int"
+        elif isinstance(value, list):
+            return "array"
+        elif isinstance(value, dict):
+            return "dict"
+        elif isinstance(value, str):
+            # Recognize secret placeholders for both Azure DevOps and GitHub Actions
+            if value.startswith("$(") and value.endswith(")") or \
+            value.startswith("${{ secrets.") and value.endswith(" }}"):
+                return "secret"
+            return "string"
+        else:
+            return "unknown"
+
+    def check_variables(stage_vars, required_vars, stage_name):
+        for var_name, var_details in required_vars.items():
+            # Check if the variable is in stage_vars
+            if var_details.get('required', False):
+                if var_name not in stage_vars:
+                    errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage.")
+                else:
+                    var_value = stage_vars[var_name]
+                    # Check for None, empty string, or placeholder secret format
+                    if var_value in [None, ""] or re.match(r"\$\((.*?)\)", str(var_value)):
+                        errors.append(f"Empty or placeholder value for required variable '{var_name}' in '{stage_name}' stage.")
+                    else:
+                        actual_type = get_variable_type(stage_vars.get(var_name, ""))
+                        expected_type = var_details['type']
+                        if actual_type != expected_type:
+                            errors.append(f"Variable '{var_name}' in '{stage_name}' stage is of type '{actual_type}', expected '{expected_type}'.")
+        if region_specific_vars:
+            region = stage_name.rsplit('_', 1)[-1]
+            if region != "default":
+                regional_type_vars = region_specific_vars.get(region, {}).get(stage_type, {})
+                for var_name, var_details in regional_type_vars.items():
+                    if var_details.get('required', False) and var_name not in stage_vars:
+                        errors.append(f"Missing required regional variable '{var_name}' in '{stage_name}' stage.")
+
+    # Global common variables validation
+    global_common_vars = validation_data.get('global', {}).get('common', {})
+    region_specific_vars = validation_data.get('regions', {})
+
+    for stage_name, stage_details in pipeline_data.items():
+        # Global common variables
+        check_variables(stage_details['vars'], global_common_vars, stage_name)
+
+        # Stage category specific variables (build, deploy, test)
+        stage_category = stage_name.split('_')[0]  # Assuming stage_name format is category_region
+        category_common_vars = validation_data.get(stage_category, {}).get('common', {})
+        check_variables(stage_details['vars'], category_common_vars, stage_name)
+
+        # Stage type-specific variables
+        stage_type = stage_details['type']
+        type_specific_vars = validation_data.get(stage_category, {}).get(stage_type, {})
+        check_variables(stage_details['vars'], type_specific_vars, stage_name)
+
+        # Region-specific variables
+        region = stage_name.rsplit('_', 1)[-1]
+        if region != "default":
+            region_vars = validation_data.get('regions', {}).get(region, {}).get(stage_type, {})
+            check_variables(stage_details['vars'], region_vars, stage_name)
 
     return errors
 
@@ -497,7 +744,7 @@ def main(variables_file, deploy_yaml):
     pipeline_data={}
 
     # Populate object with stages and their types
-    pipeline_data=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, default_regions)
+    pipeline_data,stage_regions=populate_pipeline_data_with_stages(pipeline_data, pipeline_yaml, variables_data, default_regions)
 
     # Verify pipeline yaml and variables file match up
     try:
@@ -512,20 +759,27 @@ def main(variables_file, deploy_yaml):
     # Populate pipeline data with stage-specific defaults from validation data
     pipeline_data=add_stage_defaults_from_validation(pipeline_data, validation_data)
 
+    # Populate pipeline data with regional vars from validation data
+    pipeline_data=add_regional_vars_from_validation(pipeline_data, validation_data)
+
     # Populate pipeline data with global vars from repo variables
     pipeline_data=add_global_vars_from_repo(pipeline_data, variables_data)
 
     # Populate pipeline data with stage-specific vars from repo variables
     pipeline_data=add_stage_vars_from_repo(pipeline_data, variables_data)
 
-    # Populate pipeline data with region-specific vars from repo variables
-    pipeline_data=override_region_specific_vars(pipeline_data, validation_data)
+    # Populate pipeline data with regional vars from repo variables
+    pipeline_data=override_regional_variables_from_repo(pipeline_data, stage_regions)
+
+    # Populate pipeline data with region groups from repo variables
+    #add_region_groups_from_repo(pipeline_data, variables_data)
 
     # Populate pipeline data with secrets from repo
-    pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, default_regions)
+    pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, stage_regions)
+    #pipeline_data=add_secrets_to_pipeline_data_old(pipeline_yaml, pipeline_data, default_regions)
 
     # Print out the data being validated
-    pipeline_data=update_file_extensions(pipeline_data,validation_data)
+    #pipeline_data=update_file_extensions(pipeline_data,validation_data)
     pretty_pipeline_data = json.dumps(pipeline_data, indent=4)
     log("INFO",f"Validating variables and secrets:\n{pretty_pipeline_data}")
 
@@ -540,23 +794,23 @@ def main(variables_file, deploy_yaml):
         log("INFO","Variables and secrets passed successfully.")
 
     # Create validated state in ini format
-    validated_state=create_validated_state(pipeline_data)
+    #validated_state=create_validated_state(pipeline_data)
 
     # Remove region identifiers from state
-    validated_state=remove_region_identifiers(validated_state)
+    #validated_state=remove_region_identifiers(validated_state)
 
     # Process custom scripts
-    process_custom_scripts(validated_state, variables_file)
+    #process_custom_scripts(validated_state, variables_file)
  
     # Create state file
-    validated_state=create_state_file(validated_state)    
+    #validated_state=create_state_file(validated_state)    
 
     # Process helm charts
     #helm_charts=process_helm_charts()
         
-    print("\nValidated state:")
-    print("---------------------------------------------------------------------------------------------------------")
-    print(validated_state)
+    #print("\nValidated state:")
+    #print("---------------------------------------------------------------------------------------------------------")
+    #print(validated_state)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process some integers.')

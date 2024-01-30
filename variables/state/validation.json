@@ -1,185 +1,341 @@
 {
     "global": {
-        "APP_NAME": {
-            "required": true,
-            "type": "string",
-            "default": "${COMMON_REPO_NAME}",
-            "stage_types": ["container"]
+        "common":{
+            "GLOBAL_VAR_FROM_VALIDATION": {
+                "required": true,
+                "type": "string",
+                "default": "global from validation should go in all stages"
+            }
         },
-        "APP_PLATFORM":  {
-            "required": true,
-            "type": "string",
-            "default": "${COMMON_PLATFORM}",
-            "stage_types": ["container"]
+        "default":{
+            "PRE_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            },
+            "POST_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            }
         },
-        "APP_REGISTRY_URL": {
-            "required": true,
-            "type": "string",
-            "default": "myregistry.com",
-            "stage_types": ["container"]
+        "bash":{
+            "PRE_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            },
+            "POST_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            }
         },
-        "PRE_SCRIPT": {
-            "required": true,
-            "type": "string",
-            "default": "default.sh",
-            "stage_types": ["default", "bash", "pwsh", "python", "go"]
+        "pwsh":{
+            "PRE_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.ps1"
+            },
+            "POST_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.ps1"
+            }
         },
-        "POST_SCRIPT": {
-            "required": true,
-            "type": "string",
-            "default": "default.sh",
-            "stage_types": ["default", "bash", "pwsh", "python", "go"]
+        "python":{
+            "PRE_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.py"
+            },
+            "POST_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.py"
+            }
+        },
+        "go":{
+            "PRE_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.go"
+            },
+            "POST_SCRIPT": {
+                "required": true,
+                "type": "string",
+                "default": "default.go"
+            }
         }
     },
     "build": {
-        "APP_BUILD_PATH":  {
-            "required": true,
-            "type": "string",
-            "default": "./src"
+        "common":{
+            "APP_BUILD_PATH":  {
+                "required": true,
+                "type": "string",
+                "default": "./src"
+            },
+            "PRE_SCRIPT_ARGS": {
+                "required": true,
+                "type": "string",
+                "default": "pre-build"
+            },
+            "POST_SCRIPT_ARGS": {
+                "required": true,
+                "type": "string",
+                "default": "post-build"
+            },
+            "REQUIRED_COMMON_BUILD_VAR": {
+                "required": true,
+                "type": "string"
+            }        },
+        "container":{
+            "APP_BUILD_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "-e APP_NAME=${APP_NAME}"
+            },
+            "APP_BUILD_COMMAND":  {
+                "required": true,
+                "type": "string",
+                "default": "./build-container.sh"
+            },
+            "APP_DOCKERFILE":  {
+                "required": true,
+                "type": "string",
+                "default": "."
+            },
+            "APP_BUILD_TARGET":  {
+                "required": true,
+                "type": "string",
+                "default": "runtime"
+            },
+            "REQUIRED_CONTAINER_BUILD_VAR": {
+                "required": true,
+                "type": "string"
+            }
         },
-        "APP_BUILD_CMD":  {
-            "required": false,
-            "type": "string",
-            "default": "${COMMON_ECHO} Building...",
-            "stage_types": ["linux", "windows"]
+        "default":{
+            "APP_BUILD_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "build"
+            },
+            "APP_BUILD_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            },
+            "REQUIRED_DEFAULT_BUILD_VAR": {
+                "required": true,
+                "type": "string"
+            }
         },
-        "APP_BUILD_SCRIPT":  {
-            "required": true,
-            "type": "string",
-            "default": "default.sh",
-            "stage_types": ["default", "bash", "pwsh", "python", "go"]
+        "bash":{
+            "APP_BUILD_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "build"
+            },
+            "APP_BUILD_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            }
         },
-        "APP_BUILD_ARGS":  {
-            "required": true,
-            "type": "string",
-            "default": "build",
-            "stage_types": ["default"]
+        "pwsh":{
+            "APP_BUILD_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "build"
+            },
+            "APP_BUILD_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.ps1"
+            }
         },
-        "APP_DOCKERFILE":  {
-            "required": true,
-            "type": "string",
-            "default": ".",
-            "stage_types": ["container"]
+        "python":{
+            "APP_BUILD_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "build"
+            },
+            "APP_BUILD_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.py"
+            }
         },
-        "APP_BUILD_TARGET":  {
-            "required": true,
-            "type": "string",
-            "default": "runtime",
-            "stage_types": ["container"]
-        },
-        "PRE_SCRIPT_ARGS": {
-            "required": true,
-            "type": "string",
-            "default": "pre-build",
-            "stage_types": ["default"]
-        },
-        "POST_SCRIPT_ARGS": {
-            "required": true,
-            "type": "string",
-            "default": "post-build",
-            "stage_types": ["default"]
+        "go":{
+            "APP_BUILD_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "build"
+            },
+            "APP_BUILD_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.go"
+            }
         }
     },
     "deploy": {
-        "APP_DEPLOY_CMD":  {
-            "required": false,
-            "type": "string",
-            "default": "${COMMON_ECHO} Deploying...",
-            "stage_types": ["linux", "windows"]
+        "common":{
+            "PRE_SCRIPT_ARGS": {
+                "required": true,
+                "type": "string",
+                "default": "pre-deploy"
+            },
+            "POST_SCRIPT_ARGS": {
+                "required": true,
+                "type": "string",
+                "default": "post-deploy"
+            },    
+            "APP_RUNTIME_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "running"
+            },
+            "REQUIRED_COMMON_DEPLOY_VAR": {
+                "required": true,
+                "type": "string"
+            }
         },
-        "APP_DEPLOY_SCRIPT":  {
-            "required": true,
-            "type": "string",
-            "default": "default.sh",
-            "stage_types": ["default", "bash", "pwsh", "python", "go"]
+        "default":{
+            "APP_DEPLOY_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "deploy"
+            },
+            "REQUIRED_DEFAULT_DEPLOY_VAR": {
+                "required": true,
+                "type": "string"
+            }
         },
-        "APP_DEPLOY_ARGS":  {
-            "required": true,
-            "type": "string",
-            "default": "deploy",
-            "stage_types": ["default"]
+        "bash":{
+            "APP_DEPLOY_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.sh"
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "deploy"
+            }
         },
-        "APP_RUNTIME_ARGS": {
-            "required": true,
-            "default": "default_test",
-            "type": "string"
+        "pwsh":{
+            "APP_DEPLOY_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.ps1"
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "deploy"
+            }
         },
-        "OPENSHIFT_PREFIX": {
-            "required": true,
-            "type": "string",
-            "default": "${APP_PLATFORM}-${APP_NAME}",
-            "stage_types": ["openshift"]
+        "python":{
+            "APP_DEPLOY_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.py"
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "deploy"
+            }
         },
-        "OPENSHIFT_PROJECT": {
-            "required": true,
-            "type": "string",
-            "default": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
-            "stage_types": ["openshift"]
+        "go":{
+            "APP_DEPLOY_SCRIPT":  {
+                "required": true,
+                "type": "string",
+                "default": "default.py"
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": true,
+                "type": "string",
+                "default": "deploy"
+            }
         },
-        "PRE_SCRIPT_ARGS": {
-            "required": true,
-            "type": "string",
-            "default": "pre-deploy",
-            "stage_types": ["default"]
-        },
-        "POST_SCRIPT_ARGS": {
-            "required": true,
-            "type": "string",
-            "default": "post-deploy",
-            "stage_types": ["default"]
-        }    
+        "openshift":{
+            "APP_DEPLOY_COMMAND":  {
+                "required": false,
+                "type": "string",
+                "default": "${COMMON_ECHO} Deploying..."
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": false,
+                "type": "string",
+                "default": "${COMMON_ECHO} Deploying..."
+            },
+            "OPENSHIFT_PREFIX": {
+                "required": true,
+                "type": "string",
+                "default": "${APP_PLATFORM}-${APP_NAME}"
+            },
+            "OPENSHIFT_PROJECT": {
+                "required": true,
+                "type": "string",
+                "default": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}"
+            },
+            "OPENSHIFT_TOKEN": {
+                "required": true,
+                "type": "secret"
+            },
+            "REQUIRED_OPENSHIFT_DEPLOY_VAR": {
+                "required": true,
+                "type": "string"
+            }
+        }
     },
     "regions": {
         "north": {
-            "OPENSHIFT_CLUSTER_NORTH": {
-                "required": true,
-                "type": "string",
-                "default": "${APP_DEPLOY_ENV}-north.openshift-cluster.com",
-                "stage_types": ["openshift"]
-            },    
-            "OPENSHIFT_TOKEN_NORTH": {
-                "required": true,
-                "type": "secret",
-                "stage_types": ["openshift"]            
+            "openshift":{
+                "OPENSHIFT_CLUSTER": {
+                    "required": true,
+                    "type": "string",
+                    "default": "${APP_DEPLOY_ENV}-north.openshift-cluster.com"
+                }
             }
         },
         "south":{
-            "OPENSHIFT_CLUSTER_SOUTH": {
-                "required": true,
-                "type": "string",
-                "default": "${APP_DEPLOY_ENV}-south.openshift-cluster.com",
-                "stage_types": ["openshift"]
-            },    
-            "OPENSHIFT_TOKEN_SOUTH": {
-                "required": true,
-                "type": "secret",
-                "stage_types": ["openshift"]
+            "openshift":{
+                "OPENSHIFT_CLUSTER": {
+                    "required": true,
+                    "type": "string",
+                    "default": "${APP_DEPLOY_ENV}-south.openshift-cluster.com"
+                }    
             }
         },
         "east":{
-            "OPENSHIFT_CLUSTER_EAST": {
-                "required": true,
-                "type": "string",
-                "default": "${APP_DEPLOY_ENV}-east.openshift-cluster.com",
-                "stage_types": ["openshift"]
-            },    
-            "OPENSHIFT_TOKEN_EAST": {
-                "required": true,
-                "type": "secret",
-                "stage_types": ["openshift"]   
+            "openshift":{
+                "OPENSHIFT_CLUSTER": {
+                    "required": true,
+                    "type": "string",
+                    "default": "${APP_DEPLOY_ENV}-east.openshift-cluster.com"
+                },
+                "OPENSHIFT_REGION_EAST_REQUIRED": {
+                    "required": true,
+                    "type": "string"
+                }
             }
         },
         "west":{
-            "OPENSHIFT_CLUSTER_WEST": {
-                "required": true,
-                "type": "string",
-                "default": "${APP_DEPLOY_ENV}-west-openshift-cluster.com",
-                "stage_types": ["openshift"]
-            },    
-            "OPENSHIFT_TOKEN_WEST": {
-                "required": true,
-                "type": "secret",
-                "stage_types": ["openshift"]
+            "openshift":{
+                "OPENSHIFT_CLUSTER": {
+                    "required": true,
+                    "type": "string",
+                    "default": "${APP_DEPLOY_ENV}-west-openshift-cluster.com"
+                }
             }
         }
     },

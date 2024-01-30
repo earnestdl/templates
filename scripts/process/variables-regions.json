@@ -1,0 +1,60 @@
+{
+    "global":{
+        "GLOBAL_VAR_FROM_REPO": "this should go in all stages",
+        "GLOBAL_VAR_FROM_VALIDATION": "override this in all stages"
+    },
+    "build":{
+        "app":{
+            "BUILD_VAR_FROM_REPO": "this should go in the build stage",
+            "REQUIRED_COMMON_BUILD_VAR": ""
+        }
+    },
+    "test":{},
+    "deploy": {
+        "dev":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the dev deploy stage"
+        },
+        "dev_east":{
+            "DEPLOY_REGION": "this should go in the east region only in dev",
+            "APPDYNAMICS_ENV": "Development East"
+        },
+        "dev_west":{
+            "DEPLOY_REGION": "this should go in the west region only in dev",
+            "APPDYNAMICS_ENV": "Development West"
+        },
+        "qa":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the qa deploy stage"
+        },
+        "qa_east":{
+            "DEPLOY_REGION": "this should go in the east region only in qa",
+            "APPDYNAMICS_ENV": "QA East"
+        },
+        "qa_west":{
+            "DEPLOY_REGION": "this should go in the west region only in qa",
+            "APPDYNAMICS_ENV": "QA West"
+        },
+        "stress":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the stress deploy stage"
+        },
+        "stress_east":{
+            "DEPLOY_REGION": "this should go in the east region only in stress",
+            "APPDYNAMICS_ENV": "Stress East"
+        },
+        "stress_west":{
+            "DEPLOY_REGION": "this should go in the west region only in stress",
+            "APPDYNAMICS_ENV": "Stress West"
+        },
+        "prod":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the prod deploy stage",
+            "GLOBAL_VAR_FROM_REPO": "overridding global variable in prod."
+        },
+        "prod_east":{
+            "DEPLOY_REGION": "this should go in the east region only in prod",
+            "APPDYNAMICS_ENV": "Prod East"
+        },
+        "prod_west":{
+            "DEPLOY_REGION": "this should go in the west region only in prod",
+            "APPDYNAMICS_ENV": "Prod West"
+        }
+    }
+}

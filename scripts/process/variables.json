@@ -1,13 +1,26 @@
 {
-    "global":{},
+    "global":{
+        "GLOBAL_VAR_FROM_REPO": "this should go in all stages",
+        "GLOBAL_VAR_FROM_VALIDATION": "override this in all stages"
+    },
     "build":{
         "app":{
+            "BUILD_VAR_FROM_REPO": "this should go in the build stage"
         }
     },
     "deploy": {
-        "dev":{},
-        "qa":{},
-        "stress":{},
-        "prod":{}
+        "dev":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the dev deploy stage"
+        },
+        "qa":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the qa deploy stage"
+        },
+        "stress":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the stress deploy stage"
+        },
+        "prod":{
+            "DEPLOY_VAR_FROM_REPO": "this should go in the prod deploy stage",
+            "GLOBAL_VAR_FROM_REPO": "overridding global variable in prod."
+        }
     }
 }

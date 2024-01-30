@@ -29,29 +29,47 @@ stages:
   - template: .azuredevops/pipelines/build.yml@templates
     parameters:
       id: app
-      state: variables.json
-      type: default
+      state: variables-regions.json
+      type: container
 
   - template: .azuredevops/pipelines/deploy.yml@templates
     parameters:
       id: dev
       env: dev
-      type: default
+      type: openshift
+      dependsOn: build_app
+      regions: ['east', 'west']
+      secrets:
+        "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_DEV_EAST)"
+        "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_DEV_WEST)"
+
+  - template: .azuredevops/pipelines/test.yml@templates
+    parameters:
+      id: unit
+      type: unit
       dependsOn: build_app
 
   - template: .azuredevops/pipelines/deploy.yml@templates
     parameters:
       id: qa
       env: qa
-      type: default
-      dependsOn: deploy_dev
+      type: openshift
+      dependsOn: test_unit
+      regions: ['east', 'west']
+      secrets:
+        "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_QA_EAST)"
+        "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_QA_WEST)"
 
   - template: .azuredevops/pipelines/deploy.yml@templates
     parameters:
       id: stress
       env: stress
-      type: default
+      type: openshift
       dependsOn: deploy_qa
+      regions: ['east', 'west']
+      secrets:
+        "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_STRESS_EAST)"
+        "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_STRESS_WEST)"
 
   - template: .azuredevops/pipelines/deploy.yml@templates
     parameters:
@@ -63,5 +81,6 @@ stages:
     parameters:
       id: prod
       env: prod
-      type: default
+      type: openshift
       dependsOn: deploy_qa_signoff
+      regions: ['east', 'west']

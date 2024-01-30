@@ -1,0 +1,177 @@
+{
+    "build_app_default": {
+        "type": "container",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_BUILD_PATH": "./src",
+            "APP_DOCKERFILE": ".",
+            "APP_BUILD_TARGET": "runtime"
+        }
+    },
+    "deploy_dev_east": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "whatever.ps1",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "OPENSHIFT_CLUSTER_EAST": "${APP_DEPLOY_ENV}-east.openshift-cluster.com",
+            "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_DEV_E1)",
+            "API_KEY": "$(API_KEY_DEV)"
+        }
+    },
+    "deploy_dev_west": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "whatever.ps1",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "Development",
+            "OPENSHIFT_CLUSTER_WEST": "${APP_DEPLOY_ENV}-west-openshift-cluster.com",
+            "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_DEV_E2)",
+            "API_KEY": "$(API_KEY_DEV)"
+        }
+    },
+    "deploy_qa_east": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "QA",
+            "OPENSHIFT_CLUSTER_EAST": "${APP_DEPLOY_ENV}-east.openshift-cluster.com",
+            "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_QA_E1)",
+            "API_KEY": "$(API_KEY_QA)"
+        }
+    },
+    "deploy_qa_west": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "QA",
+            "OPENSHIFT_CLUSTER_WEST": "${APP_DEPLOY_ENV}-west-openshift-cluster.com",
+            "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_QA_E2)",
+            "API_KEY": "$(API_KEY_QA)"
+        }
+    },
+    "deploy_stress_east": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "Stress",
+            "OPENSHIFT_CLUSTER_EAST": "${APP_DEPLOY_ENV}-east.openshift-cluster.com",
+            "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_QA_E1)",
+            "API_KEY": "$(API_KEY_QA)"
+        }
+    },
+    "deploy_stress_west": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "Stress",
+            "OPENSHIFT_CLUSTER_WEST": "${APP_DEPLOY_ENV}-west-openshift-cluster.com",
+            "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_QA_E2)",
+            "API_KEY": "$(API_KEY_QA)"
+        }
+    },
+    "deploy_prod_east": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "Prod",
+            "OPENSHIFT_CLUSTER_EAST": "${APP_DEPLOY_ENV}-east.openshift-cluster.com",
+            "OPENSHIFT_TOKEN_EAST": "$(OPENSHIFT_TOKEN_PROD_E1)",
+            "API_KEY": "$(API_KEY_PROD)"
+        }
+    },
+    "deploy_prod_west": {
+        "type": "openshift",
+        "vars": {
+            "APP_NAME": "myapp",
+            "APP_PLATFORM": "edv",
+            "APP_REGISTRY_URL": "myregistry.com",
+            "PRE_SCRIPT": "custom.sh",
+            "POST_SCRIPT": "custom.sh",
+            "PRE_SCRIPT_ARGS": "pre-script",
+            "POST_SCRIPT_ARGS": "post-script",
+            "APP_RUNTIME_ARGS": "-e APP_NAME=${APP_NAME} -e ASPNETCORE_ENVIRONMENT=${ASPNETCORE_ENVIRONMENT}",
+            "DEPLOY_ENV": "${ENV}",
+            "OPENSHIFT_PREFIX": "${APP_PLATFORM}-${APP_NAME}",
+            "OPENSHIFT_PROJECT": "${APP_PLATFORM}-${APP_NAME}-${APP_DEPLOY_ENV}",
+            "ASPNETCORE_ENVIRONMENT": "Prod",
+            "OPENSHIFT_CLUSTER_WEST": "${APP_DEPLOY_ENV}-west-openshift-cluster.com",
+            "OPENSHIFT_TOKEN_WEST": "$(OPENSHIFT_TOKEN_PROD_E2)",
+            "API_KEY": "$(API_KEY_PROD)"
+        }
+    }
+}
