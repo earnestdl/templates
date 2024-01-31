@@ -136,36 +136,28 @@ def resolve_variable_references(stage_data):
     resolved = {}
     unresolved = variables.copy()
 
-    # Ensure CDP_SCRIPTS_PATH is included from the environment variables for reference resolution
-    reference_source = dict(os.environ)
-
-    # Remove CDP_SCRIPTS_PATH from variables and resolved if it's in the reference source
-    if 'CDP_SCRIPTS_PATH' in reference_source:
-        resolved['CDP_SCRIPTS_PATH'] = reference_source['CDP_SCRIPTS_PATH']
-        unresolved.pop('CDP_SCRIPTS_PATH', None)
-        variables.pop('CDP_SCRIPTS_PATH', None)
-
-    while unresolved:
+    made_progress = True
+    while unresolved and made_progress:
+        made_progress = False
         keys_for_removal = []
         for key, value in unresolved.items():
             try:
-                formatted_value = value.format(**resolved, **reference_source, **variables)
+                formatted_value = value.format(**resolved, **variables, **os.environ)
                 resolved[key] = formatted_value
                 keys_for_removal.append(key)
+                made_progress = True
             except KeyError as e:
-                print(f"Warning: Could not resolve reference for variable '{key}'. Missing: {str(e)}")
-            except TypeError as e:
-                print(f"Error: Issue with variable formatting for '{key}'. Error: {str(e)}")
-                break  # Breaking out due to a formatting issue
+                continue  # Reference not yet resolved
 
         for key in keys_for_removal:
             del unresolved[key]
 
-        if not keys_for_removal:
-            print(f"Warning: Some variables could not be fully resolved and may contain unresolved references.")
-            break
+        if not made_progress:
+            print(f"Warning: Could not resolve all variable references. Some variables may be left unresolved.")
 
+    # Add unresolved variables as-is
     resolved.update(unresolved)
+
     stage_data["variables"] = resolved
     return stage_data
 
