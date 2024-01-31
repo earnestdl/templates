@@ -24,7 +24,7 @@ steps:
         python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
       displayName: Set state
-      workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
+      workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
       env:
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
@@ -34,7 +34,7 @@ steps:
         python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
       displayName: Set state
-      workingDirectory: $(System.DefaultWorkingDirectory)/scripts/process
+      workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
       env:
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"

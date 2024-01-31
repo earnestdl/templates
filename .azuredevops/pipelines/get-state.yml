@@ -11,9 +11,9 @@ steps:
 
   - script: python get-state.py $(System.DefaultWorkingDirectory)/${BUILD_REPOSITORY_NAME}/.azuredevops/pipelines/${{parameters.state}} $(System.DefaultWorkingDirectory)/templates/.azuredevops/pipelines/deploy.yml
     displayName: Get state
-    workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/process
+    workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
 
-  - publish: $(System.DefaultWorkingDirectory)/templates/scripts/process/output
+  - publish: $(System.DefaultWorkingDirectory)/templates/scripts/state/output
     artifact: build-artifacts
 
   - script: env | sort
