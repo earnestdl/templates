@@ -61,23 +61,7 @@ def process_secrets(stage_data, state, secrets_dict, region=None):
 
     return stage_data
 
-def process_variables(stage_data, state):
-    stage_name = next(iter(stage_data))
-    stage_config = read_state_file(state, stage_name)
-
-    for key, value in stage_config.items():
-        # Check if it looks like a GitHub or AzDO secret
-        if "$(" in value or "${{secrets." in value:
-            # If already processed as a secret, skip it
-            if key in stage_data[stage_name]["secrets"]:
-                continue
-        
-        # Process it as a variable
-        stage_data[stage_name]["variables"][key] = value
-
-    return stage_data
-
-def map_platform_variables(stage, stage_data, platform_mapping):
+def add_platform_variables(stage, stage_data, platform_mapping):
     platform = detect_platform()
     if not platform:
         raise ValueError("Unable to detect the CI/CD platform.")
@@ -89,6 +73,9 @@ def map_platform_variables(stage, stage_data, platform_mapping):
             value = os.getenv(platform_specific_var, '')
             # Update the config object
             stage_data[stage]['variables'][common_name] = value
+
+    # Attempt to resolve any references within these new variables
+    stage_data = resolve_variable_references(stage_data)
 
     return stage_data
 
@@ -122,6 +109,25 @@ def add_common_variables(env, stage_data, common_variables):
 
     # Update the stage_data with the combined variables
     stage_data[stage_key]['variables'] = stage_variables
+
+    return stage_data
+
+def add_state_variables(stage_data, state):
+    stage_name = next(iter(stage_data))
+    stage_config = read_state_file(state, stage_name)
+
+    for key, value in stage_config.items():
+        # Check if it looks like a GitHub or AzDO secret
+        if "$(" in value or "${{secrets." in value:
+            # If already processed as a secret, skip it
+            if key in stage_data[stage_name]["secrets"]:
+                continue
+        
+        # Process it as a variable
+        stage_data[stage_name]["variables"][key] = value
+
+    # Attempt to resolve any references within these new variables
+    stage_data = resolve_variable_references(stage_data)
 
     return stage_data
 
@@ -265,13 +271,13 @@ def main(env, stage, state, secrets, regions):
     stage_data = process_secrets(stage_data, state, secrets_dict, region)
 
     # Map platform variables
-    stage_data = map_platform_variables(stage, stage_data, platform_mapping)
+    stage_data = add_platform_variables(stage, stage_data, platform_mapping)
 
     # Adds common CDP variables
     stage_data = add_common_variables(env, stage_data, common_variables)
 
     # Process variables
-    stage_data = process_variables(stage_data, state)
+    stage_data = add_state_variables(stage_data, state)
 
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
