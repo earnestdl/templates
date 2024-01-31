@@ -190,7 +190,12 @@ def write_export_script(stage_data, script_filename):
     secrets = stage_data[stage_key]["secrets"]
 
     with open(script_filename + script_extension, 'w') as script_file:
-        # Write variables
+        # Fetch and write special environment variables first
+        for special_var in ["CDP_BUILD_PATH", "CDP_SCRIPTS_PATH"]:
+            special_value = os.getenv(special_var, '')
+            write_variable_or_secret(script_file, special_var, special_value, githost, os_type, newline_char, is_secret=False)
+
+        # Write other variables
         for key, value in variables.items():
             write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=False)
 
