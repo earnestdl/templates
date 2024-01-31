@@ -7,19 +7,23 @@
     "environments":{
         "dev":{
             "CDP_ENV_SHORT": "dev",
-            "CDP_ENV_LONG": "Development"
+            "CDP_ENV_LONG": "Development",
+            "ASPNETCORE_ENVIRONMENT": "Development"
         },
         "qa":{
             "CDP_ENV_SHORT": "qa",
-            "CDP_ENV_LONG": "QA"
+            "CDP_ENV_LONG": "QA",
+            "ASPNETCORE_ENVIRONMENT": "QA"
         },
         "stress":{
             "CDP_ENV_SHORT": "stress",
-            "CDP_ENV_LONG": "Stress"
+            "CDP_ENV_LONG": "Stress",
+            "ASPNETCORE_ENVIRONMENT": "Stress"
         },
         "prod":{
             "CDP_ENV_SHORT": "prod",
-            "CDP_ENV_LONG": "Production"
+            "CDP_ENV_LONG": "Production",
+            "ASPNETCORE_ENVIRONMENT": "Prod"
         }
     },
     "stages":{
