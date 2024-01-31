@@ -64,7 +64,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "./build-container.sh"
+                "default": "${CDP_PROCESS_SCRIPTS}/build-container.sh"
             },
             "APP_DOCKERFILE":  {
                 "required": true,
