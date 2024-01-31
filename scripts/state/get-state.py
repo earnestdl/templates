@@ -9,7 +9,7 @@ DEBUG_MODE = False
 
 state_file='state.ini'
 output_folder='./output'
-validation_json='../../variables/state/validation.json'
+validation_json='../../variables/state/validation-rules.json'
 
 def find_yaml_with_variables(variables_file):
     directory = os.path.dirname(variables_file) or os.getcwd()
