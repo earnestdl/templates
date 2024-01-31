@@ -41,16 +41,16 @@ stages:
 
             - ${{if eq(parameters.dryrun,false)}}:
               - script: |
-                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
-                  echo ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
-                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                  ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
+                  ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
                 displayName: BUILD
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
-                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
-                  echo ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
-                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                  ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  ${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}
+                  ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
                 displayName: BUILD (dry run)
 
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:

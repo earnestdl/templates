@@ -76,14 +76,14 @@ stages:
 
             - ${{if eq(parameters.dryrun,false)}}:
               - script: |
-                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
-                  echo ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
-                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                  ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
+                  ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
                 displayName: DEPLOY
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
-                  echo ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
-                  echo ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
-                  echo ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
+                  ${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}
+                  ${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}
+                  ${POST_SCRIPT} ${POST_SCRIPT_ARGS}
                 displayName: DEPLOY (dry run)
