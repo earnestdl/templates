@@ -137,37 +137,36 @@ def resolve_variable_references(stage_data):
     unresolved = variables.copy()
 
     # Ensure CDP_SCRIPTS_PATH is included from the environment variables for reference resolution
-    reference_source = {**os.environ}
-    if 'CDP_SCRIPTS_PATH' in os.environ:
-        resolved['CDP_SCRIPTS_PATH'] = os.environ['CDP_SCRIPTS_PATH']
+    reference_source = dict(os.environ)
+
+    # Remove CDP_SCRIPTS_PATH from variables and resolved if it's in the reference source
+    if 'CDP_SCRIPTS_PATH' in reference_source:
+        resolved['CDP_SCRIPTS_PATH'] = reference_source['CDP_SCRIPTS_PATH']
+        unresolved.pop('CDP_SCRIPTS_PATH', None)
+        variables.pop('CDP_SCRIPTS_PATH', None)
 
     while unresolved:
         keys_for_removal = []
         for key, value in unresolved.items():
             try:
-                # Attempt to format the string using both already resolved variables and the reference source
                 formatted_value = value.format(**resolved, **reference_source, **variables)
                 resolved[key] = formatted_value
                 keys_for_removal.append(key)
             except KeyError as e:
-                # Log a warning for unresolved references
                 print(f"Warning: Could not resolve reference for variable '{key}'. Missing: {str(e)}")
+            except TypeError as e:
+                print(f"Error: Issue with variable formatting for '{key}'. Error: {str(e)}")
+                break  # Breaking out due to a formatting issue
 
-        # Remove keys that have been resolved in this iteration
         for key in keys_for_removal:
             del unresolved[key]
 
-        # Prevent infinite loop by breaking if no progress is made
         if not keys_for_removal:
             print(f"Warning: Some variables could not be fully resolved and may contain unresolved references.")
             break
 
-    # Combine resolved with any remaining unresolved variables
     resolved.update(unresolved)
-
-    # Update stage_data with resolved variables
     stage_data["variables"] = resolved
-
     return stage_data
 
 def write_export_script(stage_data, script_filename):
