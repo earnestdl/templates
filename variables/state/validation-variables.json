@@ -12,7 +12,26 @@
                 "default": "default.sh"
             }
         },
+        "default":{
+            "APP_COMMAND_INT": {
+                "required": true,
+                "type": "string",
+                "default": "bash -c"
+            }
+        },
+        "bash":{
+            "APP_COMMAND_INT": {
+                "required": true,
+                "type": "string",
+                "default": "bash -c"
+            }
+        },
         "powershell":{
+            "APP_COMMAND_INT": {
+                "required": true,
+                "type": "string",
+                "default": "pwsh"
+            },
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
@@ -25,6 +44,11 @@
             }
         },
         "python":{
+            "APP_COMMAND_INT": {
+                "required": true,
+                "type": "string",
+                "default": "python"
+            },
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
