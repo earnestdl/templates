@@ -1,7 +1,9 @@
 {
     "global":{},
     "build":{
-        "app": {}
+        "app": {
+            "APP_TYPE": "dotnet"
+        }
     },
     "deploy": {
         "dev":{},

@@ -124,6 +124,13 @@
                 "type": "string",
                 "default": "default.py"
             }
+        },
+        "dotnet":{
+            "APP_DOTNET_VARIABLE":  {
+                "required": true,
+                "type": "string",
+                "default": "DOTNET_BUILD"
+            }
         }
     },
     "deploy": {

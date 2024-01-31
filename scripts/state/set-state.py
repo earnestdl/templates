@@ -4,7 +4,8 @@ import argparse
 import platform
 import configparser
 
-platform_mapping_json='../../variables/state/platform-mapping.json'
+platform_mapping_json='../../variables/state/platform-variables.json'
+common_variables_json='../../variables/state/common-variables.json'
 is_windows = platform.system() == 'Windows'
 
 def log(level, message):
@@ -91,6 +92,39 @@ def map_platform_variables(stage, stage_data, platform_mapping):
 
     return stage_data
 
+def add_common_variables(env, stage_data, common_variables):
+    # Parsing the stage name from the stage_data key
+    stage_key = next(iter(stage_data))
+    stage_name = stage_key.split('_')[0]  # Gets the first token before "_"
+
+    # Initialize a new dictionary to hold the combined variables
+    combined_variables = {}
+
+    # Add global variables
+    combined_variables.update(common_variables['global'])
+
+    # Add environment-specific variables
+    if env in common_variables['environments']:
+        combined_variables.update(common_variables['environments'][env])
+
+    # Add stage-specific variables
+    if stage_name in common_variables['stages']:
+        combined_variables.update(common_variables['stages'][stage_name])
+
+    # Add region-specific variables
+    region = stage_data[stage_key].get('region', 'default')
+    if region in common_variables['regions']:
+        combined_variables.update(common_variables['regions'][region])
+
+    # Merge with existing variables in stage_data
+    stage_variables = stage_data[stage_key].get('variables', {})
+    stage_variables.update(combined_variables)
+
+    # Update the stage_data with the combined variables
+    stage_data[stage_key]['variables'] = stage_variables
+
+    return stage_data
+
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()
@@ -139,6 +173,10 @@ def load_platform_mapping(platform_mapping_json):
     with open(platform_mapping_json, 'r') as file:
         return json.load(file)
 
+def load_common_variables(common_variables_json):
+    with open(common_variables_json, 'r') as file:
+        return json.load(file)
+
 def detect_platform():
     # Simple detection based on environment variables
     if os.getenv('GITHUB_WORKFLOW'):
@@ -155,7 +193,7 @@ def parse_string_to_json(json_string):
         log("ERROR", "Invalid JSON format.")
         return None
 
-def main(stage, state, secrets, regions):
+def main(env, stage, state, secrets, regions):
     state_data = read_state_file(state, stage)
     if not state_data:
         return
@@ -174,6 +212,7 @@ def main(stage, state, secrets, regions):
         raise e
     
     platform_mapping=load_platform_mapping(platform_mapping_json)
+    common_variables=load_common_variables(common_variables_json)
 
     # Initialize stage data
     stage_data = initialize_stage_data(stage)
@@ -191,6 +230,9 @@ def main(stage, state, secrets, regions):
     # Map platform variables
     stage_data = map_platform_variables(stage, stage_data, platform_mapping)
 
+    # Adds common CDP variables
+    stage_data = add_common_variables(env, stage_data, common_variables)
+
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
 
@@ -204,12 +246,12 @@ def main(stage, state, secrets, regions):
 
     # TODO: Process Helm Charts
 
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Process arguments')
+    parser.add_argument('env', type=str, help='Deployment environment')
     parser.add_argument('stage', type=str, help='Stage to export')
     parser.add_argument('state', type=str, help='State file')
     parser.add_argument('secrets', type=str, help='Secrets for this environment')
     parser.add_argument('regions', type=str, help='Regions for this environment')
     args = parser.parse_args()
-    main(args.stage, args.state, args.secrets, args.regions)
+    main(args.env,args.stage, args.state, args.secrets, args.regions)

@@ -1,0 +1,61 @@
+{
+    "global":{
+        "CDP_ENV_SHORT": "${ENV}",
+        "CDP_SCRIPTS_PATH": "${CDP_TEMPLATES_PATH}/scripts",
+        "CDP_PROCESS_SCRIPTS": "${CDP_SCRIPTS_PATH}/process",
+        "CDP_STEPS_SCRIPTS": "${CDP_SCRIPTS_PATH}/steps"
+    },
+    "environments":{
+        "dev":{
+            "CDP_ENV_SHORT": "Development"
+        },
+        "qa":{
+            "CDP_ENV_SHORT": "QA"
+        },
+        "stress":{
+            "CDP_ENV_SHORT": "Stress"
+        },
+        "prod":{
+            "CDP_ENV_SHORT": "Prod"
+        }
+    },
+    "stages":{
+        "build":{
+            "CDP_STAGE_SHORT": "build",
+            "CDP_STAGE_LONG": "Build",
+            "CDP_TEMPLATES_PATH": "${CDP_BUILD_PATH}/pipeline-templates"
+        },
+        "test":{
+            "CDP_STAGE_SHORT": "test",
+            "CDP_STAGE_LONG": "Test",
+            "CDP_TEMPLATES_PATH": "${CDP_BUILD_PATH}"
+        },
+        "deploy":{
+            "CDP_STAGE_SHORT": "deploy",
+            "CDP_STAGE_LONG": "Deploy",
+            "CDP_TEMPLATES_PATH": "${CDP_BUILD_PATH}"
+        }
+    },
+    "regions":{
+        "default":{
+            "CDP_REGION_SHORT": "default",
+            "CDP_REGIONS_LONG": "Default"
+        },
+        "north":{
+            "CDP_REGION_SHORT": "north",
+            "CDP_REGIONS_LONG": "North"
+        },
+        "south":{
+            "CDP_REGION_SHORT": "south",
+            "CDP_REGIONS_LONG": "South"
+        },
+        "east":{
+            "CDP_REGION_SHORT": "east",
+            "CDP_REGIONS_LONG": "East"
+        },
+        "west":{
+            "CDP_REGION_SHORT": "west",
+            "CDP_REGIONS_LONG": "West"
+        }
+    }
+}

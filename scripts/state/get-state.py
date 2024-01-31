@@ -9,7 +9,7 @@ DEBUG_MODE = False
 
 state_file='state.ini'
 output_folder='./output'
-validation_json='../../variables/state/validation-rules.json'
+validation_json='../../variables/state/validation-variables.json'
 
 def find_yaml_with_variables(variables_file):
     directory = os.path.dirname(variables_file) or os.getcwd()
@@ -296,6 +296,26 @@ def add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, stage_regions):
 
     return pipeline_data
 
+def add_application_type_variables(pipeline_data, validation_data):
+    for stage_name, stage_info in pipeline_data.items():
+        # Ensure stage_info is a dictionary and has a 'vars' key
+        if isinstance(stage_info, dict) and 'vars' in stage_info:
+            stage_vars = stage_info['vars']
+
+            # Check if 'APP_TYPE' exists in stage_vars
+            app_type = stage_vars.get('APP_TYPE')
+
+            if app_type:
+                # Check if the app_type exists in build validation rules
+                app_type_rules = validation_data['build'].get(app_type, {})
+
+                # Add default variables for the app type to stage_vars
+                for key, value in app_type_rules.items():
+                    if 'default' in value:
+                        stage_vars[key] = value['default']
+
+    return pipeline_data
+
 def validate_pipeline_data(pipeline_data, validation_data):
     errors = []
 
@@ -511,6 +531,9 @@ def main(variables_file, deploy_yaml):
 
     # Populate pipeline data with secrets from repo
     pipeline_data=add_secrets_to_pipeline_data(pipeline_yaml, pipeline_data, stage_regions)
+
+    # Populate pipeline data with secrets from repo
+    pipeline_data=add_application_type_variables(pipeline_data, validation_data)
 
     # Print out the data being validated
     #pipeline_data=update_file_extensions(pipeline_data,validation_data)

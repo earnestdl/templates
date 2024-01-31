@@ -21,7 +21,7 @@ steps:
 
   - ${{if eq(parameters.stage,'build')}}:
     - script: | 
-        python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+        python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
@@ -31,7 +31,7 @@ steps:
 
   - ${{if eq(parameters.stage,'deploy')}}:
     - script: | 
-        python set-state.py ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
+        python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/build-artifacts/state.ini "$SECRETS" "$REGIONS"
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
