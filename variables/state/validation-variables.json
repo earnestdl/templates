@@ -87,7 +87,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_PROCESS_SCRIPTS}/build-container.sh"
+                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh"
             },
             "APP_DOCKERFILE":  {
                 "required": true,
