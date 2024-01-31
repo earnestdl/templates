@@ -10,16 +10,7 @@
                 "required": true,
                 "type": "string",
                 "default": "default.sh"
-            }
-        },
-        "default":{
-            "APP_COMMAND_INT": {
-                "required": true,
-                "type": "string",
-                "default": "bash -c"
-            }
-        },
-        "bash":{
+            },
             "APP_COMMAND_INT": {
                 "required": true,
                 "type": "string",
