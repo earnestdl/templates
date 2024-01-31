@@ -14,7 +14,7 @@ steps:
     workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
 
   - publish: $(System.DefaultWorkingDirectory)/templates/scripts/state/output
-    artifact: build-artifacts
+    artifact: state
 
   - script: env | sort
     displayName: List all variables
