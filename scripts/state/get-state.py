@@ -337,20 +337,24 @@ def validate_pipeline_data(pipeline_data, validation_data):
         else:
             return "unknown"
 
+    def is_valid_secret_format(value):
+        # Check if the value is a string and starts with an integer
+        return isinstance(value, str) and value[0].isdigit()
+
     def check_variables(stage_vars, required_vars, stage_name):
         for var_name, var_details in required_vars.items():
 
-            if DEBUG_MODE and var_details['type'] == 'secret':
-                continue
-            # Check if the variable is in stage_vars
+            if var_details['type'] == 'secret' and is_valid_secret_format(stage_vars[var_name]):
+                errors.append(f"Secret '{var_name}' in '{stage_name}' stage starts with an integer and should be quoted.")
+                    # Check if the variable is in stage_vars
             if var_details.get('required', False):
                 if var_name not in stage_vars:
                     errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage.")
                 else:
                     var_value = stage_vars[var_name]
-                    # Check for None, empty string, or placeholder secret format
-                    if var_value in [None, ""] or re.match(r"\$\((.*?)\)", str(var_value)):
-                        errors.append(f"Empty or placeholder value for required variable '{var_name}' in '{stage_name}' stage.")
+                    # Check for None or empty string for required variables
+                    if var_value in [None, ""]:
+                        errors.append(f"Empty value for required variable '{var_name}' in '{stage_name}' stage.")
                     else:
                         actual_type = get_variable_type(stage_vars.get(var_name, ""))
                         expected_type = var_details['type']
