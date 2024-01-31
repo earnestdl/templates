@@ -28,6 +28,7 @@ steps:
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
       env:
+        ENV: ${{parameters.env}}
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
 
@@ -38,6 +39,7 @@ steps:
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
       env:
+        ENV: ${{parameters.env}}
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
 

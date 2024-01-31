@@ -7,16 +7,16 @@
     },
     "environments":{
         "dev":{
-            "CDP_ENV_SHORT": "Development"
+            "CDP_ENV_LONG": "Development"
         },
         "qa":{
-            "CDP_ENV_SHORT": "QA"
+            "CDP_ENV_LONG": "QA"
         },
         "stress":{
-            "CDP_ENV_SHORT": "Stress"
+            "CDP_ENV_LONG": "Stress"
         },
         "prod":{
-            "CDP_ENV_SHORT": "Prod"
+            "CDP_ENV_LONG": "Prod"
         }
     },
     "stages":{
@@ -39,23 +39,23 @@
     "regions":{
         "default":{
             "CDP_REGION_SHORT": "default",
-            "CDP_REGIONS_LONG": "Default"
+            "CDP_REGION_LONG": "Default"
         },
         "north":{
             "CDP_REGION_SHORT": "north",
-            "CDP_REGIONS_LONG": "North"
+            "CDP_REGION_LONG": "North"
         },
         "south":{
             "CDP_REGION_SHORT": "south",
-            "CDP_REGIONS_LONG": "South"
+            "CDP_REGION_LONG": "South"
         },
         "east":{
             "CDP_REGION_SHORT": "east",
-            "CDP_REGIONS_LONG": "East"
+            "CDP_REGION_LONG": "East"
         },
         "west":{
             "CDP_REGION_SHORT": "west",
-            "CDP_REGIONS_LONG": "West"
+            "CDP_REGION_LONG": "West"
         }
     }
 }
