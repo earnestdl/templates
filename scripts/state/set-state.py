@@ -125,6 +125,41 @@ def add_common_variables(env, stage_data, common_variables):
 
     return stage_data
 
+def resolve_variable_references(stage_data):
+    variables = stage_data.get("variables", {})
+    resolved = {}
+    unresolved = variables.copy()
+
+    while unresolved:
+        keys_for_removal = []
+        for key, value in unresolved.items():
+            try:
+                # Attempt to format the string using both already resolved variables and the unresolved ones
+                # This allows for self-referencing variables to be resolved in multiple passes
+                formatted_value = value.format(**resolved, **variables)
+                resolved[key] = formatted_value
+                keys_for_removal.append(key)
+            except KeyError as e:
+                # If a KeyError is caught, log a warning but do not stop processing
+                print(f"Warning: Could not resolve reference for variable '{key}'. Missing: {str(e)}")
+
+        # Remove keys that have been resolved in this iteration
+        for key in keys_for_removal:
+            del unresolved[key]
+
+        # If no progress was made in a pass, break to prevent infinite loop
+        if not keys_for_removal:
+            print(f"Warning: Some variables could not be fully resolved and may contain unresolved references.")
+            break
+
+    # Update the stage_data with resolved variables
+    stage_data["variables"] = resolved
+
+    # Now, attempt to resolve references with the new updates
+    stage_data = resolve_variable_references(stage_data)
+
+    return stage_data
+
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()
