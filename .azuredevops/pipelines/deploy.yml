@@ -38,7 +38,8 @@ stages:
 
             - template: set-state.yml
               parameters:
-                id: ${{parameters.id}} 
+                id: ${{parameters.id}}
+                env: ${{parameters.env}} 
                 stage: deploy
                 region: ${{region}}
                 regions: ${{parameters.regions}}
@@ -67,6 +68,7 @@ stages:
             - template: set-state.yml
               parameters:
                 id: ${{parameters.id}} 
+                env: ${{parameters.env}}
                 stage: deploy
                 region: ${{region}}
                 regions: ${{parameters.regions}}

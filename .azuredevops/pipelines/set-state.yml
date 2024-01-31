@@ -1,6 +1,8 @@
 parameters:
   - name: id
     type: string
+  - name: env
+    type: string
   - name: stage
     type: string
   - name: region

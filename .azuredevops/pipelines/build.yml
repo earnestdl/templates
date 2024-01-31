@@ -32,7 +32,8 @@ stages:
 
             - template: set-state.yml
               parameters:
-                id: ${{parameters.id}} 
+                id: ${{parameters.id}}
+                env: build 
                 stage: build
                 region: ${{region}}
                 regions: ${{parameters.regions}}
