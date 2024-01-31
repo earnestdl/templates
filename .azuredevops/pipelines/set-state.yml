@@ -31,7 +31,9 @@ steps:
         ENV: ${{parameters.env}}
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
+        CDP_BUILD_PATH: $(System.DefaultWorkingDirectory)
         CDP_SCRIPTS_PATH: $(System.DefaultWorkingDirectory)/templates/scripts
+
 
   - ${{if eq(parameters.stage,'deploy')}}:
     - script: | 
@@ -43,6 +45,7 @@ steps:
         ENV: ${{parameters.env}}
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
+        CDP_BUILD_PATH: $(System.DefaultWorkingDirectory)
         CDP_SCRIPTS_PATH: $(System.DefaultWorkingDirectory)/scripts
 
   - script: env | sort
