@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import argparse
 import platform
@@ -74,9 +75,6 @@ def add_platform_variables(stage, stage_data, platform_mapping):
             # Update the config object
             stage_data[stage]['variables'][common_name] = value
 
-    # Attempt to resolve any references within these new variables
-    stage_data = resolve_variable_references(stage_data)
-
     return stage_data
 
 def add_common_variables(env, stage_data, common_variables):
@@ -108,7 +106,7 @@ def add_common_variables(env, stage_data, common_variables):
     stage_variables.update(combined_variables)
 
     # Update the stage_data with the combined variables
-    stage_data[stage_key]['variables'] = stage_variables
+    #stage_data[stage_key]['variables'] = stage_variables
 
     return stage_data
 
@@ -127,7 +125,7 @@ def add_state_variables(stage_data, state):
         stage_data[stage_name]["variables"][key] = value
 
     # Attempt to resolve any references within these new variables
-    stage_data = resolve_variable_references(stage_data)
+    #stage_data = resolve_variable_references(stage_data)
 
     return stage_data
 
@@ -159,6 +157,26 @@ def resolve_variable_references(stage_data):
     resolved.update(unresolved)
 
     stage_data["variables"] = resolved
+    return stage_data
+
+def reorder_referenced_variables(stage_data):
+    # Regular expression to match variables in the format ${...}
+    variable_pattern = re.compile(r'\${[^{}]+}')
+
+    # Get the first key in the stage_data object to use as the stage name
+    stage_name = next(iter(stage_data))
+
+    # Dictionary to temporarily store referenced variables
+    referenced_variables = {}
+
+    # Identifying and temporarily storing referenced variables
+    for key, value in list(stage_data[stage_name]['variables'].items()):
+        if variable_pattern.search(value):
+            referenced_variables[key] = stage_data[stage_name]['variables'].pop(key)
+
+    # Adding the referenced variables back at the bottom of the dictionary
+    stage_data[stage_name]['variables'].update(referenced_variables)
+
     return stage_data
 
 def write_export_script(stage_data, script_filename):
@@ -271,14 +289,18 @@ def main(env, stage, state, secrets, regions):
     # Process variables
     stage_data = add_state_variables(stage_data, state)
 
+    reorder_referenced_variables(stage_data)
+
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
 
+
+
     # Write export scripts
-    write_export_script(stage_data,stage)
+    #write_export_script(stage_data,stage)
 
     # Write output for logging
-    print_stage_data(stage_data)
+    #print_stage_data(stage_data)
 
     # TODO: Process Scripts
 

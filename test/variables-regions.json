@@ -1,7 +1,7 @@
 {
     "global":{
-        "GLOBAL_VAR_FROM_REPO": "this should go in all stages",
-        "GLOBAL_VAR_FROM_VALIDATION": "override this in all stages"
+        "APP_NAME": "elvis",
+        "APP_PLATFORM": "shoes"
     },
     "build":{
         "app":{

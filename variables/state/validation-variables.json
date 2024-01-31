@@ -56,6 +56,14 @@
             }
         },
         "container":{
+            "APP_NAME":  {
+                "required": true,
+                "type": "string"
+            },
+            "APP_PLATFORM":  {
+                "required": true,
+                "type": "string"
+            },
             "APP_BUILD_ARGS":  {
                 "required": true,
                 "type": "string",
