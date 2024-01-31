@@ -224,14 +224,14 @@ def main(env, stage, state, secrets, regions):
     region = stage_data[stage].get("region", None)
     stage_data = process_secrets(stage_data, state, secrets_dict, region)
 
-    # Process variables
-    stage_data = process_variables(stage_data, state)
-
     # Map platform variables
     stage_data = map_platform_variables(stage, stage_data, platform_mapping)
 
     # Adds common CDP variables
     stage_data = add_common_variables(env, stage_data, common_variables)
+
+    # Process variables
+    stage_data = process_variables(stage_data, state)
 
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
