@@ -198,17 +198,17 @@ def write_export_script(stage_data, script_filename):
         for key, value in secrets.items():
             write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=True)
 
-    def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
-        if githost == "azdo":
-            secret_flag = ";issecret=true" if is_secret else ""
-            cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
-            file.write(f"{cmd_prefix} \"##vso[task.setvariable variable={key}{secret_flag}]{value}\"{newline_char}")
-            # Additionally, export as an environment variable
-            export_command = f"Set-Variable -Name {key} -Value '{value}'" if os_type == "Windows" else f"export {key}='{value}'"
-            file.write(f"{export_command}{newline_char}")
-        elif githost == "github":
-            file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
-            # For GitHub Actions, the above line is sufficient to set environment variables
+def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
+    if githost == "azdo":
+        secret_flag = ";issecret=true" if is_secret else ""
+        cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
+        file.write(f"{cmd_prefix} \"##vso[task.setvariable variable={key}{secret_flag}]{value}\"{newline_char}")
+        # Additionally, export as an environment variable
+        export_command = f"Set-Variable -Name {key} -Value '{value}'" if os_type == "Windows" else f"export {key}='{value}'"
+        file.write(f"{export_command}{newline_char}")
+    elif githost == "github":
+        file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
+        # For GitHub Actions, the above line is sufficient to set environment variables
 
 def print_stage_data(stage_data):
     stage_name = next(iter(stage_data))
