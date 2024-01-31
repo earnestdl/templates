@@ -1,8 +1,8 @@
 {
     "global":{
-        "CDP_PROCESS_SCRIPTS": "${CDP_SCRIPTS_PATH}/process/",
-        "CDP_STEPS_SCRIPTS": "${CDP_SCRIPTS_PATH}/steps/",
-        "CDP_STATE_SCRIPTS": "${CDP_BUILD_PATH}/state/scripts/"
+        "CDP_PROCESS_SCRIPTS": "${CDP_SCRIPTS_PATH}/process",
+        "CDP_STEPS_SCRIPTS": "${CDP_SCRIPTS_PATH}/steps",
+        "CDP_STATE_SCRIPTS": "${CDP_BUILD_PATH}/state/scripts"
     },
     "environments":{
         "dev":{

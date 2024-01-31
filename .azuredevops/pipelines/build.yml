@@ -44,7 +44,7 @@ stages:
                   pwd
                   ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
+                  ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
                 displayName: BUILD
 
@@ -53,7 +53,7 @@ stages:
                   pwd
                   ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
+                  ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
                 displayName: BUILD (dry run)
 
@@ -79,7 +79,7 @@ stages:
                   pwd
                   ls -lR
                   echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  echo ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
+                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
                   echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
                 displayName: BUILD
 
@@ -88,7 +88,7 @@ stages:
                   pwd
                   ls -lR
                   echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  echo ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
+                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
                   echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
                 displayName: BUILD (dry run)
 

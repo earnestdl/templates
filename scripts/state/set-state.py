@@ -64,7 +64,7 @@ def process_secrets(stage_data, state, secrets_dict, region=None):
 
 def add_special_variables(stage_data):
     # List of special environment variable names
-    special_vars = ["CDP_BUILD_PATH", "CDP_SCRIPTS_PATH"]
+    special_vars = ["ENV", "CDP_BUILD_PATH", "CDP_SCRIPTS_PATH"]
     # Future special variables can be added to the above list
 
     # Fetch and store special environment variables
