@@ -1,22 +1,25 @@
 {
     "global":{
-        "CDP_ENV_SHORT": "${ENV}",
         "CDP_SCRIPTS_PATH": "${CDP_TEMPLATES_PATH}/scripts",
         "CDP_PROCESS_SCRIPTS": "${CDP_SCRIPTS_PATH}/process",
         "CDP_STEPS_SCRIPTS": "${CDP_SCRIPTS_PATH}/steps"
     },
     "environments":{
         "dev":{
+            "CDP_ENV_SHORT": "dev",
             "CDP_ENV_LONG": "Development"
         },
         "qa":{
+            "CDP_ENV_SHORT": "qa",
             "CDP_ENV_LONG": "QA"
         },
         "stress":{
+            "CDP_ENV_SHORT": "stress",
             "CDP_ENV_LONG": "Stress"
         },
         "prod":{
-            "CDP_ENV_LONG": "Prod"
+            "CDP_ENV_SHORT": "prod",
+            "CDP_ENV_LONG": "Production"
         }
     },
     "stages":{
