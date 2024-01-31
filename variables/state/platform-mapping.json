@@ -1,0 +1,26 @@
+{
+    "CDP_REPO_NAME": {
+        "azdo": "BUILD_REPOSITORY_NAME",
+        "github": "GITHUB_REPOSITORY"
+    },
+    "CDP_BUILD_PATH": {
+        "azdo": "BUILD_SOURCESDIRECTORY",
+        "github": "BUILD_SOURCESDIRECTORY"
+    },
+    "CDP_RUN_ID": {
+        "azdo": "BUILD_BUILDID",
+        "github": "GITHUB_RUN_ID"
+    },
+    "CDP_COMMIT_SHA": {
+        "azdo": "BUILD_SOURCEVERSION",
+        "github": "GITHUB_SHA"
+    },
+    "CDP_REF": {
+        "azdo": "BUILD_SOURCEBRANCH",
+        "github": "GITHUB_REF"
+    },
+    "CDP_PIPELINE_NAME": {
+        "azdo": "BUILD_DEFINITIONNAME",
+        "github": "GITHUB_WORKFLOW"
+    }
+}

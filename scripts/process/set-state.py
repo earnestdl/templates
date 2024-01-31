@@ -4,64 +4,13 @@ import argparse
 import platform
 import configparser
 
+platform_mapping_json='../../variables/state/platform-mapping.json'
 is_windows = platform.system() == 'Windows'
 
 def log(level, message):
     print(f"[{level}] {message}")
     if level == "ERROR":
         exit(1)
-
-def map_variables():
-    common_vars = {}
-
-    if is_windows:
-        common_vars['CDP_SCRIPT_EXT'] = 'ps1'
-    else:
-        common_vars['CDP_SCRIPT_EXT'] = 'sh'
-    
-    log("INFO","Starting default platform variable translation")
-
-    # Detect CI/CD system
-    if 'GITHUB_REPOSITORY' in os.environ:
-        log("INFO","Mapping variables from Github.")
-
-        # We are in GitHub Actions
-        common_vars['CDP_REPO_PLATFORM'] = 'GITHUB'
-        common_vars['CDP_REPO_NAME'] = os.environ['GITHUB_REPOSITORY']
-        common_vars['CDP_BUILD_PATH'] = os.environ['BUILD_SOURCESDIRECTORY']
-        common_vars['CDP_RUN_ID'] = os.environ['GITHUB_RUN_ID']
-        common_vars['CDP_COMMIT_SHA'] = os.environ['GITHUB_SHA']
-        common_vars['CDP_REF'] = os.environ['GITHUB_REF']
-        common_vars['CDP_PIPELINE_NAME'] = os.environ['GITHUB_WORKFLOW']
-        
-        # Generate export commands
-        with open("github_env.sh" if not is_windows else "github_env.ps1", "w") as f:
-            for key, value in common_vars.items():
-                if key.startswith('CDP_'):
-                    if is_windows:
-                        f.write(f"$env:{key} = \"{value}\"\n")
-                    else:
-                        f.write(f"echo \"{key}={value}\" >> $GITHUB_ENV\n")
-
-    elif 'AZURE_HTTP_USER_AGENT' in os.environ:
-        log("info","Mapping variables from Azure DevOps.")
-        # We are in Azure DevOps
-        common_vars['CDP_REPO_PLATFORM'] = 'AZDO'
-        common_vars['CDP_REPO_NAME'] = os.environ['BUILD_REPOSITORY_NAME']
-        common_vars['CDP_BUILD_PATH'] = os.environ['BUILD_SOURCESDIRECTORY']
-        common_vars['CDP_RUN_ID'] = os.environ['BUILD_BUILDID']
-        common_vars['CDP_COMMIT_SHA'] = os.environ['BUILD_SOURCEVERSION']
-        common_vars['CDP_REF'] = os.environ['BUILD_SOURCEBRANCH']
-        common_vars['CDP_PIPELINE_NAME'] = os.environ['BUILD_DEFINITIONNAME']
-
-        # Generate export commands
-        with open("azure_env.sh" if not is_windows else "azure_env.ps1", "w") as f:
-            for key, value in common_vars.items():
-                if key.startswith('CDP_'):
-                    if is_windows:
-                        f.write(f"$env:{key} = \"{value}\"\n")
-                    else:
-                        f.write(f"echo \"##vso[task.setvariable variable={key}]{value}\"\n")    
 
 def read_state_file(state_file_path, stage):
     # Initialize configparser with case-sensitive keys
@@ -111,27 +60,6 @@ def process_secrets(stage_data, state, secrets_dict, region=None):
 
     return stage_data
 
-def process_secrets_working(stage_data, state, secrets, region):
-    stage_name = next(iter(stage_data))
-    # Use the provided state file path instead of a hardcoded filename
-    stage_config = read_state_file(state, stage_name)
-
-    for key, value in stage_config.items():
-        # Check if the value potentially refers to a secret
-        if "$(" in value:
-            for secret_key, secret_value in secrets.items():
-                # Check if the secret key starts with the state.ini key
-                if secret_key.startswith(key):
-                    # Check if the secret is region-specific
-                    if secret_key.endswith("_" + region.upper()):
-                        stage_data[stage_name]["secrets"][key] = secret_value
-                        break
-                    elif key == secret_key:  # Non-region specific secret
-                        stage_data[stage_name]["secrets"][key] = secret_value
-                        break
-
-    return stage_data
-
 def process_variables(stage_data, state):
     stage_name = next(iter(stage_data))
     stage_config = read_state_file(state, stage_name)
@@ -148,39 +76,46 @@ def process_variables(stage_data, state):
 
     return stage_data
 
+def map_platform_variables(stage, stage_data, platform_mapping):
+    platform = detect_platform()
+    if not platform:
+        raise ValueError("Unable to detect the CI/CD platform.")
+    
+    for common_name, mappings in platform_mapping.items():
+        platform_specific_var = mappings.get(platform)
+        if platform_specific_var:
+            # Fetch the platform-specific variable value from the environment
+            value = os.getenv(platform_specific_var, '')
+            # Update the config object
+            stage_data[stage]['variables'][common_name] = value
+
+    return stage_data
+
 def write_export_script(stage_data, script_filename):
-    # Detect OS
     os_type = platform.system()
+    githost = detect_platform()
     script_extension = ".ps1" if os_type == "Windows" else ".sh"
     newline_char = "\r\n" if script_extension == ".ps1" else "\n"
-
-    # Detect CI/CD Platform
-    if os.getenv("GITHUB_ACTIONS"):
-        ci_cd_platform = "github"
-    elif os.getenv("SYSTEM_TEAMFOUNDATIONCOLLECTIONURI"):
-        ci_cd_platform = "azdo"
-    else:
-        ci_cd_platform = "unknown"
 
     with open(script_filename + script_extension, 'w') as script_file:
         # Write variables
         for key, value in stage_data[next(iter(stage_data))]["variables"].items():
-            if ci_cd_platform == "azdo":
+            if githost == "azdo":
                 if script_extension == ".ps1":
                     script_file.write(f"Write-Host \"##vso[task.setvariable variable={key}]{value}\"{newline_char}")
                 else:
                     script_file.write(f"echo '##vso[task.setvariable variable={key}]{value}'{newline_char}")
-            elif ci_cd_platform == "github":
+            elif githost == "github":
                 script_file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
 
         # Write secrets
         for key, value in stage_data[next(iter(stage_data))]["secrets"].items():
-            if ci_cd_platform == "azdo":
+            if githost == "azdo":
                 if script_extension == ".ps1":
                     script_file.write(f"Write-Host \"##vso[task.setvariable variable={key};issecret=true]{value}\"{newline_char}")
                 else:
                     script_file.write(f"echo '##vso[task.setvariable variable={key};issecret=true]{value}'{newline_char}")
-            elif ci_cd_platform == "github":
+            elif githost == "github":
                 script_file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
 
 def print_stage_data(stage_data):
@@ -199,7 +134,20 @@ def print_stage_data(stage_data):
     for key, value in stage_data[stage_name]["secrets"].items():
         print(f"{key}={value}")
     print("-" * 50)
-    
+
+def load_platform_mapping(platform_mapping_json):
+    with open(platform_mapping_json, 'r') as file:
+        return json.load(file)
+
+def detect_platform():
+    # Simple detection based on environment variables
+    if os.getenv('GITHUB_WORKFLOW'):
+        return 'github'
+    elif os.getenv('SYSTEM_TEAMFOUNDATIONCOLLECTIONURI'):
+        return 'azdo'
+    else:
+        return None
+
 def parse_string_to_json(json_string):
     try:
         return json.loads(json_string)
@@ -225,6 +173,8 @@ def main(stage, state, secrets, regions):
         print(f"Error parsing regions: {regions}")
         raise e
     
+    platform_mapping=load_platform_mapping(platform_mapping_json)
+
     # Initialize stage data
     stage_data = initialize_stage_data(stage)
 
@@ -235,17 +185,20 @@ def main(stage, state, secrets, regions):
     region = stage_data[stage].get("region", None)
     stage_data = process_secrets(stage_data, state, secrets_dict, region)
 
-    # Process Variables
+    # Process variables
     stage_data = process_variables(stage_data, state)
+
+    # Map platform variables
+    stage_data = map_platform_variables(stage, stage_data, platform_mapping)
 
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
 
     # Write export scripts
-    write_export_script(stage_data,stage)
+    #write_export_script(stage_data,stage)
 
     # Write output for logging
-    print_stage_data(stage_data)
+    #print_stage_data(stage_data)
 
     # TODO: Process Scripts
 
