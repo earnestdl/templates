@@ -170,33 +170,34 @@ def resolve_variable_references(stage_data):
 
     return stage_data
 
-
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()
     script_extension = ".ps1" if os_type == "Windows" else ".sh"
     newline_char = "\r\n" if script_extension == ".ps1" else "\n"
 
-    with open(script_filename + script_extension, 'w') as script_file:
-        # Write variables
-        for key, value in stage_data[next(iter(stage_data))]["variables"].items():
-            if githost == "azdo":
-                if script_extension == ".ps1":
-                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key}]{value}\"{newline_char}")
-                else:
-                    script_file.write(f"echo '##vso[task.setvariable variable={key}]{value}'{newline_char}")
-            elif githost == "github":
-                script_file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
+    stage_key = next(iter(stage_data))
+    variables = stage_data[stage_key]["variables"]
+    secrets = stage_data[stage_key]["secrets"]
 
-        # Write secrets
-        for key, value in stage_data[next(iter(stage_data))]["secrets"].items():
-            if githost == "azdo":
-                if script_extension == ".ps1":
-                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key};issecret=true]{value}\"{newline_char}")
-                else:
-                    script_file.write(f"echo '##vso[task.setvariable variable={key};issecret=true]{value}'{newline_char}")
-            elif githost == "github":
-                script_file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
+    with open(script_filename + script_extension, 'w') as script_file:
+        # Write variables in alphabetical order, then reverse
+        for key in sorted(variables) + sorted(variables, reverse=True):
+            value = variables[key]
+            write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=False)
+
+        # Write secrets in alphabetical order, then reverse
+        for key in sorted(secrets) + sorted(secrets, reverse=True):
+            value = secrets[key]
+            write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=True)
+
+def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
+    if githost == "azdo":
+        secret_flag = ";issecret=true" if is_secret else ""
+        cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
+        file.write(f"{cmd_prefix} \"##vso[task.setvariable variable={key}{secret_flag}]{value}\"{newline_char}")
+    elif githost == "github":
+        file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
 
 def print_stage_data(stage_data):
     stage_name = next(iter(stage_data))
