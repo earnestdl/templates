@@ -294,13 +294,11 @@ def main(env, stage, state, secrets, regions):
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
 
-
-
     # Write export scripts
-    #write_export_script(stage_data,stage)
+    write_export_script(stage_data,stage)
 
     # Write output for logging
-    #print_stage_data(stage_data)
+    print_stage_data(stage_data)
 
     # TODO: Process Scripts
 
