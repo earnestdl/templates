@@ -130,35 +130,40 @@ def resolve_variable_references(stage_data):
     resolved = {}
     unresolved = variables.copy()
 
+    # Ensure CDP_SCRIPTS_PATH is included from the environment variables for reference resolution
+    reference_source = {**os.environ}
+    if 'CDP_SCRIPTS_PATH' in os.environ:
+        resolved['CDP_SCRIPTS_PATH'] = os.environ['CDP_SCRIPTS_PATH']
+
     while unresolved:
         keys_for_removal = []
         for key, value in unresolved.items():
             try:
-                # Attempt to format the string using both already resolved variables and the unresolved ones
-                # This allows for self-referencing variables to be resolved in multiple passes
-                formatted_value = value.format(**resolved, **variables)
+                # Attempt to format the string using both already resolved variables and the reference source
+                formatted_value = value.format(**resolved, **reference_source, **variables)
                 resolved[key] = formatted_value
                 keys_for_removal.append(key)
             except KeyError as e:
-                # If a KeyError is caught, log a warning but do not stop processing
+                # Log a warning for unresolved references
                 print(f"Warning: Could not resolve reference for variable '{key}'. Missing: {str(e)}")
 
         # Remove keys that have been resolved in this iteration
         for key in keys_for_removal:
             del unresolved[key]
 
-        # If no progress was made in a pass, break to prevent infinite loop
+        # Prevent infinite loop by breaking if no progress is made
         if not keys_for_removal:
             print(f"Warning: Some variables could not be fully resolved and may contain unresolved references.")
             break
 
-    # Update the stage_data with resolved variables
+    # Combine resolved with any remaining unresolved variables
+    resolved.update(unresolved)
+
+    # Update stage_data with resolved variables
     stage_data["variables"] = resolved
 
-    # Now, attempt to resolve references with the new updates
-    stage_data = resolve_variable_references(stage_data)
-
     return stage_data
+
 
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
