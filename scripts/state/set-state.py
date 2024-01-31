@@ -62,6 +62,22 @@ def process_secrets(stage_data, state, secrets_dict, region=None):
 
     return stage_data
 
+def add_special_variables(stage_data):
+    # List of special environment variable names
+    special_vars = ["CDP_BUILD_PATH", "CDP_SCRIPTS_PATH"]
+    # Future special variables can be added to the above list
+
+    # Fetch and store special environment variables
+    special_env_vars = {var: os.getenv(var, '') for var in special_vars}
+
+    # Get the stage key
+    stage_key = next(iter(stage_data))
+
+    # Merging special environment variables with existing variables
+    stage_data[stage_key]['variables'] = {**special_env_vars, **stage_data[stage_key]['variables']}
+
+    return stage_data
+
 def add_platform_variables(stage, stage_data, platform_mapping):
     platform = detect_platform()
     if not platform:
@@ -190,12 +206,7 @@ def write_export_script(stage_data, script_filename):
     secrets = stage_data[stage_key]["secrets"]
 
     with open(script_filename + script_extension, 'w') as script_file:
-        # Fetch and write special environment variables first
-        for special_var in ["CDP_BUILD_PATH", "CDP_SCRIPTS_PATH"]:
-            special_value = os.getenv(special_var, '')
-            write_variable_or_secret(script_file, special_var, special_value, githost, os_type, newline_char, is_secret=False)
-
-        # Write other variables
+        # Write variables
         for key, value in variables.items():
             write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=False)
 
@@ -286,6 +297,9 @@ def main(env, stage, state, secrets, regions):
     # Process secrets
     region = stage_data[stage].get("region", None)
     stage_data = process_secrets(stage_data, state, secrets_dict, region)
+
+    # Map platform variables
+    stage_data = add_special_variables(stage_data)
 
     # Map platform variables
     stage_data = add_platform_variables(stage, stage_data, platform_mapping)
