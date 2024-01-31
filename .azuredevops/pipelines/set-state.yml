@@ -24,26 +24,26 @@ steps:
   - ${{if eq(parameters.stage,'build')}}:
     - script: | 
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
-        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh
-        source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
+        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
       env:
         ENV: ${{parameters.env}}
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
+        CDP_SCRIPTS_PATH: $(System.DefaultWorkingDirectory)/templates/scripts
 
   - ${{if eq(parameters.stage,'deploy')}}:
     - script: | 
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
-        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh
-        source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
+        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
       env:
         ENV: ${{parameters.env}}
         SECRETS: "${{convertToJson(parameters.secrets)}}"
         REGIONS: "${{convertToJson(parameters.regions)}}"
+        CDP_SCRIPTS_PATH: $(System.DefaultWorkingDirectory)/scripts
 
   - script: env | sort
     displayName: List all variables

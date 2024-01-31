@@ -1,6 +1,5 @@
 {
     "global":{
-        "CDP_SCRIPTS_PATH": "${CDP_TEMPLATES_PATH}/scripts",
         "CDP_PROCESS_SCRIPTS": "${CDP_SCRIPTS_PATH}/process",
         "CDP_STEPS_SCRIPTS": "${CDP_SCRIPTS_PATH}/steps"
     },
@@ -29,18 +28,15 @@
     "stages":{
         "build":{
             "CDP_STAGE_SHORT": "build",
-            "CDP_STAGE_LONG": "Build",
-            "CDP_TEMPLATES_PATH": "${CDP_BUILD_PATH}/pipeline-templates"
+            "CDP_STAGE_LONG": "Build"
         },
         "test":{
             "CDP_STAGE_SHORT": "test",
-            "CDP_STAGE_LONG": "Test",
-            "CDP_TEMPLATES_PATH": "${CDP_BUILD_PATH}"
+            "CDP_STAGE_LONG": "Test"
         },
         "deploy":{
             "CDP_STAGE_SHORT": "deploy",
-            "CDP_STAGE_LONG": "Deploy",
-            "CDP_TEMPLATES_PATH": "${CDP_BUILD_PATH}"
+            "CDP_STAGE_LONG": "Deploy"
         }
     },
     "regions":{
