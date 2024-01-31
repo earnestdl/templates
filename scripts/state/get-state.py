@@ -337,16 +337,10 @@ def validate_pipeline_data(pipeline_data, validation_data):
         else:
             return "unknown"
 
-    def is_valid_secret_format(value):
-        # Check if the value is a string and starts with an integer
-        return isinstance(value, str) and value[0].isdigit()
-
     def check_variables(stage_vars, required_vars, stage_name):
         for var_name, var_details in required_vars.items():
 
-            if var_details['type'] == 'secret' and is_valid_secret_format(stage_vars[var_name]):
-                errors.append(f"Secret '{var_name}' in '{stage_name}' stage starts with an integer and should be quoted.")
-                    # Check if the variable is in stage_vars
+            # Check if the variable is in stage_vars
             if var_details.get('required', False):
                 if var_name not in stage_vars:
                     errors.append(f"Missing required variable '{var_name}' in '{stage_name}' stage.")
