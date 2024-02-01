@@ -155,43 +155,55 @@ def resolve_reference(value, existing_variables):
     return value
 
 def write_export_script(stage_data, script_filename):
-    os_type = platform.system()
-    githost = detect_platform()  # Assuming this function is defined elsewhere
-    script_extension = ".ps1" if os_type == "Windows" else ".sh"
-    newline_char = "\r\n" if script_extension == ".ps1" else "\n"
+    try:
+        os_type = platform.system()
+        githost = detect_platform()  # Assuming this function is defined elsewhere
+        script_extension = ".ps1" if os_type == "Windows" else ".sh"
+        newline_char = "\r\n" if script_extension == ".ps1" else "\n"
 
-    stage_key = next(iter(stage_data))
-    variables = stage_data[stage_key]["variables"]
-    secrets = stage_data[stage_key]["secrets"]
+        stage_key = next(iter(stage_data))
+        variables = stage_data[stage_key]["variables"]
+        secrets = stage_data[stage_key]["secrets"]
 
-    def escape_azdo_secrets(value):
-        if githost == "azdo":
-            return value.replace("$(", "\$(")
-        return value
+        # Validate input
+        if not stage_data or not script_filename:
+            print("Invalid input provided to write_export_script")
+            return
 
-    with open(script_filename + script_extension, 'w') as script_file:
-        # Write variables
-        for key, value in variables.items():
-            escaped_value = escape_azdo_secrets(value)
+        def escape_azdo_secrets(value):
             if githost == "azdo":
-                if script_extension == ".ps1":
-                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key}]{escaped_value}\"{newline_char}")
-                else:
-                    script_file.write(f"echo '##vso[task.setvariable variable={key}]{escaped_value}'{newline_char}")
-            elif githost == "github":
-                script_file.write(f"echo '{key}={escaped_value}' >> $GITHUB_ENV{newline_char}")
+                return value.replace("$(", "\$(")
+            return value
 
-        # Write secrets
-        for key, value in secrets.items():
-            escaped_value = escape_azdo_secrets(value)
-            if githost == "azdo":
-                if script_extension == ".ps1":
-                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key};issecret=true]{escaped_value}\"{newline_char}")
-                else:
-                    script_file.write(f"echo '##vso[task.setvariable variable={key};issecret=true]{escaped_value}'{newline_char}")
-            elif githost == "github":
-                script_file.write(f"echo '{key}={escaped_value}' >> $GITHUB_ENV{newline_char}")
-                
+        script_full_path = script_filename + script_extension
+        with open(script_full_path, 'w') as script_file:
+            # Write variables
+            for key, value in variables.items():
+                escaped_value = escape_azdo_secrets(value)
+                if githost == "azdo":
+                    if script_extension == ".ps1":
+                        script_file.write(f"Write-Host \"##vso[task.setvariable variable={key}]{escaped_value}\"{newline_char}")
+                    else:
+                        script_file.write(f"echo '##vso[task.setvariable variable={key}]{escaped_value}'{newline_char}")
+                elif githost == "github":
+                    script_file.write(f"echo '{key}={escaped_value}' >> $GITHUB_ENV{newline_char}")
+
+            # Write secrets
+            for key, value in secrets.items():
+                escaped_value = escape_azdo_secrets(value)
+                if githost == "azdo":
+                    if script_extension == ".ps1":
+                        script_file.write(f"Write-Host \"##vso[task.setvariable variable={key};issecret=true]{escaped_value}\"{newline_char}")
+                    else:
+                        script_file.write(f"echo '##vso[task.setvariable variable={key};issecret=true]{escaped_value}'{newline_char}")
+                elif githost == "github":
+                    script_file.write(f"echo '{key}={escaped_value}' >> $GITHUB_ENV{newline_char}")
+
+            print(f"Script written to {script_full_path}")
+
+    except Exception as e:
+        print(f"Error in write_export_script: {e}")                
+
 def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
     if githost == "azdo":
         secret_flag = ";issecret=true" if is_secret else ""
