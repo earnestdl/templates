@@ -87,7 +87,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh"
+                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh ${REGISTRY_URL}/${APP_PLATFORM}/${APP_NAME} -f ${APP_DOCKERFILE}"
             },
             "APP_DOCKERFILE":  {
                 "required": true,
@@ -231,7 +231,7 @@
             "APP_DEPLOY_ARGS":  {
                 "required": false,
                 "type": "string",
-                "default": "Deploying..."
+                "default": "${OPENSHIFT_CLUSTER} ${OPENSHIFT_TOKEN}"
             },
             "OPENSHIFT_PREFIX": {
                 "required": true,
