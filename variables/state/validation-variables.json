@@ -245,7 +245,7 @@
             "APP_DEPLOY_ARGS":  {
                 "required": false,
                 "type": "string",
-                "default": "--cluster=${OPENSHIFT_CLUSTER} --token=${OPENSHIFT_TOKEN}"
+                "default": "--cluster=${OPENSHIFT_CLUSTER}"
             },
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
