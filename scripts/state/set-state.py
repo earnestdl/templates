@@ -118,8 +118,8 @@ def add_common_variables(env, stage_data, common_variables):
         combined_variables.update(common_variables['regions'][region])
 
     # Resolve references in combined_variables
-    for key, value in combined_variables.items():
-        combined_variables[key] = resolve_reference(value, stage_data[stage_key]['variables'])
+    #for key, value in combined_variables.items():
+    #    combined_variables[key] = resolve_reference(value, stage_data[stage_key]['variables'])
  
     # Merge with existing variables in stage_data
     stage_variables = stage_data[stage_key].get('variables', {})
@@ -148,8 +148,8 @@ def add_state_variables(stage_data, state):
     #stage_data = resolve_variable_references(stage_data)
 
     # Resolve references in stage_config
-    for key, value in stage_config.items():
-        stage_data[stage_name]['variables'][key] = resolve_reference(value, stage_data[stage_name]['variables'])
+    #for key, value in stage_config.items():
+    #    stage_data[stage_name]['variables'][key] = resolve_reference(value, stage_data[stage_name]['variables'])
 
     return stage_data
 
