@@ -40,20 +40,6 @@ stages:
                 regions: ${{parameters.regions}}
                 secrets: ${{parameters.secrets}}
 
-            - ${{if eq(parameters.dryrun,false)}}:
-              - script: |
-                  echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
-                  echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
-                displayName: BUILD
-
-            - ${{if eq(parameters.dryrun,true)}}:
-              - script: |
-                  echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
-                  echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
-                displayName: BUILD (dry run)
-
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
       - ${{ each region in parameters.regions }}:
         - job: build_${{parameters.type}}
@@ -72,21 +58,16 @@ stages:
                 regions: ${{parameters.regions}}
                 secrets: ${{parameters.secrets}}
 
-            - ${{if eq(parameters.dryrun,false)}}:
-              - script: |
-                  pwd
-                  ls -lR
-                  echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
-                  echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
-                displayName: BUILD
+    - ${{if eq(parameters.dryrun,false)}}:
+      - script: |
+          ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
+          ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
+          ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
+        displayName: BUILD
 
-            - ${{if eq(parameters.dryrun,true)}}:
-              - script: |
-                  pwd
-                  ls -lR
-                  echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
-                  echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
-                displayName: BUILD (dry run)
-
+    - ${{if eq(parameters.dryrun,true)}}:
+      - script: |
+          echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
+          echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
+          echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
+        displayName: BUILD (dry run)
