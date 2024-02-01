@@ -42,16 +42,16 @@ stages:
 
             - ${{if eq(parameters.dryrun,false)}}:
               - script: |
-                  ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
-                  ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
+                  echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
+                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
+                  echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
                 displayName: BUILD
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
-                  ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
-                  ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
-                  ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
+                  echo ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
+                  echo ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
+                  echo ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
                 displayName: BUILD (dry run)
 
     - ${{ if or(eq(parameters.type,'windows'), eq(parameters.type,'powershell')) }}:
