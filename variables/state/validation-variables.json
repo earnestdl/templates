@@ -243,12 +243,12 @@
                 "type": "secret"
             },
             "APP_DEPLOY_ARGS":  {
-                "required": false,
+                "required": true,
                 "type": "string",
                 "default": "--cluster=${OPENSHIFT_CLUSTER} --token=${OPENSHIFT_TOKEN}"
             },
             "APP_DEPLOY_COMMAND":  {
-                "required": false,
+                "required": true,
                 "type": "string",
                 "default": "${CDP_PROCESS_SCRIPTS}/deploy-openshift.sh"
             }
