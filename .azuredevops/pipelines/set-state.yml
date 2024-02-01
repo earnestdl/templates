@@ -28,7 +28,7 @@ steps:
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}}
         chmod +x ${CDP_PROCESS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STEPS_SCRIPTS}/*.${{parameters.xt}}
-        chmod +x ${CDP_STATE_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_DEFAULT_SCRIPTS}/*.${{parameters.xt}}
+        chmod +x ${CDP_DEFAULT_SCRIPTS}/*.${{parameters.xt}}
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
       env:
@@ -44,7 +44,7 @@ steps:
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} 
         chmod +x ${CDP_PROCESS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STEPS_SCRIPTS}/*.${{parameters.xt}}
-        chmod +x ${CDP_STATE_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_DEFAULT_SCRIPTS}/*.${{parameters.xt}}
+        chmod +x ${CDP_DEFAULT_SCRIPTS}/*.${{parameters.xt}}
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
       env:
