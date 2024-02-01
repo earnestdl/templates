@@ -154,26 +154,6 @@ def resolve_reference(value, existing_variables):
             value = value.replace('${' + var_key + '}', var_value)
     return value
 
-def reorder_referenced_variables(stage_data):
-    # Regular expression to match variables in the format ${...}
-    variable_pattern = re.compile(r'\${[^{}]+}')
-
-    # Get the first key in the stage_data object to use as the stage name
-    stage_name = next(iter(stage_data))
-
-    # Dictionary to temporarily store referenced variables
-    referenced_variables = {}
-
-    # Identifying and temporarily storing referenced variables
-    for key, value in list(stage_data[stage_name]['variables'].items()):
-        if variable_pattern.search(value):
-            referenced_variables[key] = stage_data[stage_name]['variables'].pop(key)
-
-    # Adding the referenced variables back at the bottom of the dictionary
-    stage_data[stage_name]['variables'].update(referenced_variables)
-
-    return stage_data
-
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()  # Assuming this function is defined elsewhere
@@ -288,8 +268,6 @@ def main(env, stage, state, secrets, regions):
 
     # Process variables
     stage_data = add_state_variables(stage_data, state)
-
-    #reorder_referenced_variables(stage_data)
 
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
