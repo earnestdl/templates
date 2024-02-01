@@ -210,7 +210,38 @@ def reorder_referenced_variables(stage_data):
 
     return stage_data
 
+
 def write_export_script(stage_data, script_filename):
+    os_type = platform.system()
+    githost = detect_platform()  # Placeholder for actual detection logic
+    script_extension = ".ps1" if os_type == "Windows" else ".sh"
+    newline_char = "\r\n" if script_extension == ".ps1" else "\n"
+
+    try:
+        with open(f"{script_filename}{script_extension}", 'w') as script_file:
+            # Process and write variables
+            for key, value in stage_data[next(iter(stage_data))]["variables"].items():
+                write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, False)
+            
+            # Process and write secrets
+            for key, value in stage_data[next(iter(stage_data))]["secrets"].items():
+                write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, True)
+    except Exception as e:
+        print(f"Error writing script file: {e}")
+
+def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
+    try:
+        if githost == "azdo":
+            secret_flag = ";issecret=true" if is_secret else ""
+            cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
+            file.write(f"{cmd_prefix} \"##vso[task.setvariable variable={key}{secret_flag}]{value}\"{newline_char}")
+        elif githost == "github":
+            # For GitHub Actions, simply append to $GITHUB_ENV
+            file.write(f"echo \"{key}={value}\" >> $GITHUB_ENV{newline_char}")
+    except Exception as e:
+        print(f"Error writing variable/secret '{key}': {e}")
+
+def write_export_script_works_except_for_secrets(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()  # Assuming this function is defined elsewhere
     script_extension = ".ps1" if os_type == "Windows" else ".sh"
@@ -229,7 +260,7 @@ def write_export_script(stage_data, script_filename):
         for key, value in secrets.items():
             write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=True)
 
-def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
+def write_variable_or_secret_works_except_for_secrets(file, key, value, githost, os_type, newline_char, is_secret):
     if githost == "azdo":
         secret_flag = ";issecret=true" if is_secret else ""
         cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
