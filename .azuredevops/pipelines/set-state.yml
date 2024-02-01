@@ -1,6 +1,8 @@
 parameters:
   - name: id
     type: string
+  - name: xt
+    type: string
   - name: env
     type: string
   - name: stage
@@ -24,8 +26,8 @@ steps:
   - ${{if eq(parameters.stage,'build')}}:
     - script: | 
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
-        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh
-        chmod +x ${CDP_PROCESS_SCRIPTS}/*.sh && chmod +x ${CDP_STEPS_SCRIPTS}/*.sh && chmod +x ${CDP_STATE_SCRIPTS}/*.sh
+        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}}
+        chmod +x ${CDP_PROCESS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STEPS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STATE_SCRIPTS}/*.${{parameters.xt}}
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
       env:
@@ -39,8 +41,8 @@ steps:
   - ${{if eq(parameters.stage,'deploy')}}:
     - script: | 
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
-        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.sh 
-        chmod +x ${CDP_PROCESS_SCRIPTS}/*.sh && chmod +x ${CDP_STEPS_SCRIPTS}/*.sh && chmod +x ${CDP_STATE_SCRIPTS}/*.sh
+        chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} 
+        chmod +x ${CDP_PROCESS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STEPS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STATE_SCRIPTS}/*.${{parameters.xt}}
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
       env:

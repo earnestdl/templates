@@ -33,6 +33,7 @@ stages:
             - template: set-state.yml
               parameters:
                 id: ${{parameters.id}}
+                xt: 'sh'
                 env: build 
                 stage: build
                 region: ${{region}}
@@ -41,8 +42,6 @@ stages:
 
             - ${{if eq(parameters.dryrun,false)}}:
               - script: |
-                  pwd
-                  ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
                   ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
@@ -50,8 +49,6 @@ stages:
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
-                  pwd
-                  ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
                   ${APP_COMMAND_INT} "${APP_BUILD_COMMAND} ${APP_BUILD_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
@@ -68,7 +65,8 @@ stages:
 
             - template: set-state.yml
               parameters:
-                id: ${{parameters.id}} 
+                id: ${{parameters.id}}
+                xt: 'ps1' 
                 stage: build
                 region: ${{region}}
                 regions: ${{parameters.regions}}
