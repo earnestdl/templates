@@ -212,7 +212,7 @@ def reorder_referenced_variables(stage_data):
 
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
-    githost = detect_platform()  # Placeholder for your actual platform detection logic
+    githost = detect_platform()  # Assuming this function is defined elsewhere
     script_extension = ".ps1" if os_type == "Windows" else ".sh"
     newline_char = "\r\n" if script_extension == ".ps1" else "\n"
 
@@ -220,7 +220,7 @@ def write_export_script(stage_data, script_filename):
     variables = stage_data[stage_key]["variables"]
     secrets = stage_data[stage_key]["secrets"]
 
-    with open(f"{script_filename}{script_extension}", 'w') as script_file:
+    with open(script_filename + script_extension, 'w') as script_file:
         # Write variables
         for key, value in variables.items():
             write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=False)
@@ -232,14 +232,15 @@ def write_export_script(stage_data, script_filename):
 def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
     if githost == "azdo":
         secret_flag = ";issecret=true" if is_secret else ""
-        if os_type == "Windows":
-            file.write(f"echo ##vso[task.setvariable variable={key}{secret_flag}]{value}{newline_char}")
-        else:
-            file.write(f"echo '##vso[task.setvariable variable={key}{secret_flag}]{value}'{newline_char}")
+        cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
+        file.write(f"{cmd_prefix} \"##vso[task.setvariable variable={key}{secret_flag}]{value}\"{newline_char}")
+        # Additionally, export as an environment variable
+        export_command = f"Set-Variable -Name {key} -Value '{value}'" if os_type == "Windows" else f"export {key}='{value}'"
+        file.write(f"{export_command}{newline_char}")
     elif githost == "github":
-        # GitHub Actions handles secrets automatically when defined in the environment, so just set them like normal variables
-        file.write(f"echo \"{key}={value}\" >> $GITHUB_ENV{newline_char}")
-                
+        file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
+        # For GitHub Actions, the above line is sufficient to set environment variables
+        
 def print_stage_data(stage_data):
     stage_name = next(iter(stage_data))
 
