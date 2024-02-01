@@ -231,7 +231,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": false,
                 "type": "string",
-                "default": "echo Deploying to Openshift... && oc -whatever $1"
+                "default": "echo Deploying to Openshift... && echo oc $@"
             },
             "APP_DEPLOY_ARGS":  {
                 "required": false,
