@@ -1,94 +1,104 @@
 #!/bin/bash
 
-# List environment variables
-list-variables(){
-    echo
-    echo "You have access to the following variables:"
-    echo "-------------------------------------------"
-    env | sort
-}
-
 # Function for pre-build steps
 pre-build() {
     echo "Running pre-build steps..."
-    list-variables
-    # Add your pre-build commands here
+    echo  
+    echo  ...
+    echo 
+    echo "Pre-build steps complete."
 }
 
 # Function for build steps
 build() {
-    echo "Running build steps..."
-    list-variables
-    # Add your build commands here
+    echo "Building..."
+    echo  
+    echo  ...
+    echo 
+    echo "Build complete."
 }
 
 # Function for post-build steps
 post-build() {
     echo "Running post-build steps..."
-    list-variables
-    # Add your post-build commands here
+    echo  
+    echo  ...
+    echo 
+    echo "Post-build complete."
 }
 
 # Function for pre-test steps
 pre-test() {
     echo "Running pre-test steps..."
-    list-variables
-    # Add your pre-test commands here
+    echo  
+    echo  ...
+    echo 
+    echo "Pre-test steps complete."
 }
 
 # Function for test steps
 test() {
-    echo "Running test steps..."
-    list-variables
-    # Add your test commands here
+    echo "Testing..."
+    echo  
+    echo  ...
+    echo 
+    echo "Testing complete."
 }
 
 # Function for post-test steps
 post-test() {
     echo "Running post-test steps..."
-    list-variables
-    # Add your post-test commands here
+    echo  
+    echo  ...
+    echo 
+    echo "Pre-test steps complete."
 }
 
 # Function for pre-deploy steps
 pre-deploy() {
     echo "Running pre-deploy steps..."
-    list-variables
-    # Add your pre-deploy commands here
+    echo  
+    echo  ...
+    echo 
+    echo "Pre-deploy steps complete."
 }
 
 # Function for deploy steps
 deploy() {
-    echo "Running deploy steps..."
-    list-variables
-    # Add your deploy commands here
+    echo "Deploying..."
+    echo  
+    echo  ...
+    echo 
+    echo "Deployment complete."
 }
 
 # Function for post-deploy steps
 post-deploy() {
-    echo "Running post-deploy steps..."
-    list-variables
-    # Add your post-deploy commands here
+    echo "Running post-build steps..."
+    echo  
+    echo  ...
+    echo 
+    echo "Post-build steps complete."
 }
 
 print-scripts() {
     echo
-    echo "Other scripting languages are available."
-    local json_file="validation.json" # Path to your JSON file
-    # Check if jq is installed
-    if command -v jq >/dev/null 2>&1; then
-        # jq is installed, list the supported script types
-        jq -r '.supported.scripts | keys[]' "$json_file"
-    else
-        # jq is not installed, print a generic message
-        echo "Please refer to the documentation for supported script types."
-    fi
-    echo
-    echo "To use a different language, change the 'type' parameter for that stage to one of"
-    echo "the supported script types in your pipeline.yml or workflow.yml."
-    echo
-    echo "To help you get started, this script and examples for other script types can be found at:"
-    echo "https://github.com/..."
+
+    echo "List of process scripts available:"
+    echo "-----------------------------------------------------------------------"
+    ls -l ${CDP_PROCESS_SCRIPTS}
+    echo 
+
+    echo "List of steps scripts available:"
+    echo "-----------------------------------------------------------------------"
+    ls -l ${CDP_STEPS_SCRIPTS}
+    echo 
+
+    echo "List of state scripts available: (scripts from your repo)"
+    echo "-----------------------------------------------------------------------"
+    ls -l ${CDP_STATE_SCRIPTS}
+    echo 
+
 }
 
 usage(){
