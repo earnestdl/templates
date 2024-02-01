@@ -1,4 +1,4 @@
 #!/bin/bash
 echo
 echo Building and pushing image...
-echo podman $1
+echo podman build -t $1

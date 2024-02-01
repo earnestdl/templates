@@ -82,12 +82,12 @@
             "APP_BUILD_ARGS":  {
                 "required": true,
                 "type": "string",
-                "default": "-e APP_NAME=${APP_NAME}"
+                "default": "${REGISTRY_URL}/${APP_PLATFORM}/${APP_NAME}:${CDP_COMMIT_SHA} -f ${APP_DOCKERFILE}"
             },
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh ${REGISTRY_URL}/${APP_PLATFORM}/${APP_NAME}:${CDP_REF} -f ${APP_DOCKERFILE}"
+                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh"
             },
             "APP_DOCKERFILE":  {
                 "required": true,
@@ -231,12 +231,12 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": false,
                 "type": "string",
-                "default": "echo Deploying to Openshift..."
+                "default": "echo Deploying to Openshift... && oc -whatever $1"
             },
             "APP_DEPLOY_ARGS":  {
                 "required": false,
                 "type": "string",
-                "default": "${OPENSHIFT_CLUSTER} ${OPENSHIFT_TOKEN}"
+                "default": "--cluster=${OPENSHIFT_CLUSTER} --token=${OPENSHIFT_TOKEN}"
             },
             "OPENSHIFT_PREFIX": {
                 "required": true,
