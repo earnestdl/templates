@@ -39,6 +39,7 @@ stages:
             - template: set-state.yml
               parameters:
                 id: ${{parameters.id}}
+                xt: 'sh'
                 env: ${{parameters.env}} 
                 stage: deploy
                 region: ${{region}}
@@ -47,8 +48,6 @@ stages:
 
             - ${{if eq(parameters.dryrun,false)}}:
               - script: |
-                  pwd
-                  ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
                   ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
@@ -56,8 +55,6 @@ stages:
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
-                  pwd
-                  ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
                   ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
@@ -71,7 +68,8 @@ stages:
 
             - template: set-state.yml
               parameters:
-                id: ${{parameters.id}} 
+                id: ${{parameters.id}}
+                xt: 'ps1' 
                 env: ${{parameters.env}}
                 stage: deploy
                 region: ${{region}}
@@ -80,8 +78,6 @@ stages:
 
             - ${{if eq(parameters.dryrun,false)}}:
               - script: |
-                  pwd
-                  ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
                   ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
@@ -89,8 +85,6 @@ stages:
 
             - ${{if eq(parameters.dryrun,true)}}:
               - script: |
-                  pwd
-                  ls -lR
                   ${APP_COMMAND_INT} "${PRE_SCRIPT} ${PRE_SCRIPT_ARGS}"
                   ${APP_COMMAND_INT} "${APP_DEPLOY_COMMAND} ${APP_DEPLOY_ARGS}"
                   ${APP_COMMAND_INT} "${POST_SCRIPT} ${POST_SCRIPT_ARGS}"
