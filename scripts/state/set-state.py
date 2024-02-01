@@ -164,15 +164,34 @@ def write_export_script(stage_data, script_filename):
     variables = stage_data[stage_key]["variables"]
     secrets = stage_data[stage_key]["secrets"]
 
+    def escape_azdo_secrets(value):
+        if githost == "azdo":
+            return value.replace("$(", "\$(")
+        return value
+
     with open(script_filename + script_extension, 'w') as script_file:
         # Write variables
         for key, value in variables.items():
-            write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=False)
+            escaped_value = escape_azdo_secrets(value)
+            if githost == "azdo":
+                if script_extension == ".ps1":
+                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key}]{escaped_value}\"{newline_char}")
+                else:
+                    script_file.write(f"echo '##vso[task.setvariable variable={key}]{escaped_value}'{newline_char}")
+            elif githost == "github":
+                script_file.write(f"echo '{key}={escaped_value}' >> $GITHUB_ENV{newline_char}")
 
         # Write secrets
         for key, value in secrets.items():
-            write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=True)
-
+            escaped_value = escape_azdo_secrets(value)
+            if githost == "azdo":
+                if script_extension == ".ps1":
+                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key};issecret=true]{escaped_value}\"{newline_char}")
+                else:
+                    script_file.write(f"echo '##vso[task.setvariable variable={key};issecret=true]{escaped_value}'{newline_char}")
+            elif githost == "github":
+                script_file.write(f"echo '{key}={escaped_value}' >> $GITHUB_ENV{newline_char}")
+                
 def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
     if githost == "azdo":
         secret_flag = ";issecret=true" if is_secret else ""
