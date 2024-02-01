@@ -241,7 +241,7 @@ def write_variable_or_secret_new(file, key, value, githost, os_type, newline_cha
     except Exception as e:
         print(f"Error writing variable/secret '{key}': {e}")
 
-def write_export_script_old(stage_data, script_filename):
+def write_export_script(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()  # Assuming this function is defined elsewhere
     script_extension = ".ps1" if os_type == "Windows" else ".sh"
@@ -260,7 +260,7 @@ def write_export_script_old(stage_data, script_filename):
         for key, value in secrets.items():
             write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, is_secret=True)
 
-def write_variable_or_secret_old(file, key, value, githost, os_type, newline_char, is_secret):
+def write_variable_or_secret(file, key, value, githost, os_type, newline_char, is_secret):
     if githost == "azdo":
         secret_flag = ";issecret=true" if is_secret else ""
         cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
@@ -272,7 +272,7 @@ def write_variable_or_secret_old(file, key, value, githost, os_type, newline_cha
         file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
         # For GitHub Actions, the above line is sufficient to set environment variables
         
-def write_export_script(stage_data, script_filename):
+def write_export_script_used_to_work(stage_data, script_filename):
     os_type = platform.system()
     githost = detect_platform()
     script_extension = ".ps1" if os_type == "Windows" else ".sh"
