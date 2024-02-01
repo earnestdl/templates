@@ -26,6 +26,7 @@ steps:
   - ${{if eq(parameters.stage,'build')}}:
     - script: | 
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
+        cat ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}}
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}}
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/templates/scripts/state
@@ -40,6 +41,7 @@ steps:
   - ${{if eq(parameters.stage,'deploy')}}:
     - script: | 
         python set-state.py ${{parameters.env}} ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}} $(System.DefaultWorkingDirectory)/state/state.ini "$SECRETS" "$REGIONS"
+        cat ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}}
         chmod +x ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} && source ${{parameters.stage}}_${{parameters.id}}_${{parameters.region}}.${{parameters.xt}} 
       displayName: Set state
       workingDirectory: $(System.DefaultWorkingDirectory)/scripts/state
