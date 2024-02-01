@@ -4,12 +4,12 @@
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.sh"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.sh"
             },
             "POST_SCRIPT": {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.sh"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.sh"
             },
             "APP_COMMAND_INT": {
                 "required": true,
@@ -26,12 +26,12 @@
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.ps1"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.ps1"
             },
             "POST_SCRIPT": {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.ps1"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.ps1"
             }
         },
         "python":{
@@ -43,12 +43,12 @@
             "PRE_SCRIPT": {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.py"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.py"
             },
             "POST_SCRIPT": {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.py"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.py"
             }
         }
     },
@@ -109,7 +109,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.sh"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.sh"
             }
         },
         "bash":{
@@ -121,7 +121,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.sh"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.sh"
             }
         },
         "powershell":{
@@ -133,7 +133,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.ps1"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.ps1"
             }
         },
         "python":{
@@ -145,7 +145,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.py"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.py"
             }
         },
         "dotnet":{
@@ -183,7 +183,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.sh"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.sh"
             }
         },
         "bash":{
@@ -195,7 +195,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.sh"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.sh"
             }
         },
         "powershell":{
@@ -207,7 +207,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.ps1"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.ps1"
             }
         },
         "python":{
@@ -219,7 +219,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_STATE_SCRIPTS}/default.py"
+                "default": "${CDP_DEFAULT_SCRIPTS}/default.py"
             }
         },
         "openshift":{
