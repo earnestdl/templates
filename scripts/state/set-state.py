@@ -125,9 +125,6 @@ def add_common_variables(env, stage_data, common_variables):
     stage_variables = stage_data[stage_key].get('variables', {})
     stage_variables.update(combined_variables)
 
-    # Update the stage_data with the combined variables
-    #stage_data[stage_key]['variables'] = stage_variables
-
     return stage_data
 
 def add_state_variables(stage_data, state):
@@ -144,9 +141,6 @@ def add_state_variables(stage_data, state):
         # Process it as a variable
         stage_data[stage_name]["variables"][key] = value
 
-    # Attempt to resolve any references within these new variables
-    #stage_data = resolve_variable_references(stage_data)
-
     # Resolve references in stage_config
     for key, value in stage_config.items():
         stage_data[stage_name]['variables'][key] = resolve_reference(value, stage_data[stage_name]['variables'])
@@ -159,36 +153,6 @@ def resolve_reference(value, existing_variables):
         for var_key, var_value in existing_variables.items():
             value = value.replace('${' + var_key + '}', var_value)
     return value
-
-def resolve_variable_references(stage_data):
-    variables = stage_data.get("variables", {})
-    resolved = {}
-    unresolved = variables.copy()
-
-    made_progress = True
-    while unresolved and made_progress:
-        made_progress = False
-        keys_for_removal = []
-        for key, value in unresolved.items():
-            try:
-                formatted_value = value.format(**resolved, **variables, **os.environ)
-                resolved[key] = formatted_value
-                keys_for_removal.append(key)
-                made_progress = True
-            except KeyError as e:
-                continue  # Reference not yet resolved
-
-        for key in keys_for_removal:
-            del unresolved[key]
-
-        if not made_progress:
-            print(f"Warning: Could not resolve all variable references. Some variables may be left unresolved.")
-
-    # Add unresolved variables as-is
-    resolved.update(unresolved)
-
-    stage_data["variables"] = resolved
-    return stage_data
 
 def reorder_referenced_variables(stage_data):
     # Regular expression to match variables in the format ${...}
@@ -209,37 +173,6 @@ def reorder_referenced_variables(stage_data):
     stage_data[stage_name]['variables'].update(referenced_variables)
 
     return stage_data
-
-
-def write_export_script_new(stage_data, script_filename):
-    os_type = platform.system()
-    githost = detect_platform()  # Placeholder for actual detection logic
-    script_extension = ".ps1" if os_type == "Windows" else ".sh"
-    newline_char = "\r\n" if script_extension == ".ps1" else "\n"
-
-    try:
-        with open(f"{script_filename}{script_extension}", 'w') as script_file:
-            # Process and write variables
-            for key, value in stage_data[next(iter(stage_data))]["variables"].items():
-                write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, False)
-            
-            # Process and write secrets
-            for key, value in stage_data[next(iter(stage_data))]["secrets"].items():
-                write_variable_or_secret(script_file, key, value, githost, os_type, newline_char, True)
-    except Exception as e:
-        print(f"Error writing script file: {e}")
-
-def write_variable_or_secret_new(file, key, value, githost, os_type, newline_char, is_secret):
-    try:
-        if githost == "azdo":
-            secret_flag = ";issecret=true" if is_secret else ""
-            cmd_prefix = "Write-Host" if os_type == "Windows" else "echo"
-            file.write(f"{cmd_prefix} \"##vso[task.setvariable variable={key}{secret_flag}]{value}\"{newline_char}")
-        elif githost == "github":
-            # For GitHub Actions, simply append to $GITHUB_ENV
-            file.write(f"echo \"{key}={value}\" >> $GITHUB_ENV{newline_char}")
-    except Exception as e:
-        print(f"Error writing variable/secret '{key}': {e}")
 
 def write_export_script(stage_data, script_filename):
     os_type = platform.system()
@@ -272,34 +205,6 @@ def write_variable_or_secret(file, key, value, githost, os_type, newline_char, i
         file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
         # For GitHub Actions, the above line is sufficient to set environment variables
         
-def write_export_script_used_to_work(stage_data, script_filename):
-    os_type = platform.system()
-    githost = detect_platform()
-    script_extension = ".ps1" if os_type == "Windows" else ".sh"
-    newline_char = "\r\n" if script_extension == ".ps1" else "\n"
-
-    with open(script_filename + script_extension, 'w') as script_file:
-        # Write variables
-        for key, value in stage_data[next(iter(stage_data))]["variables"].items():
-            if githost == "azdo":
-                if script_extension == ".ps1":
-                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key}]{value}\"{newline_char}")
-                else:
-                    script_file.write(f"echo '##vso[task.setvariable variable={key}]{value}'{newline_char}")
-            elif githost == "github":
-                script_file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
-
-        # Write secrets
-        for key, value in stage_data[next(iter(stage_data))]["secrets"].items():
-            if githost == "azdo":
-                if script_extension == ".ps1":
-                    script_file.write(f"Write-Host \"##vso[task.setvariable variable={key};issecret=true]{value}\"{newline_char}")
-                else:
-                    script_file.write(f"echo '##vso[task.setvariable variable={key};issecret=true]{value}'{newline_char}")
-            elif githost == "github":
-                script_file.write(f"echo '{key}={value}' >> $GITHUB_ENV{newline_char}")
-
-
 def print_stage_data(stage_data):
     stage_name = next(iter(stage_data))
 
@@ -384,7 +289,7 @@ def main(env, stage, state, secrets, regions):
     # Process variables
     stage_data = add_state_variables(stage_data, state)
 
-    reorder_referenced_variables(stage_data)
+    #reorder_referenced_variables(stage_data)
 
     pretty_stage_data = json.dumps(stage_data, indent=4)
     log("INFO", f"Stage data:\n{pretty_stage_data}")
