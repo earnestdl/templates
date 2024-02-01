@@ -228,16 +228,6 @@
             }
         },
         "openshift":{
-            "APP_DEPLOY_COMMAND":  {
-                "required": false,
-                "type": "string",
-                "default": "${CDP_PROCESS_SCRIPTS}/deploy-openshift.sh"
-            },
-            "APP_DEPLOY_ARGS":  {
-                "required": false,
-                "type": "string",
-                "default": "--cluster=${OPENSHIFT_CLUSTER} --token=${OPENSHIFT_TOKEN}"
-            },
             "OPENSHIFT_PREFIX": {
                 "required": true,
                 "type": "string",
@@ -251,6 +241,16 @@
             "OPENSHIFT_TOKEN": {
                 "required": true,
                 "type": "secret"
+            },
+            "APP_DEPLOY_ARGS":  {
+                "required": false,
+                "type": "string",
+                "default": "--cluster=${OPENSHIFT_CLUSTER} --token=${OPENSHIFT_TOKEN}"
+            },
+            "APP_DEPLOY_COMMAND":  {
+                "required": false,
+                "type": "string",
+                "default": "${CDP_PROCESS_SCRIPTS}/deploy-openshift.sh"
             }
         }
     },
