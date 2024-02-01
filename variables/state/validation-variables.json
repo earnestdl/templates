@@ -87,7 +87,7 @@
             "APP_BUILD_COMMAND":  {
                 "required": true,
                 "type": "string",
-                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh ${REGISTRY_URL}/${APP_PLATFORM}/${APP_NAME} -f ${APP_DOCKERFILE}"
+                "default": "${CDP_PROCESS_SCRIPTS}/build-push-image.sh ${REGISTRY_URL}/${APP_PLATFORM}/${APP_NAME}:${CDP_REF} -f ${APP_DOCKERFILE}"
             },
             "APP_DOCKERFILE":  {
                 "required": true,
@@ -98,6 +98,11 @@
                 "required": true,
                 "type": "string",
                 "default": "runtime"
+            },
+            "REGISTRY_URL":  {
+                "required": true,
+                "type": "string",
+                "default": "myregistry.com"
             }
         },
         "default":{
