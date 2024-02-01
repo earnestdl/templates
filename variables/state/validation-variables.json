@@ -231,7 +231,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": false,
                 "type": "string",
-                "default": "echo Deploying to Openshift... && echo oc '$@'"
+                "default": "${CDP_PROCESS_SCRIPTS}/deploy-openshift.sh"
             },
             "APP_DEPLOY_ARGS":  {
                 "required": false,
