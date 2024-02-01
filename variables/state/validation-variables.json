@@ -226,7 +226,7 @@
             "APP_DEPLOY_COMMAND":  {
                 "required": false,
                 "type": "string",
-                "default": "Deploying..."
+                "default": "echo Deploying to Openshift..."
             },
             "APP_DEPLOY_ARGS":  {
                 "required": false,
