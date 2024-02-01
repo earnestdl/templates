@@ -255,7 +255,7 @@
                 "OPENSHIFT_CLUSTER": {
                     "required": true,
                     "type": "string",
-                    "default": "${APP_DEPLOY_ENV}-north.openshift-cluster.com"
+                    "default": "${ENV}-north.openshift-cluster.com"
                 }
             }
         },
@@ -264,7 +264,7 @@
                 "OPENSHIFT_CLUSTER": {
                     "required": true,
                     "type": "string",
-                    "default": "${APP_DEPLOY_ENV}-south.openshift-cluster.com"
+                    "default": "${ENV}-south.openshift-cluster.com"
                 }    
             }
         },
@@ -273,7 +273,7 @@
                 "OPENSHIFT_CLUSTER": {
                     "required": true,
                     "type": "string",
-                    "default": "${APP_DEPLOY_ENV}-east.openshift-cluster.com"
+                    "default": "${ENV}-east.openshift-cluster.com"
                 }
             }
         },
@@ -282,7 +282,7 @@
                 "OPENSHIFT_CLUSTER": {
                     "required": true,
                     "type": "string",
-                    "default": "${APP_DEPLOY_ENV}-west-openshift-cluster.com"
+                    "default": "${ENV}-west-openshift-cluster.com"
                 }
             }
         }
