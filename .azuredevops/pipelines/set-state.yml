@@ -50,5 +50,10 @@ steps:
         CDP_BUILD_PATH: $(System.DefaultWorkingDirectory)
         CDP_SCRIPTS_PATH: $(System.DefaultWorkingDirectory)/scripts
 
+    - script: | 
+        chmod +x ${CDP_PROCESS_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_STEPS_SCRIPTS}/*.${{parameters.xt}}
+        chmod +x ${CDP_STATE_SCRIPTS}/*.${{parameters.xt}} && chmod +x ${CDP_DEFAULT_SCRIPTS}/*.${{parameters.xt}}
+      displayName: Set scripts executable
+
   - script: env | sort
     displayName: List all variables
